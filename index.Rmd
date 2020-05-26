@@ -1,0 +1,34 @@
+--- 
+title: High-resolution spatial modelling of population welfare in El Salvador, a coding
+  tutorial
+author: "Xavier Vollenweider, Claudio Bosco"
+date: "`r Sys.Date()`"
+output: html_document
+description: This is report provides a tutorial to conduct proof-of-concept high-resolution
+  maps of poverty, average income and literacy. The emphasis is put on providing replicable
+  code exemples.
+documentclass: book
+link-citations: yes
+bibliography:
+- book.bib
+site: bookdown::bookdown_site
+biblio-style: apalike
+geometry: margin=2cm
+---
+
+# Introduction  {#intro}
+The UN sustainable development goals (SDGs) number one is to end poverty in all its forms *everywhere* by 2030 while SDG goal number four and its 4.6 target aims at ensuring that all youth and a substantial proportion of adults, both men and women, achieve literacy and numeracy. The aim for the SDGs to be attained "everywhere" means that no one should be left behind. Therefore, populations at subnational levels and local heterogeneities are to be taken into account in national statistics, ensuring representative monitoring and optimised intervention planning. Mapping with great detail the geographic distribution of populations, of their chararacteristics and of the SDG indicators is hence a central tool for meeting the SDGs.
+
+National households surveys are typically representative at the regional level (administrativel level 1). However, the households conditions may vary at much finer scale. For instance, poverty level within a town and in rural areas of the same region can differ markedly. Similarly, poverty between rural towns and the neigbourings hamlet can exhbit large differences while local economic activities (e.g. the presence or absence of a manufacture) can largely determine SDGs outcomes. Information at higher resolution is hence required to support the efficient allocation of ressources across territories and the monitoring of SDG indicators.    
+
+Conventional approaches to producing high resolution development indicators rely on Small Area Estimation (SAE) methods integrating household survey with census data to estimate the proportion of households in poverty. Household surveys, conducted every 1 to 5 years, have been improved through the introduction of geolocated survey clusters providing more fine-grained spatial data thanks to global positioning systems (GPS). In El Salvador, the national household survey *Encuesta de Hogares de Propositos Multiples* (EHPM) is conducted on an annual basis. Censuses, on the other hand, are typically undertaken irregularly, sometimes up to every 10 years, or longer in many low-income countries. In El Salvador, the last census was conducted in 2007. The reliance on the latter may weaken the reliability of SAE estimates, preventing an ongoing monitoring of SDG indicators. 
+
+Geo-referenced national household survey data provide an opportunity to achieve more spatially detailed, accurate and regular estimates of poverty distribution and other SDG indicators. To further improve these estimates, novel sources of spatial data are increasingly being utilised to fill in the outdated census gap. Continually collected information such as rainfall, temperature and vegetation, also called remote sensing and geographic information system data (RS), capture information related to agricultural productivity, while light at nights and distance to roads and cities refects access to markets and information and local economic dynamism. 
+
+Spatial interpolation approaches consist of overlapping such data with more traditional sources such as survey-based data in order to produce regularly-updatable high-resolution maps of development indicators. Here we use spatial interpolation methods by integrating household survey cluster data with geospatial covariates to produce high-resolution poverty, income and literacy maps for El Salvador. 
+
+This report is a coding tutorial for creating high resolution maps of SDG indicators. It outlines the relevant data, how they can be processed and analysed. The emphasis is put on providing reproducible codes and exemples and all the RS data are open source. 
+
+The codes to go from the *raw* data to the high resolution maps are presented in details. This report is written with the `Markdown` [@markdown] and the `bookdown` [@bookdown] packages. The tutorial assumes that the reader is familiar with the open source statistical computing environment R. For a introductory book on using R, refer to https://cengel.github.io/R-intro/. For an introductory book on using Spatial Data with R, refer to https://cengel.github.io/R-spatial/.
+
+The tutorial is structured as follow. Chapter 2 provides an overview of the analysis. Chapter 3 introduces the reader to data exploration and unsupervised predictors selection. In Chapter 4, a simple Bayesian model is fitted. In chapter 5, covariate selection with the Jacknife approach is presented. Chapter 5 shows the results of the selected models and produces the map. Chapter 6 concludes. Appendix 1 provides a short primer on INLA. Appendix 2 provides the codes required to pre-process the RS data, starting from the *raw* raster and vector layers up to the data in row and columns format used to fit the models.
