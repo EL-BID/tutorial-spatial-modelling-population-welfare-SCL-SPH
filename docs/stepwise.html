@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html >
+
+<head>
+
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Section 5 Stepwise Covariates Selection | High-resolution spatial modelling of population welfare in El Salvador, a coding tutorial</title>
+  <meta name="description" content="This is report provides a tutorial to conduct proof-of-concept high-resolution maps of poverty, average income and literacy. The emphasis is put on providing replicable code exemples.">
+  <meta name="generator" content="bookdown  and GitBook 2.6.7">
+
+  <meta property="og:title" content="Section 5 Stepwise Covariates Selection | High-resolution spatial modelling of population welfare in El Salvador, a coding tutorial />
+  <meta property="og:type" content="book" />
+  
+  
+  <meta property="og:description" content="This is report provides a tutorial to conduct proof-of-concept high-resolution maps of poverty, average income and literacy. The emphasis is put on providing replicable code exemples." />
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Section 5 Stepwise Covariates Selection | High-resolution spatial modelling of population welfare in El Salvador, a coding tutorial />
+  
+  <meta name="twitter:description" content="This is report provides a tutorial to conduct proof-of-concept high-resolution maps of poverty, average income and literacy. The emphasis is put on providing replicable code exemples." />
+  
+
+<meta name="author" content="Xavier Vollenweider, Claudio Bosco">
+
+
+<meta name="date" content="2020-05-29">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  
+  
+<link rel="prev" href="simple-model.html">
+<link rel="next" href="summary-of-resuls.html">
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+
+
+
+
+
+
+
+<script src="libs/htmlwidgets-1.3/htmlwidgets.js"></script>
+<link href="libs/leaflet-1.3.1/leaflet.css" rel="stylesheet" />
+<script src="libs/leaflet-1.3.1/leaflet.js"></script>
+<link href="libs/leafletfix-1.0.0/leafletfix.css" rel="stylesheet" />
+<script src="libs/Proj4Leaflet-1.0.1/proj4-compressed.js"></script>
+<script src="libs/Proj4Leaflet-1.0.1/proj4leaflet.js"></script>
+<link href="libs/rstudio_leaflet-1.3.1/rstudio_leaflet.css" rel="stylesheet" />
+<script src="libs/leaflet-binding-2.0.2/leaflet.js"></script>
+<script src="libs/leaflet-providers-1.1.17/leaflet-providers.js"></script>
+<script src="libs/leaflet-providers-plugin-2.0.2/leaflet-providers-plugin.js"></script>
+<script src="libs/plotly-binding-4.8.0/plotly.js"></script>
+<script src="libs/typedarray-0.1/typedarray.min.js"></script>
+<link href="libs/crosstalk-1.0.0/css/crosstalk.css" rel="stylesheet" />
+<script src="libs/crosstalk-1.0.0/js/crosstalk.min.js"></script>
+<link href="libs/plotly-htmlwidgets-css-1.39.2/plotly-htmlwidgets.css" rel="stylesheet" />
+<script src="libs/plotly-main-1.39.2/plotly-latest.min.js"></script>
+<link href="libs/lfx-pulse-icon-0.1.0/lfx-pulse-icon-prod.css" rel="stylesheet" />
+<script src="libs/lfx-pulse-icon-0.1.0/lfx-pulse-icon-prod.js"></script>
+<script src="libs/lfx-pulse-icon-0.1.0/lfx-pulse-icon-bindings.js"></script>
+
+
+<style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Table of Content</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Introduction</a></li>
+<li class="chapter" data-level="2" data-path="overview.html"><a href="overview.html"><i class="fa fa-check"></i><b>2</b> Overview</a><ul>
+<li class="chapter" data-level="2.1" data-path="overview.html"><a href="overview.html#first-look-at-the-data"><i class="fa fa-check"></i><b>2.1</b> First look at the data</a></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="explo.html"><a href="explo.html"><i class="fa fa-check"></i><b>3</b> Data exploration and preselection of covariates</a><ul>
+<li class="chapter" data-level="3.1" data-path="explo.html"><a href="explo.html#outcome-variabes-distribution-and-outliers"><i class="fa fa-check"></i><b>3.1</b> Outcome variabes: distribution and outliers</a><ul>
+<li class="chapter" data-level="3.1.1" data-path="explo.html"><a href="explo.html#income"><i class="fa fa-check"></i><b>3.1.1</b> Income</a></li>
+<li class="chapter" data-level="3.1.2" data-path="explo.html"><a href="explo.html#literacy"><i class="fa fa-check"></i><b>3.1.2</b> Literacy</a></li>
+<li class="chapter" data-level="3.1.3" data-path="explo.html"><a href="explo.html#moderate-poverty"><i class="fa fa-check"></i><b>3.1.3</b> Moderate Poverty</a></li>
+</ul></li>
+<li class="chapter" data-level="3.2" data-path="explo.html"><a href="explo.html#unsupervised-dimension-reduction-based-on-distance-correlation"><i class="fa fa-check"></i><b>3.2</b> Unsupervised dimension reduction based on distance correlation</a><ul>
+<li class="chapter" data-level="3.2.1" data-path="explo.html"><a href="explo.html#obtaining-a-dataframe-with-standardized-covariates"><i class="fa fa-check"></i><b>3.2.1</b> Obtaining a dataframe with standardized covariates</a></li>
+<li class="chapter" data-level="3.2.2" data-path="explo.html"><a href="explo.html#dimension-reduction-based-on-distance-correlation"><i class="fa fa-check"></i><b>3.2.2</b> Dimension reduction based on distance correlation</a></li>
+</ul></li>
+<li class="chapter" data-level="3.3" data-path="explo.html"><a href="explo.html#correlations-between-predictors-and-the-outcome-variables"><i class="fa fa-check"></i><b>3.3</b> Correlations between predictors and the outcome variables</a><ul>
+<li class="chapter" data-level="3.3.1" data-path="explo.html"><a href="explo.html#correlation-with-income"><i class="fa fa-check"></i><b>3.3.1</b> Correlation with income</a></li>
+<li class="chapter" data-level="3.3.2" data-path="explo.html"><a href="explo.html#correlation-with-literacy"><i class="fa fa-check"></i><b>3.3.2</b> Correlation with literacy</a></li>
+<li class="chapter" data-level="3.3.3" data-path="explo.html"><a href="explo.html#correlation-with-poverty"><i class="fa fa-check"></i><b>3.3.3</b> Correlation with poverty</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="simple-model.html"><a href="simple-model.html"><i class="fa fa-check"></i><b>4</b> Fitting a simple model</a><ul>
+<li class="chapter" data-level="4.1" data-path="simple-model.html"><a href="simple-model.html#loading-the-data"><i class="fa fa-check"></i><b>4.1</b> Loading the data</a></li>
+<li class="chapter" data-level="4.2" data-path="simple-model.html"><a href="simple-model.html#area-data"><i class="fa fa-check"></i><b>4.2</b> Area data</a><ul>
+<li class="chapter" data-level="4.2.1" data-path="simple-model.html"><a href="simple-model.html#spatial-dependency-with-area-data-data"><i class="fa fa-check"></i><b>4.2.1</b> Spatial dependency with <em>area data</em> data</a></li>
+<li class="chapter" data-level="4.2.2" data-path="simple-model.html"><a href="simple-model.html#store-the-data-for-modelling"><i class="fa fa-check"></i><b>4.2.2</b> Store the data for modelling</a></li>
+<li class="chapter" data-level="4.2.3" data-path="simple-model.html"><a href="simple-model.html#split-the-sample-into-a-8020-training-and-validation-sets"><i class="fa fa-check"></i><b>4.2.3</b> Split the sample into a 80/20 training and validation sets</a></li>
+<li class="chapter" data-level="4.2.4" data-path="simple-model.html"><a href="simple-model.html#formula-specifying-the-relationship-between-the-outcome-variable-and-the-fixed-and-spatial-random-effects"><i class="fa fa-check"></i><b>4.2.4</b> Formula specifying the relationship between the outcome variable and the fixed and spatial random effects</a></li>
+<li class="chapter" data-level="4.2.5" data-path="simple-model.html"><a href="simple-model.html#fit-the-model-on-the-training-set"><i class="fa fa-check"></i><b>4.2.5</b> Fit the model on the training set</a></li>
+<li class="chapter" data-level="4.2.6" data-path="simple-model.html"><a href="simple-model.html#validate-the-model-on-the-validation-set"><i class="fa fa-check"></i><b>4.2.6</b> Validate the model on the validation set</a></li>
+</ul></li>
+<li class="chapter" data-level="4.3" data-path="simple-model.html"><a href="simple-model.html#point-referenced-data"><i class="fa fa-check"></i><b>4.3</b> Point-referenced data</a><ul>
+<li class="chapter" data-level="4.3.1" data-path="simple-model.html"><a href="simple-model.html#spatial-dependency-with-point-referenced-data-data"><i class="fa fa-check"></i><b>4.3.1</b> Spatial dependency with <em>point-referenced data</em> data</a></li>
+<li class="chapter" data-level="4.3.2" data-path="simple-model.html"><a href="simple-model.html#store-the-data-for-modelling-in-a-stack"><i class="fa fa-check"></i><b>4.3.2</b> Store the data for modelling in a stack</a></li>
+<li class="chapter" data-level="4.3.3" data-path="simple-model.html"><a href="simple-model.html#formula-specifying-the-relationship-between-the-outcome-variable-and-the-fixed-and-spatial-random-effects-1"><i class="fa fa-check"></i><b>4.3.3</b> Formula specifying the relationship between the outcome variable and the fixed and spatial random effects</a></li>
+<li class="chapter" data-level="4.3.4" data-path="simple-model.html"><a href="simple-model.html#fit-the-model-on-the-training-set-1"><i class="fa fa-check"></i><b>4.3.4</b> Fit the model on the training set</a></li>
+<li class="chapter" data-level="4.3.5" data-path="simple-model.html"><a href="simple-model.html#validate-the-model-on-the-validation-set-1"><i class="fa fa-check"></i><b>4.3.5</b> Validate the model on the validation set</a></li>
+</ul></li>
+<li class="chapter" data-level="4.4" data-path="simple-model.html"><a href="simple-model.html#k-fold-cross-validation"><i class="fa fa-check"></i><b>4.4</b> <em>K-fold</em> cross-validation</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="stepwise.html"><a href="stepwise.html"><i class="fa fa-check"></i><b>5</b> Stepwise Covariates Selection</a><ul>
+<li class="chapter" data-level="5.1" data-path="stepwise.html"><a href="stepwise.html#step-1-split-the-sample-into-a-602020-training-validation-and-test-sets"><i class="fa fa-check"></i><b>5.1</b> Step 1: Split the sample into a 60/20/20 training, validation and test sets</a></li>
+<li class="chapter" data-level="5.2" data-path="stepwise.html"><a href="stepwise.html#bundle-step-2-to-4-in-a-function"><i class="fa fa-check"></i><b>5.2</b> Bundle step 2 to 4 in a function</a></li>
+<li class="chapter" data-level="5.3" data-path="stepwise.html"><a href="stepwise.html#bundle-step-5-to-7-in-a-loop-ran-in-parallel"><i class="fa fa-check"></i><b>5.3</b> Bundle step 5 to 7 in a loop ran in parallel</a></li>
+<li class="chapter" data-level="5.4" data-path="stepwise.html"><a href="stepwise.html#step-8-inspect-the-results-and-select-specification"><i class="fa fa-check"></i><b>5.4</b> Step 8: Inspect the results and select specification</a></li>
+<li class="chapter" data-level="5.5" data-path="stepwise.html"><a href="stepwise.html#step-9-final-test"><i class="fa fa-check"></i><b>5.5</b> Step 9 Final test</a></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="summary-of-resuls.html"><a href="summary-of-resuls.html"><i class="fa fa-check"></i><b>6</b> Results summary</a><ul>
+<li class="chapter" data-level="6.1" data-path="summary-of-resuls.html"><a href="summary-of-resuls.html#goodness-of-fit-at-the-segmento-level"><i class="fa fa-check"></i><b>6.1</b> Goodness of fit at the <em>segmento</em> level</a></li>
+<li class="chapter" data-level="6.2" data-path="summary-of-resuls.html"><a href="summary-of-resuls.html#segmento-level-map"><i class="fa fa-check"></i><b>6.2</b> <em>Segmento</em> level map</a></li>
+<li class="chapter" data-level="6.3" data-path="summary-of-resuls.html"><a href="summary-of-resuls.html#goodness-of-fit-at-the-municipio-level"><i class="fa fa-check"></i><b>6.3</b> Goodness of fit at the <em>Municipio</em> level</a><ul>
+<li class="chapter" data-level="6.3.1" data-path="summary-of-resuls.html"><a href="summary-of-resuls.html#obtion-1-aggregating-results-at-the-municipio-level-using-all-segmentos"><i class="fa fa-check"></i><b>6.3.1</b> Obtion 1: Aggregating results at the municipio level using all <em>segmentos</em></a></li>
+<li class="chapter" data-level="6.3.2" data-path="summary-of-resuls.html"><a href="summary-of-resuls.html#option-2-aggregating-results-at-the-municipio-level-using-only-segmentos-in-representative-municipios"><i class="fa fa-check"></i><b>6.3.2</b> Option 2: Aggregating results at the municipio level using only <em>segmentos</em> in representative municipios</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="discussion.html"><a href="discussion.html"><i class="fa fa-check"></i><b>7</b> Discussion</a></li>
+<li class="chapter" data-level="8" data-path="theory.html"><a href="theory.html"><i class="fa fa-check"></i><b>8</b> Appendix 1: Primer on INLA</a><ul>
+<li class="chapter" data-level="8.1" data-path="theory.html"><a href="theory.html#area-data-vs-point-referenced-data"><i class="fa fa-check"></i><b>8.1</b> Area data vs point-referenced data</a><ul>
+<li class="chapter" data-level="8.1.1" data-path="theory.html"><a href="theory.html#bayesian-approach"><i class="fa fa-check"></i><b>8.1.1</b> Bayesian approach</a></li>
+</ul></li>
+<li class="chapter" data-level="8.2" data-path="theory.html"><a href="theory.html#model-formulation"><i class="fa fa-check"></i><b>8.2</b> Model formulation</a><ul>
+<li class="chapter" data-level="8.2.1" data-path="theory.html"><a href="theory.html#a-simple-model-not-accounting-for-spatial-dependence"><i class="fa fa-check"></i><b>8.2.1</b> A simple model not accounting for spatial dependence</a></li>
+<li class="chapter" data-level="8.2.2" data-path="theory.html"><a href="theory.html#a-spatial-model"><i class="fa fa-check"></i><b>8.2.2</b> A spatial model</a></li>
+<li class="chapter" data-level="8.2.3" data-path="theory.html"><a href="theory.html#estimating-the-model-with-aeral-data"><i class="fa fa-check"></i><b>8.2.3</b> Estimating the model with aeral data</a></li>
+<li class="chapter" data-level="8.2.4" data-path="theory.html"><a href="theory.html#estimating-the-model-with-point-referenced-data"><i class="fa fa-check"></i><b>8.2.4</b> Estimating the model with point-referenced data</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="9" data-path="data.html"><a href="data.html"><i class="fa fa-check"></i><b>9</b> Appendix 2: Data Pre-processing</a><ul>
+<li class="chapter" data-level="9.1" data-path="data.html"><a href="data.html#sources"><i class="fa fa-check"></i><b>9.1</b> Data sources</a></li>
+<li class="chapter" data-level="9.2" data-path="data.html"><a href="data.html#loading-the-survey"><i class="fa fa-check"></i><b>9.2</b> Loading the survey</a></li>
+<li class="chapter" data-level="9.3" data-path="data.html"><a href="data.html#loading-the-vectors"><i class="fa fa-check"></i><b>9.3</b> Loading the vectors</a><ul>
+<li class="chapter" data-level="9.3.1" data-path="data.html"><a href="data.html#loading-the-administrative-boundaries"><i class="fa fa-check"></i><b>9.3.1</b> Loading the administrative boundaries</a></li>
+<li class="chapter" data-level="9.3.2" data-path="data.html"><a href="data.html#loading-the-shapefiles-containing-the-fields-used-as-covariates"><i class="fa fa-check"></i><b>9.3.2</b> Loading the shapefiles containing the fields used as covariates</a></li>
+<li class="chapter" data-level="9.3.3" data-path="data.html"><a href="data.html#loading-point-referenced-data-from-tables"><i class="fa fa-check"></i><b>9.3.3</b> Loading point-referenced data from tables</a></li>
+</ul></li>
+<li class="chapter" data-level="9.4" data-path="data.html"><a href="data.html#loading-the-rasters"><i class="fa fa-check"></i><b>9.4</b> Loading the rasters</a><ul>
+<li class="chapter" data-level="9.4.1" data-path="data.html"><a href="data.html#lights-at-night"><i class="fa fa-check"></i><b>9.4.1</b> Lights at night</a></li>
+<li class="chapter" data-level="9.4.2" data-path="data.html"><a href="data.html#precipitation"><i class="fa fa-check"></i><b>9.4.2</b> Precipitation</a></li>
+<li class="chapter" data-level="9.4.3" data-path="data.html"><a href="data.html#soil-degradation"><i class="fa fa-check"></i><b>9.4.3</b> Soil degradation</a></li>
+<li class="chapter" data-level="9.4.4" data-path="data.html"><a href="data.html#vegetation-greenness"><i class="fa fa-check"></i><b>9.4.4</b> Vegetation greenness</a></li>
+<li class="chapter" data-level="9.4.5" data-path="data.html"><a href="data.html#temperature"><i class="fa fa-check"></i><b>9.4.5</b> Temperature</a></li>
+<li class="chapter" data-level="9.4.6" data-path="data.html"><a href="data.html#slope"><i class="fa fa-check"></i><b>9.4.6</b> Slope</a></li>
+<li class="chapter" data-level="9.4.7" data-path="data.html"><a href="data.html#other-rasters"><i class="fa fa-check"></i><b>9.4.7</b> Other rasters</a></li>
+</ul></li>
+<li class="chapter" data-level="9.5" data-path="data.html"><a href="data.html#rasters-calculation"><i class="fa fa-check"></i><b>9.5</b> Rasters calculation</a><ul>
+<li class="chapter" data-level="9.5.1" data-path="data.html"><a href="data.html#lights-at-night-1"><i class="fa fa-check"></i><b>9.5.1</b> Lights at night</a></li>
+<li class="chapter" data-level="9.5.2" data-path="data.html"><a href="data.html#precipitation-1"><i class="fa fa-check"></i><b>9.5.2</b> Precipitation</a></li>
+<li class="chapter" data-level="9.5.3" data-path="data.html"><a href="data.html#vegetation-greenness-1"><i class="fa fa-check"></i><b>9.5.3</b> Vegetation greenness</a></li>
+<li class="chapter" data-level="9.5.4" data-path="data.html"><a href="data.html#soil-degradation-1"><i class="fa fa-check"></i><b>9.5.4</b> Soil degradation</a></li>
+<li class="chapter" data-level="9.5.5" data-path="data.html"><a href="data.html#temperature-1"><i class="fa fa-check"></i><b>9.5.5</b> Temperature</a></li>
+</ul></li>
+<li class="chapter" data-level="9.6" data-path="data.html"><a href="data.html#distance-calculation"><i class="fa fa-check"></i><b>9.6</b> Distance calculation</a><ul>
+<li class="chapter" data-level="9.6.1" data-path="data.html"><a href="data.html#distance-to-public-services"><i class="fa fa-check"></i><b>9.6.1</b> Distance to public services</a></li>
+<li class="chapter" data-level="9.6.2" data-path="data.html"><a href="data.html#distance-to-businesses"><i class="fa fa-check"></i><b>9.6.2</b> Distance to businesses</a></li>
+<li class="chapter" data-level="9.6.3" data-path="data.html"><a href="data.html#distance-to-natural-features"><i class="fa fa-check"></i><b>9.6.3</b> Distance to natural features</a></li>
+<li class="chapter" data-level="9.6.4" data-path="data.html"><a href="data.html#stack-distance-maps-and-inspect-results"><i class="fa fa-check"></i><b>9.6.4</b> Stack distance maps and inspect results</a></li>
+</ul></li>
+<li class="chapter" data-level="9.7" data-path="data.html"><a href="data.html#spatial-statistics-at-segmento-level"><i class="fa fa-check"></i><b>9.7</b> Spatial statistics at <em>segmento</em> level</a><ul>
+<li class="chapter" data-level="9.7.1" data-path="data.html"><a href="data.html#adjusting-the-coordinates-reference-system-for-raster-extaction-to-segmento"><i class="fa fa-check"></i><b>9.7.1</b> Adjusting the Coordinates Reference System for raster extaction to <em>segmento</em></a></li>
+<li class="chapter" data-level="9.7.2" data-path="data.html"><a href="data.html#rasters"><i class="fa fa-check"></i><b>9.7.2</b> Rasters</a></li>
+<li class="chapter" data-level="9.7.3" data-path="data.html"><a href="data.html#vectors"><i class="fa fa-check"></i><b>9.7.3</b> Vectors</a></li>
+<li class="chapter" data-level="9.7.4" data-path="data.html"><a href="data.html#population-density"><i class="fa fa-check"></i><b>9.7.4</b> Population density</a></li>
+</ul></li>
+<li class="chapter" data-level="9.8" data-path="data.html"><a href="data.html#merging-the-covariates-with-the-ehpm-data"><i class="fa fa-check"></i><b>9.8</b> Merging the covariates with the EHPM data</a></li>
+<li class="chapter" data-level="9.9" data-path="data.html"><a href="data.html#summary"><i class="fa fa-check"></i><b>9.9</b> Summary</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
+<li class="divider"></li>
+<li><a href="http://flowminder.org/" target="blank">Released by Flowminder Foundation</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">High-resolution spatial modelling of population welfare in El Salvador, a coding tutorial</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="stepwise" class="section level1">
+<h1><span class="header-section-number">Section 5</span> Stepwise Covariates Selection</h1>
+<p>The goal of this section is to describe a backward stepwise covariates selection process, i.e. a process to reduce the number of covariates from the 50 potential ones identified in section <a href="explo.html#explo">3</a> to circa 10 or less. Here is an overview of the process:</p>
+<ol style="list-style-type: decimal">
+<li>Split the sample into a 60/20/20 training, validation and test sets;<br />
+</li>
+<li>Write the test formula without one of the 50 candidate covariates;</li>
+<li>Fit the model on the training set;</li>
+<li>Validate the model on the validation set and compute goodness of fit statistics;</li>
+<li>Repeat step 2 to 4 once for each covariate (50 times);</li>
+<li>Drop the covariate in the absence of which the fit us the best;</li>
+<li>Repeat steps 2 to 6 until no covariate is left;</li>
+<li>Inspect the result to identify a parsimonious specification (typically below 10 covariates) yielding a good fit on the validation set;</li>
+<li>Test the final model on the test set.</li>
+</ol>
+<p>The backward stepwise covariates selection process is computationally expensive. Fitting one modified BYM model takes around 3.5 minutes on a standard PC<a href="#fn3" class="footnoteRef" id="fnref3"><sup>3</sup></a>. To carry steps 1 to 5, it takes approximately 175 minutes. Step 6 to 7 takes hence approximately 74 hours. In order to speed it up the process, we write a function to parallelise step 5 across CPU cores. As the number of cores might relatively limited on a PC (typically up to 8), an option is to carry the process on the cloud where an instance with more cores can be rented. For instance, the computing time can be reduced to below two hours with 64 cores.</p>
+<p>The backward stepwise covariates selection is presented with the income model.</p>
+<div id="step-1-split-the-sample-into-a-602020-training-validation-and-test-sets" class="section level2">
+<h2><span class="header-section-number">5.1</span> Step 1: Split the sample into a 60/20/20 training, validation and test sets</h2>
+<p>The observations in the dataset are split into a 60/20/20 training, validation and test sets. The model will be fitted on the training set. Income will be predicted on the training and validation sets. Predicted values in the validation set will be compared with the observed values in order to assess the goodness of it of the model.</p>
+<p>Once the covariate selection process is complete and a given specification has been chosen (steps 1 to 8 above), prediction are made on the final test set to assess the goodness of fit of the final model.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># sample segmentos for training, validation and test  ####</span>
+<span class="kw">set.seed</span>(<span class="dv">1234</span>)
+spec =<span class="st"> </span><span class="kw">c</span>(<span class="dt">train =</span> .<span class="dv">6</span>, <span class="dt">test =</span> .<span class="dv">2</span>, <span class="dt">validate =</span> .<span class="dv">2</span>)
+g =<span class="st"> </span><span class="kw">sample</span>(<span class="kw">cut</span>(
+  <span class="kw">seq</span>(<span class="kw">nrow</span>(data_model)), 
+  <span class="kw">nrow</span>(data_model)<span class="op">*</span><span class="kw">cumsum</span>(<span class="kw">c</span>(<span class="dv">0</span>,spec)),
+  <span class="dt">labels =</span> <span class="kw">names</span>(spec)
+))
+index_val=<span class="kw">which</span>(g<span class="op">==</span><span class="st">&quot;validate&quot;</span>)
+index_train=<span class="kw">which</span>(g<span class="op">==</span><span class="st">&quot;train&quot;</span>)
+index_test=<span class="kw">which</span>(g<span class="op">==</span><span class="st">&quot;test&quot;</span>)
+
+data_model<span class="op">$</span>pred=data_model<span class="op">$</span>ingpe
+data_model<span class="op">$</span>pred[<span class="kw">c</span>(index_val,index_test)] &lt;-<span class="st"> </span><span class="ot">NA</span> <span class="co"># set the validation pred to NA: they will be predicted by the model and compared with observed values </span>
+
+mod_data_jack =<span class="st"> </span>data_model <span class="co"># store data into a new dataframe for model fitting      </span>
+mod_data_jack=mod_data_jack[<span class="kw">c</span>(index_val,index_train),] <span class="co"># select only the training and validation sets, keep test set of final validation</span>
+index_val_jack=<span class="kw">which</span>(<span class="kw">is.na</span>(mod_data_jack<span class="op">$</span>pred))
+index_train_jack=<span class="kw">which</span>(<span class="kw">is.na</span>(mod_data_jack<span class="op">$</span>pred)<span class="op">==</span>F)</code></pre></div>
+</div>
+<div id="bundle-step-2-to-4-in-a-function" class="section level2">
+<h2><span class="header-section-number">5.2</span> Bundle step 2 to 4 in a function</h2>
+<p>In order to ease the reading of the code, we create a function <code>INLA_steps_2_4</code> implementing steps 2 to 4 of the covariate selection process. The <code>INLA_steps_2_4</code>:</p>
+<ol style="list-style-type: decimal">
+<li>Write the test formula without one of the candidate covariates;</li>
+<li>Fit the model on the training set;</li>
+<li>Validate the model on the validation set;</li>
+<li>Compute goodness of fit statistics.</li>
+</ol>
+<p>The <code>INLA_steps_2_4</code> accepts the following arguments: - covariates formulation - index of the covariate to be removed - index of the validation set - index of the training set - dataframe for the model - a string defining the outcome variable, e.g. “ingpe” - a string defining the likelihood function, e.g. Gaussian, Gamma or a Beta distribution</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># INLA_set2_4_function #####</span>
+INLA_steps_2_<span class="dv">4</span>=<span class="cf">function</span>(covariates_formulation, <span class="co"># formulation of each covariate</span>
+                        ix, <span class="co"># the index of the covariate to be removed</span>
+                        index_val, <span class="co"># index of the validation set</span>
+                        index_train, <span class="co"># index of the training set</span>
+                        mod_data_jack, <span class="co"># data for the model</span>
+                        outcome,   <span class="co"># string defining the outcome variable, e.g. ingpe</span>
+                        family){   <span class="co"># string defining the likelihood </span>
+  
+  <span class="co"># formula</span>
+  candidate_covariates &lt;-<span class="st"> </span>covariates_formulation 
+  
+  formula_test &lt;-<span class="st"> </span><span class="kw">reformulate</span>(<span class="kw">c</span>(<span class="st">&quot;-1&quot;</span>, <span class="st">&quot;intercept&quot;</span>,
+                                <span class="kw">paste</span>(candidate_covariates[<span class="op">-</span>ix],<span class="dt">collapse=</span><span class="st">&quot;+&quot;</span>),
+                                <span class="st">&#39;f(ID,model = &quot;bym2&quot;,</span>
+<span class="st">                                hyper=list(</span>
+<span class="st">                                prec = list(prior = &quot;pc.prec&quot;, param = c(0.1, 0.0001)),</span>
+<span class="st">                                phi  = list(prior = &quot;pc&quot;, param = c(0.5, 0.5))),</span>
+<span class="st">                                graph = Segmento.Inla.nb,</span>
+<span class="st">                                scale.model = TRUE,</span>
+<span class="st">                                constr = T,</span>
+<span class="st">                                adjust.for.con.comp = T)&#39;</span>),
+                              <span class="st">&quot;pred&quot;</span>) <span class="co"># rescale to allow the Newton-Raphson optimizer to converge</span>
+  
+  <span class="cf">if</span>(family<span class="op">==</span><span class="st">&quot;gaussian&quot;</span>){
+    formula_test &lt;-<span class="st"> </span><span class="kw">reformulate</span>(<span class="kw">c</span>(<span class="st">&quot;-1&quot;</span>, <span class="st">&quot;intercept&quot;</span>,
+                                  <span class="kw">paste</span>(candidate_covariates[<span class="op">-</span>ix],<span class="dt">collapse=</span><span class="st">&quot;+&quot;</span>),
+                                  <span class="st">&#39;f(ID,model = &quot;bym2&quot;,</span>
+<span class="st">                                hyper=list(</span>
+<span class="st">                                prec = list(prior = &quot;pc.prec&quot;, param = c(0.1, 0.0001)),</span>
+<span class="st">                                phi  = list(prior = &quot;pc&quot;, param = c(0.5, 0.5))),</span>
+<span class="st">                                graph = Segmento.Inla.nb,</span>
+<span class="st">                                scale.model = TRUE,</span>
+<span class="st">                                constr = T,</span>
+<span class="st">                                adjust.for.con.comp = T)&#39;</span>),
+                                <span class="st">&quot;pred/10&quot;</span>) <span class="co"># rescale to allow the Newton-Raphson optimizer to converge</span>
+  }
+  <span class="co"># fit the model</span>
+  <span class="cf">if</span>(family<span class="op">%in%</span><span class="kw">c</span>(<span class="st">&quot;beta&quot;</span>,<span class="st">&quot;zeroinflatedbinomial1&quot;</span>)){
+    bym.res=INLA<span class="op">::</span><span class="kw">inla</span>(<span class="dt">formula=</span>formula_test, 
+                       <span class="dt">family =</span> family, 
+                       <span class="dt">data =</span> mod_data_jack,
+                       <span class="dt">Ntrials =</span> mod_data_jack<span class="op">$</span>n_obs,
+                       <span class="dt">control.predictor=</span><span class="kw">list</span>(<span class="dt">link=</span><span class="dv">1</span>,<span class="dt">compute=</span>T),
+                       <span class="dt">control.compute=</span><span class="kw">list</span>(<span class="dt">dic=</span>T, <span class="dt">cpo=</span>F),
+                       <span class="dt">control.inla =</span><span class="kw">list</span>(<span class="dt">int.strategy =</span> <span class="st">&quot;eb&quot;</span>)
+    )
+  }<span class="cf">else</span>{
+    
+    bym.res=INLA<span class="op">::</span><span class="kw">inla</span>(<span class="dt">formula=</span>formula_test, 
+                       <span class="dt">family =</span> family, 
+                       <span class="dt">data =</span> mod_data_jack,
+                       <span class="dt">control.predictor=</span><span class="kw">list</span>(<span class="dt">link=</span><span class="dv">1</span>,<span class="dt">compute=</span>T),
+                       <span class="dt">control.compute=</span><span class="kw">list</span>(<span class="dt">dic=</span>T, <span class="dt">cpo=</span>F),
+                       <span class="dt">control.inla =</span><span class="kw">list</span>(<span class="dt">int.strategy =</span> <span class="st">&quot;eb&quot;</span>) 
+    )
+  }
+  <span class="co"># extact fitted values</span>
+  M_fit=bym.res<span class="op">$</span>summary.fitted.values[,<span class="st">&quot;mean&quot;</span>]
+  
+  <span class="cf">if</span>(family<span class="op">%in%</span><span class="kw">c</span>(<span class="st">&quot;gamma&quot;</span>)){
+    M_fit=<span class="kw">exp</span>(M_fit) <span class="co"># back transform to level</span>
+  }
+  <span class="cf">if</span>(family<span class="op">%in%</span><span class="kw">c</span>(<span class="st">&quot;gaussian&quot;</span>)){
+    M_fit=M_fit<span class="op">*</span><span class="dv">10</span> <span class="co"># back transform to level</span>
+  }
+  
+  <span class="co"># funcion for RMSE </span>
+  RMSE=<span class="cf">function</span>(set,outcome,data){
+    res =<span class="st"> </span>data[set,outcome]<span class="op">-</span>M_fit[set]
+    RMSE_val &lt;-<span class="st"> </span><span class="kw">sqrt</span>(<span class="kw">mean</span>(res<span class="op">^</span><span class="dv">2</span>,<span class="dt">na.rm=</span>T)) 
+    <span class="kw">return</span>(RMSE_val)  
+  }
+  <span class="co"># funcion for pseudo_r2</span>
+  pseudo_r2=<span class="cf">function</span>(set,outcome,data){
+    res =<span class="st">  </span>data[set,outcome]<span class="op">-</span>M_fit[set]
+    RRes=<span class="kw">sum</span>((res)<span class="op">^</span><span class="dv">2</span>,<span class="dt">na.rm =</span> T)
+    RRtot=<span class="kw">sum</span>((data[set,outcome]<span class="op">-</span><span class="kw">mean</span>(M_fit[set],<span class="dt">na.rm=</span>T))<span class="op">^</span><span class="dv">2</span>,<span class="dt">na.rm =</span> T)
+    pseudo_r2_val=<span class="dv">1</span><span class="op">-</span>RRes<span class="op">/</span>RRtot
+    <span class="kw">return</span>(pseudo_r2_val)  
+  }
+  
+  <span class="co"># RMSE: RMSE  function defined above</span>
+  RMSE_val=<span class="kw">RMSE</span>(index_val,outcome,mod_data_jack)
+  RMSE_train=<span class="kw">RMSE</span>(index_train,outcome,mod_data_jack)
+  
+  <span class="co"># R2: pseudo_r2 function defined above</span>
+  r2_val=<span class="kw">pseudo_r2</span>(index_val,outcome,mod_data_jack)
+  r2_train=<span class="kw">pseudo_r2</span>(index_train,outcome,mod_data_jack)
+  
+  <span class="co"># store results</span>
+  results_list=<span class="kw">list</span>(<span class="st">&quot;cov_i&quot;</span>=ix,
+                    <span class="st">&quot;cov_name&quot;</span>=candidate_covariates[ix],
+                    <span class="st">&quot;formula&quot;</span>=formula_test,
+                    <span class="co"># &quot;fitted_values&quot;=M_fit,</span>
+                    <span class="co"># &quot;index_val&quot;=index_val,</span>
+                    <span class="co"># &quot;index_train&quot;=index_train,</span>
+                    <span class="co"># &quot;index_train_val&quot;=index_train_val,</span>
+                    <span class="st">&quot;RMSE_val&quot;</span>=RMSE_val,
+                    <span class="st">&quot;RMSE_train&quot;</span>=RMSE_train,
+                    <span class="st">&quot;r2_val&quot;</span>=r2_val,
+                    <span class="st">&quot;r2_train&quot;</span>=r2_train,
+                    <span class="st">&quot;outcome&quot;</span>=outcome,
+                    <span class="st">&quot;family&quot;</span>=family)
+  <span class="kw">rm</span>(bym.res)
+  <span class="kw">return</span>(results_list)
+}</code></pre></div>
+<p>We can now test the function.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># test the function #####</span>
+test_fct=<span class="kw">INLA_steps_2_4</span>(covariates_formulation, <span class="co"># formulation of each covariate</span>
+                        <span class="dv">1</span>, <span class="co"># the index of the covariate to be removed</span>
+                        index_val_jack, <span class="co"># index of the validation set</span>
+                        index_train_jack, <span class="co"># index of the validation set</span>
+                        mod_data_jack, <span class="co"># data for the model</span>
+                        <span class="st">&quot;ingpe&quot;</span>, <span class="co"># outcome</span>
+                        <span class="st">&quot;gaussian&quot;</span>) <span class="co"># likelihood</span></code></pre></div>
+<p>The results can then be accessed using the <code>$</code> sign. For instance, we can look at the <span class="math inline">\(R^2\)</span>:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">print</span>(<span class="kw">paste</span>(<span class="st">&quot;R-squared in the validation set:&quot;</span>,test_fct<span class="op">$</span>r2_val,
+            <span class="st">&quot;R-squared in the training set:&quot;</span>,test_fct<span class="op">$</span>r2_train))</code></pre></div>
+<pre><code>## [1] &quot;R-squared in the validation set: 0.443338238919451 R-squared in the training set: 0.497339500393704&quot;</code></pre>
+</div>
+<div id="bundle-step-5-to-7-in-a-loop-ran-in-parallel" class="section level2">
+<h2><span class="header-section-number">5.3</span> Bundle step 5 to 7 in a loop ran in parallel</h2>
+<p>We can now launch the entire backward selection process with a loop. In order to speed up the process, we parallelise the estimation of each single model across the cores: each core is in charge of estimating one model. In the first iteration of the loop, we start with a list of <span class="math inline">\(50\)</span> candidate covariates. <span class="math inline">\(50\)</span> models are estimated. Each model contains all covariates minus one <span class="math inline">\(j\)</span> covariate, where <span class="math inline">\(j\)</span> is different in each model and <span class="math inline">\(j=1, ..., 50\)</span>. Once the <span class="math inline">\(50\)</span> models have been estimated, results are collected and the best performing model is identified, say model <em>k</em> The corresponding <span class="math inline">\(k\)</span> covariate is removed from the list of candidate covariate and the loop proceed to the next iteration with a list of <span class="math inline">\(50-1=49\)</span> candidate covariates.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># loop over all covariates until only 1 is left #####</span>
+candidate_covariates=covariates_formulation <span class="co"># start again with the full list of candidate covariate</span>
+n2drop=<span class="kw">length</span>(covariates_formulation)<span class="op">-</span><span class="dv">1</span> 
+start_t=<span class="kw">Sys.time</span>()
+results_jacknife=<span class="kw">list</span>() <span class="co"># create a list to store all the results of the jacknife selectio process</span>
+<span class="cf">for</span>(n_cov_to_drop <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span>n2drop){  <span class="co"># repeat the step n2drop=12 times until having only 8 covariates</span>
+  
+  <span class="kw">set.seed</span>(<span class="dv">101</span>)
+  
+  INLA_steps_2_4_par=<span class="cf">function</span>(cov_n){  <span class="co"># fit the model dropping one covariates after the other</span>
+    model_fct=<span class="kw">INLA_steps_2_4</span>(candidate_covariates, <span class="co"># formulation of each covariate</span>
+                             cov_n, <span class="co"># the index of the covariate to be removed</span>
+                             index_val_jack, <span class="co"># index of the validation set</span>
+                             index_train_jack, <span class="co"># index of the validation set</span>
+                             mod_data_jack,  <span class="co"># data for the model</span>
+                             <span class="st">&quot;ingpe&quot;</span>, <span class="co"># outcome</span>
+                             <span class="st">&quot;gaussian&quot;</span>) <span class="co"># likelihood</span>
+    <span class="kw">cat</span>(<span class="st">&quot;</span><span class="ch">\014</span><span class="st">&quot;</span>) <span class="co"># clean the consol</span>
+    <span class="co"># end_t=Sys.time()</span>
+    <span class="co"># duration=end_t-start_t</span>
+    <span class="co"># print(duration)</span>
+    <span class="kw">return</span>(model_fct)
+  }
+  cov_n&lt;-<span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(candidate_covariates)
+  n_cores&lt;-<span class="kw">detectCores</span>()
+  cl=<span class="kw">makeCluster</span>(n_cores)
+  start_T&lt;-<span class="kw">Sys.time</span>()
+  <span class="kw">clusterExport</span>(<span class="dt">cl=</span>cl,
+                <span class="dt">varlist=</span><span class="kw">c</span>(<span class="st">&quot;candidate_covariates&quot;</span>,
+                          <span class="st">&quot;INLA_steps_2_4&quot;</span>,
+                          <span class="st">&quot;index_val_jack&quot;</span>,
+                          <span class="st">&quot;index_train_jack&quot;</span>,
+                          <span class="st">&quot;mod_data_jack&quot;</span>,
+                          <span class="st">&quot;Segmento.Inla.nb&quot;</span>))
+  results_list&lt;-<span class="kw">clusterApply</span>(cl,cov_n,INLA_steps_2_4_par)
+  end_T&lt;-<span class="kw">Sys.time</span>()
+  <span class="kw">cat</span>(<span class="st">&quot;</span><span class="ch">\014</span><span class="st">&quot;</span>) <span class="co"># clean the consol</span>
+  <span class="kw">print</span>(end_T<span class="op">-</span>start_T)
+  <span class="kw">stopCluster</span>(cl)
+  <span class="kw">gc</span>()
+  <span class="co"># store all the results for quality check</span>
+  results_jacknife[[n_cov_to_drop]]=results_list 
+  
+  <span class="co"># drop covariate affecting the least the goodness of fit </span>
+  
+  rmse_val=<span class="kw">lapply</span>(results_list,<span class="cf">function</span>(x) <span class="kw">unlist</span>(x<span class="op">$</span>RMSE_val))
+  rmse_val_min=<span class="kw">which.min</span>(rmse_val)
+  
+  covariates_to_be_removed=results_list[[rmse_val_min]]<span class="op">$</span>cov_name
+  
+  candidate_covariates=candidate_covariates[<span class="op">-</span><span class="kw">which</span>(candidate_covariates<span class="op">==</span>covariates_to_be_removed)]
+  <span class="kw">rm</span>(results_list)
+  <span class="kw">print</span>(<span class="kw">paste</span>(<span class="kw">length</span>(candidate_covariates),<span class="st">&quot;covariates remaining&quot;</span>))
+  
+}
+end_t=<span class="kw">Sys.time</span>()
+duration=end_t<span class="op">-</span>start_t
+<span class="kw">print</span>(duration) <span class="co"># 1.84 hours</span></code></pre></div>
+<p>The process took slightly less than 2 hours on a cloud instance with 64 cores.</p>
+</div>
+<div id="step-8-inspect-the-results-and-select-specification" class="section level2">
+<h2><span class="header-section-number">5.4</span> Step 8: Inspect the results and select specification</h2>
+<p>We can now inspect the results of the selection process. Let us look at the goodness of fit of the best performing models at each covariate selection step, using the R-squared and the RMSE as goodness of fit statistics.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># INCOME Bym2 ####</span>
+<span class="kw">load</span>(<span class="kw">paste0</span>(dir_data,<span class="st">&quot;workspace/income_bym2_gaussian.RData&quot;</span>))
+
+<span class="co"># visualize R2  ####</span>
+<span class="co"># extract r2</span>
+r2_val_max=r2_train_max=r2_val_min=r2_train_min=<span class="kw">c</span>()
+<span class="cf">for</span>(k <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(results_jacknife)){
+  r2_val=<span class="kw">lapply</span>(results_jacknife[[k]],<span class="cf">function</span>(x) <span class="kw">unlist</span>(x<span class="op">$</span>r2_val))
+  r2_train=<span class="kw">lapply</span>(results_jacknife[[k]],<span class="cf">function</span>(x) <span class="kw">unlist</span>(x<span class="op">$</span>r2_train))
+  
+  <span class="co"># get max r2</span>
+  r2_val_max_index=<span class="kw">which.max</span>(r2_val)
+  r2_val_max_i=r2_val[[r2_val_max_index]]
+  r2_train_max_i=r2_train[[r2_val_max_index]]
+  
+  r2_val_max=<span class="kw">c</span>(r2_val_max,r2_val_max_i)
+  r2_train_max=<span class="kw">c</span>(r2_train_max,r2_train_max_i)
+  
+  <span class="co"># get min r2</span>
+  r2_val_min_index=<span class="kw">which.min</span>(r2_val)
+  r2_val_min_i=r2_val[[r2_val_min_index]]
+  r2_train_min_i=r2_train[[r2_val_min_index]]
+  
+  r2_val_min=<span class="kw">c</span>(r2_val_min,r2_val_min_i)
+  r2_train_min=<span class="kw">c</span>(r2_train_min,r2_train_min_i)
+}
+
+<span class="co"># viz r2</span>
+data2plot=<span class="kw">data.frame</span>(<span class="dt">set=</span><span class="kw">c</span>(<span class="kw">rep</span>(<span class="st">&quot;val&quot;</span>,<span class="kw">length</span>(r2_val_max)),<span class="kw">rep</span>(<span class="st">&quot;train&quot;</span>,<span class="kw">length</span>(r2_val_max))),
+                     <span class="dt">index=</span><span class="kw">c</span>(<span class="kw">rev</span>(<span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(r2_val_max)),<span class="kw">rev</span>(<span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(r2_val_max))),
+                     <span class="dt">index_jack=</span><span class="kw">c</span>(<span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(r2_val_max),<span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(r2_val_max)),
+                     <span class="dt">r2_max=</span><span class="kw">c</span>(<span class="kw">unlist</span>(r2_val_max),<span class="kw">unlist</span>(r2_train_max)),
+                     <span class="dt">r2_min=</span><span class="kw">c</span>(<span class="kw">unlist</span>(r2_val_min),<span class="kw">unlist</span>(r2_train_min)))
+
+plotly<span class="op">::</span><span class="kw">plot_ly</span>(<span class="dt">data=</span>data2plot,
+                <span class="dt">x=</span><span class="op">~</span>index_jack,
+                <span class="dt">y=</span><span class="op">~</span>r2_max,
+                <span class="dt">name =</span> <span class="op">~</span>set,
+                <span class="dt">type=</span><span class="st">&quot;scatter&quot;</span>,
+                <span class="dt">mode=</span><span class="st">&quot;line&quot;</span>)</code></pre></div>
+<div id="htmlwidget-d37b4b324cf3d43858ce" style="width:672px;height:480px;" class="plotly html-widget"></div>
+<script type="application/json" data-for="htmlwidget-d37b4b324cf3d43858ce">{"x":{"visdat":{"3ca652ee8d0a":["function () ","plotlyVisDat"]},"cur_data":"3ca652ee8d0a","attrs":{"3ca652ee8d0a":{"x":{},"y":{},"mode":"line","name":{},"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter"}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"xaxis":{"domain":[0,1],"automargin":true,"title":"index_jack"},"yaxis":{"domain":[0,1],"automargin":true,"title":"r2_max"},"hovermode":"closest","showlegend":true},"source":"A","config":{"modeBarButtonsToAdd":[{"name":"Collaborate","icon":{"width":1000,"ascent":500,"descent":-50,"path":"M487 375c7-10 9-23 5-36l-79-259c-3-12-11-23-22-31-11-8-22-12-35-12l-263 0c-15 0-29 5-43 15-13 10-23 23-28 37-5 13-5 25-1 37 0 0 0 3 1 7 1 5 1 8 1 11 0 2 0 4-1 6 0 3-1 5-1 6 1 2 2 4 3 6 1 2 2 4 4 6 2 3 4 5 5 7 5 7 9 16 13 26 4 10 7 19 9 26 0 2 0 5 0 9-1 4-1 6 0 8 0 2 2 5 4 8 3 3 5 5 5 7 4 6 8 15 12 26 4 11 7 19 7 26 1 1 0 4 0 9-1 4-1 7 0 8 1 2 3 5 6 8 4 4 6 6 6 7 4 5 8 13 13 24 4 11 7 20 7 28 1 1 0 4 0 7-1 3-1 6-1 7 0 2 1 4 3 6 1 1 3 4 5 6 2 3 3 5 5 6 1 2 3 5 4 9 2 3 3 7 5 10 1 3 2 6 4 10 2 4 4 7 6 9 2 3 4 5 7 7 3 2 7 3 11 3 3 0 8 0 13-1l0-1c7 2 12 2 14 2l218 0c14 0 25-5 32-16 8-10 10-23 6-37l-79-259c-7-22-13-37-20-43-7-7-19-10-37-10l-248 0c-5 0-9-2-11-5-2-3-2-7 0-12 4-13 18-20 41-20l264 0c5 0 10 2 16 5 5 3 8 6 10 11l85 282c2 5 2 10 2 17 7-3 13-7 17-13z m-304 0c-1-3-1-5 0-7 1-1 3-2 6-2l174 0c2 0 4 1 7 2 2 2 4 4 5 7l6 18c0 3 0 5-1 7-1 1-3 2-6 2l-173 0c-3 0-5-1-8-2-2-2-4-4-4-7z m-24-73c-1-3-1-5 0-7 2-2 3-2 6-2l174 0c2 0 5 0 7 2 3 2 4 4 5 7l6 18c1 2 0 5-1 6-1 2-3 3-5 3l-174 0c-3 0-5-1-7-3-3-1-4-4-5-6z"},"click":"function(gd) { \n        // is this being viewed in RStudio?\n        if (location.search == '?viewer_pane=1') {\n          alert('To learn about plotly for collaboration, visit:\\n https://cpsievert.github.io/plotly_book/plot-ly-for-collaboration.html');\n        } else {\n          window.open('https://cpsievert.github.io/plotly_book/plot-ly-for-collaboration.html', '_blank');\n        }\n      }"}],"cloud":false},"data":[{"x":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39],"y":[0.503379750408935,0.495817839508031,0.49103557692346,0.489114466948889,0.485087375331708,0.483232684900609,0.481185818567013,0.48081965189631,0.480694341056751,0.479516798227265,0.479408178978352,0.476940037178042,0.475986787493983,0.475799099085215,0.474989742889438,0.472853984414298,0.470126863565677,0.470011264143951,0.469932919017184,0.468132397104931,0.466409802914662,0.466389487999065,0.465407891552569,0.45808018493941,0.457981064797186,0.457046403611638,0.456673674855469,0.455981984184691,0.453508901236946,0.447348588753317,0.445547940957851,0.44354249496866,0.441340528561004,0.439252115497677,0.424785625280583,0.420284540397423,0.419288898834228,0.415364613173235,0.411375246727817],"mode":"line","name":"train","type":"scatter","marker":{"color":"rgba(31,119,180,1)","line":{"color":"rgba(31,119,180,1)"}},"error_y":{"color":"rgba(31,119,180,1)"},"error_x":{"color":"rgba(31,119,180,1)"},"line":{"color":"rgba(31,119,180,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39],"y":[0.431293622810968,0.438951612188426,0.444859580160301,0.44886806651547,0.451494483400088,0.454023152213404,0.455986416765947,0.457920745766429,0.459295966921566,0.460874166043312,0.462071732568768,0.463446267951573,0.465995536749402,0.46819306933293,0.469789803136871,0.470522577702839,0.471294928710727,0.471892711421959,0.472208108975121,0.472622033461956,0.474352180498782,0.47464002938828,0.474768258816595,0.474697313533322,0.474481632181858,0.474106260668896,0.472284570754148,0.471665493599704,0.471278378314033,0.470283233982113,0.468492637335055,0.466450249619621,0.463510059590941,0.461448564580026,0.456149706850014,0.450067158906855,0.44352948971582,0.441298226387206,0.43017917468986],"mode":"line","name":"val","type":"scatter","marker":{"color":"rgba(255,127,14,1)","line":{"color":"rgba(255,127,14,1)"}},"error_y":{"color":"rgba(255,127,14,1)"},"error_x":{"color":"rgba(255,127,14,1)"},"line":{"color":"rgba(255,127,14,1)"},"xaxis":"x","yaxis":"y","frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"base_url":"https://plot.ly"},"evals":["config.modeBarButtonsToAdd.0.click"],"jsHooks":[]}</script>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># visualize RMSE  ####</span>
+<span class="co"># extract RMSE</span>
+RMSE_val_max=RMSE_train_max=RMSE_val_min=RMSE_train_min=<span class="kw">c</span>()
+<span class="cf">for</span>(k <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(results_jacknife)){
+  RMSE_val=<span class="kw">lapply</span>(results_jacknife[[k]],<span class="cf">function</span>(x) <span class="kw">unlist</span>(x<span class="op">$</span>RMSE_val))
+  RMSE_train=<span class="kw">lapply</span>(results_jacknife[[k]],<span class="cf">function</span>(x) <span class="kw">unlist</span>(x<span class="op">$</span>RMSE_train))
+  
+  <span class="co"># get max RMSE</span>
+  RMSE_val_max_index=<span class="kw">which.max</span>(RMSE_val)
+  RMSE_val_max_i=RMSE_val[[RMSE_val_max_index]]
+  RMSE_train_max_i=RMSE_train[[RMSE_val_max_index]]
+  
+  RMSE_val_max=<span class="kw">c</span>(RMSE_val_max,RMSE_val_max_i)
+  RMSE_train_max=<span class="kw">c</span>(RMSE_train_max,RMSE_train_max_i)
+  
+  <span class="co"># get min RMSE</span>
+  RMSE_val_min_index=<span class="kw">which.min</span>(RMSE_val)
+  RMSE_val_min_i=RMSE_val[[RMSE_val_min_index]]
+  RMSE_train_min_i=RMSE_train[[RMSE_val_min_index]]
+  
+  RMSE_val_min=<span class="kw">c</span>(RMSE_val_min,RMSE_val_min_i)
+  RMSE_train_min=<span class="kw">c</span>(RMSE_train_min,RMSE_train_min_i)
+}
+
+<span class="co"># viz RMSE</span>
+data2plot=<span class="kw">data.frame</span>(<span class="dt">set=</span><span class="kw">c</span>(<span class="kw">rep</span>(<span class="st">&quot;val&quot;</span>,<span class="kw">length</span>(RMSE_val_max)),<span class="kw">rep</span>(<span class="st">&quot;train&quot;</span>,<span class="kw">length</span>(RMSE_val_max))),
+                     <span class="dt">index=</span><span class="kw">c</span>(<span class="kw">rev</span>(<span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(RMSE_val_max)),<span class="kw">rev</span>(<span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(RMSE_val_max))),
+                     <span class="dt">RMSE_max=</span><span class="kw">c</span>(<span class="kw">unlist</span>(RMSE_val_max),<span class="kw">unlist</span>(RMSE_train_max)),
+                     <span class="dt">RMSE_min=</span><span class="kw">c</span>(<span class="kw">unlist</span>(RMSE_val_min),<span class="kw">unlist</span>(RMSE_train_min)))
+
+plotly<span class="op">::</span><span class="kw">plot_ly</span>(<span class="dt">data=</span>data2plot,
+                <span class="dt">x=</span><span class="op">~</span>index,
+                <span class="dt">y=</span><span class="op">~</span>RMSE_min,
+                <span class="dt">name =</span> <span class="op">~</span>set,
+                <span class="dt">type=</span><span class="st">&quot;scatter&quot;</span>,
+                <span class="dt">mode=</span><span class="st">&quot;line&quot;</span>)</code></pre></div>
+<div id="htmlwidget-fa2698e20872dec09506" style="width:672px;height:480px;" class="plotly html-widget"></div>
+<script type="application/json" data-for="htmlwidget-fa2698e20872dec09506">{"x":{"visdat":{"3ca67d986e28":["function () ","plotlyVisDat"]},"cur_data":"3ca67d986e28","attrs":{"3ca67d986e28":{"x":{},"y":{},"mode":"line","name":{},"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter"}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"xaxis":{"domain":[0,1],"automargin":true,"title":"index"},"yaxis":{"domain":[0,1],"automargin":true,"title":"RMSE_min"},"hovermode":"closest","showlegend":true},"source":"A","config":{"modeBarButtonsToAdd":[{"name":"Collaborate","icon":{"width":1000,"ascent":500,"descent":-50,"path":"M487 375c7-10 9-23 5-36l-79-259c-3-12-11-23-22-31-11-8-22-12-35-12l-263 0c-15 0-29 5-43 15-13 10-23 23-28 37-5 13-5 25-1 37 0 0 0 3 1 7 1 5 1 8 1 11 0 2 0 4-1 6 0 3-1 5-1 6 1 2 2 4 3 6 1 2 2 4 4 6 2 3 4 5 5 7 5 7 9 16 13 26 4 10 7 19 9 26 0 2 0 5 0 9-1 4-1 6 0 8 0 2 2 5 4 8 3 3 5 5 5 7 4 6 8 15 12 26 4 11 7 19 7 26 1 1 0 4 0 9-1 4-1 7 0 8 1 2 3 5 6 8 4 4 6 6 6 7 4 5 8 13 13 24 4 11 7 20 7 28 1 1 0 4 0 7-1 3-1 6-1 7 0 2 1 4 3 6 1 1 3 4 5 6 2 3 3 5 5 6 1 2 3 5 4 9 2 3 3 7 5 10 1 3 2 6 4 10 2 4 4 7 6 9 2 3 4 5 7 7 3 2 7 3 11 3 3 0 8 0 13-1l0-1c7 2 12 2 14 2l218 0c14 0 25-5 32-16 8-10 10-23 6-37l-79-259c-7-22-13-37-20-43-7-7-19-10-37-10l-248 0c-5 0-9-2-11-5-2-3-2-7 0-12 4-13 18-20 41-20l264 0c5 0 10 2 16 5 5 3 8 6 10 11l85 282c2 5 2 10 2 17 7-3 13-7 17-13z m-304 0c-1-3-1-5 0-7 1-1 3-2 6-2l174 0c2 0 4 1 7 2 2 2 4 4 5 7l6 18c0 3 0 5-1 7-1 1-3 2-6 2l-173 0c-3 0-5-1-8-2-2-2-4-4-4-7z m-24-73c-1-3-1-5 0-7 2-2 3-2 6-2l174 0c2 0 5 0 7 2 3 2 4 4 5 7l6 18c1 2 0 5-1 6-1 2-3 3-5 3l-174 0c-3 0-5-1-7-3-3-1-4-4-5-6z"},"click":"function(gd) { \n        // is this being viewed in RStudio?\n        if (location.search == '?viewer_pane=1') {\n          alert('To learn about plotly for collaboration, visit:\\n https://cpsievert.github.io/plotly_book/plot-ly-for-collaboration.html');\n        } else {\n          window.open('https://cpsievert.github.io/plotly_book/plot-ly-for-collaboration.html', '_blank');\n        }\n      }"}],"cloud":false},"data":[{"x":[39,38,37,36,35,34,33,32,31,30,29,28,27,26,25,24,23,22,21,20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1],"y":[50.7081542875387,51.092755880281,51.3344961949211,51.4312871721322,51.6335946720472,51.7265019446705,51.8288425891943,51.8471291434135,51.8533857511885,51.9121420995353,51.9175585694911,52.0404844131679,52.0878833704749,52.0972108232074,52.1374138612592,52.2727515408156,52.3783173069583,52.3840305364794,52.3879022054974,52.4768018971357,52.5617132177983,52.562713775109,52.6110370990989,52.9703822280884,52.9752262940129,53.0208820434791,53.0390779052037,53.0728283098024,53.1933249418807,53.4922952362437,53.5793686174376,53.676179100871,53.7822756565905,53.88270788691,54.5733302333718,54.7864338521517,54.8334605855586,55.0184233427702,55.2058183415762],"mode":"line","name":"train","type":"scatter","marker":{"color":"rgba(31,119,180,1)","line":{"color":"rgba(31,119,180,1)"}},"error_y":{"color":"rgba(31,119,180,1)"},"error_x":{"color":"rgba(31,119,180,1)"},"line":{"color":"rgba(31,119,180,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":[39,38,37,36,35,34,33,32,31,30,29,28,27,26,25,24,23,22,21,20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1],"y":[66.1086637669376,65.6470671676923,65.3009863013862,65.0673104896826,64.9002699623185,64.7503233171891,64.6355071545136,64.5222465857433,64.4385793611202,64.3369458319301,64.2646488173377,64.1814136264165,64.0294005088522,63.8986496164153,63.8079060223651,63.760085046218,63.7107534078668,63.6745886848589,63.655932635453,63.6267516561677,63.5197436458985,63.5028569213539,63.4985360245581,63.4982445613652,63.5117256294001,63.5328319652062,63.6428783736901,63.6790047816533,63.7019406301172,63.7682074606361,63.8748954116243,63.993922611896,64.1705087272733,64.2980378101558,64.6159224364722,64.9825963300389,65.379246013568,65.4991513048793,66.1431702141745],"mode":"line","name":"val","type":"scatter","marker":{"color":"rgba(255,127,14,1)","line":{"color":"rgba(255,127,14,1)"}},"error_y":{"color":"rgba(255,127,14,1)"},"error_x":{"color":"rgba(255,127,14,1)"},"line":{"color":"rgba(255,127,14,1)"},"xaxis":"x","yaxis":"y","frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"base_url":"https://plot.ly"},"evals":["config.modeBarButtonsToAdd.0.click"],"jsHooks":[]}</script>
+<p>Based on the results above, the 31st step appears to provide a good balance between the sparsity of the formulation and the goodness of fit.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># identify the specification ####</span>
+step_chosen=<span class="dv">31</span>  
+r2_val=<span class="kw">lapply</span>(results_jacknife[[step_chosen]],<span class="cf">function</span>(x) <span class="kw">unlist</span>(x<span class="op">$</span>r2_val))
+r2_val_max_index=<span class="kw">which.max</span>(r2_val)
+
+formula_selected=results_jacknife[[step_chosen]][[r2_val_max_index]]<span class="op">$</span>formula
+formula_selected</code></pre></div>
+<pre><code>## pred/10 ~ -1 + intercept + chirps_ev_med + lights_med + dist2coast_r + 
+##     pop_dens + lc_tree + dens_all_roads + dens_secondary + dens_bus + 
+##     LZ_CentralIndusServ + f(ID, model = &quot;bym2&quot;, hyper = list(prec = list(prior = &quot;pc.prec&quot;, 
+##     param = c(0.1, 0.0001)), phi = list(prior = &quot;pc&quot;, param = c(0.5, 
+##     0.5))), graph = Segmento.Inla.nb, scale.model = TRUE, constr = T, 
+##     adjust.for.con.comp = T)
+## &lt;environment: 0x776cd248&gt;</code></pre>
+<p>Here is the list of covariates that were selected:</p>
+<ul>
+<li>chirps_ev_med: median precipitation</li>
+<li>lights_med: median lights over the year</li>
+<li>dist2coast_r: distance to coast</li>
+<li>pop_dens: population density</li>
+<li>lc_tree: percentage of trees</li>
+<li>dens_all_roads: road density (all road categories)</li>
+<li>dens_secondary: secondary road density</li>
+<li>dens_bus : bus lanes density</li>
+<li>LZ_CentralIndusServ: Central Livelihood zones on industry and services.</li>
+</ul>
+</div>
+<div id="step-9-final-test" class="section level2">
+<h2><span class="header-section-number">5.5</span> Step 9 Final test</h2>
+<p>Lastly, we perform the final test of goodness of fit on the test set. As a reminder, the test set comprise of 20% of the data we set aside before starting the selection process, i.e. the model has not yet <em>seen</em> them.</p>
+<p>We start by building the dataframe for estimating the final model with the training and test set only.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># build dataframe for final test ####</span>
+data_test=data_model
+data_test<span class="op">$</span>pred=data_test<span class="op">$</span>ingpe <span class="co"># create a pred variables equal to ingpe, the outcome variable</span>
+<span class="co"># data_test$pred[index_test] &lt;- NA # set the test pred to NA: they will be predicted by the model and compared with observed </span>
+data_test<span class="op">$</span>pred[<span class="kw">c</span>(index_test, index_val)] &lt;-<span class="st"> </span><span class="ot">NA</span> <span class="co"># set the test pred to NA: they will be predicted by the model and compared with observed </span>
+data_test=data_test[<span class="kw">c</span>(index_test,index_train),]
+
+index_train_bis=<span class="kw">which</span>(<span class="kw">is.na</span>(data_test<span class="op">$</span>pred)<span class="op">==</span>F)
+index_test_bis=<span class="kw">which</span>(<span class="kw">is.na</span>(data_test<span class="op">$</span>pred))</code></pre></div>
+<p>The estimation is done with the usual <code>inla</code> function and results are plotted on Fig. <a href="#fig:test-bym2"><strong>??</strong></a>.</p>
+<div class="figure" style="text-align: center"><span id="fig:test-bym2-chunk"></span>
+<div id="htmlwidget-56c0d70f495ddc33f628" style="width:80%;height:288px;" class="plotly html-widget"></div>
+<script type="application/json" data-for="htmlwidget-56c0d70f495ddc33f628">{"x":{"visdat":{"3ca627c25119":["function () ","plotlyVisDat"]},"cur_data":"3ca627c25119","attrs":{"3ca627c25119":{"y":[160.596804241615,126.255342925878,115.386252119412,100.15681805426,96.2590677903116,108.720751993275,104.994787029987,105.102045762321,89.9602505721346,99.3338881494583,109.40657307915,102.445117638893,118.852643507967,93.8614700114466,112.547267515828,111.367244336389,98.6319183820774,103.621871539013,116.525597505292,187.205368487309,116.725713824883,98.3468331800633,99.0742346026125,92.5784353928627,111.477357047241,104.76660132259,104.28749152826,97.0509895532389,128.920235978041,130.87584744274,111.392995016168,134.575564789924,97.0326689788154,95.221736988661,133.355254868407,92.5498452248885,92.2972809472066,91.9779768352353,103.57574310699,117.73669218497,101.192980800613,97.7049224311048,109.216727411235,97.5893775674088,91.2518564470542,99.5761841209361,228.343203295889,120.726436171244,91.0173425323046,169.382681055404,98.6918667480599,98.048838375725,156.35184603053,95.8778294269946,156.642304485512,101.636094228115,97.3297655440319,112.219265384166,103.349791973397,120.416650885458,91.2126754795146,156.061078800526,96.9147038385671,99.7456937812989,84.0064664615009,105.176939237805,116.696931233022,147.393834662337,115.795567976795,105.724849147936,92.4216533345187,107.090123561523,93.8314679016373,98.6235209677408,181.063297045948,107.47435365828,97.3176164026735,103.283691900241,98.1840597830441,183.949659397186,163.770870289873,99.1925809010476,129.344567204631,263.735830941847,104.275678632473,94.6861985694024,95.3119891992035,148.850962309908,141.798763734389,164.560452697303,181.524942844024,144.478201490955,136.763384893341,114.744915719872,117.42341094663,117.453273210234,150.998822010173,111.07223343474,124.291012235475,104.54255874729,247.373196333048,94.1603936894731,107.076259321275,162.981893103252,247.101373854918,151.444082912893,312.597944746772,144.243950311945,216.368283236729,106.891344001179,321.031412755968,205.543744434655,115.282729996304,130.643955888737,119.755689433868,105.62719790399,103.385180638065,130.418755040204,197.516483085773,98.6682498046734,137.75069574554,106.900547825942,107.75183147849,108.160304600745,120.429471967931,132.258262537355,96.907485912213,114.31134626621,92.3097040601596,132.810634102942,109.372339486669,152.939725625186,154.685877686315,219.748543364564,147.337323188271,159.37955916492,89.3929171531291,147.564085510777,148.641638593452,162.065466212507,197.281884368894,102.337638932308,151.855465497793,128.736105263353,119.053800826093,137.247729477303,153.065408545287,132.132597473894,232.125821786354,93.3281328028012,92.8705837127811,124.201684833176,111.873036317541,94.396686708768,95.4120265191405,97.6635809929133,95.3933450016502,95.3818935013989,165.845483010395,94.1540269219456,93.2369921210746,103.712295827281,113.114364711391,99.3172073872503,176.238557012389,122.826676916517,83.9210686251795,95.1029943700332,187.674070126967,143.96466739454,126.619149224977,224.658875591298,164.714984445305,159.666729694811,80.4479657724451,172.437262869301,147.787186198965,114.374903165264,209.191225346031,111.63487555988,205.423934546461,107.048710529459,242.997115799087,118.394579248214,126.51968055784,206.905457616747,149.253786742523,150.428037102405,184.838792514986,161.082018658672,142.07008644692,209.120317582156,130.664171804768,127.020132534792,183.430638606788,176.816677179578,119.534206596413,218.841806285077,140.346148438561,104.68873249934,171.091064387512,173.58922260934,171.566958751239,158.210717931339,99.2977513228883,102.527970413312,219.05392337181,205.043761882067,236.385542713713,204.431918001531,179.524263434125,95.0549085338009,166.601160282352,192.033304271203,263.322246518251,127.291636011102,146.248187455567,172.904580179872,99.9270356550421,149.121353959936,173.592917629565,187.897951378158,100.963235540496,105.427538156144,108.168184635001,177.47495182761,138.132011148489,253.336837549401,143.649498308642,80.2920913891409,91.767361492654,98.5019392608974,105.889447540725,195.456453935556,85.0812916072273,87.8211722621331,98.5318949728885,109.137994053048,90.8633464063754,101.679401588512,122.457070643749,132.256183715416,124.952093210783,86.2972245775202,118.575571806345,190.013773164452,94.3503872419534,195.802291587747,146.241122691502,186.477581450663,105.067411892362,99.223619985605,109.140262855789,155.521415720029,134.997692289872,110.258722477736,106.626426235334,109.086117360654,106.057958260179,124.648368885044,137.642834458809,153.677033890231,156.421604333772,171.552082008514,106.226809042573,110.323914855836,162.284114688031,124.468894506613,105.352945924287,113.39308251705,118.172711532384,156.340123552689,96.1779035680494,107.111219866432,103.296034675495,136.563027863253,108.371483352392,105.675836067779,99.7525414033676,114.888850227421,107.915755842382,108.59482887208,109.193836826792,106.658991515217,108.280476126606,109.985079354758,114.574651402713,98.6299239786024,98.128910295894,108.185527358459,99.4620627924298,107.588492302174,104.421695915101,126.23595317238,105.892875093217,119.671391966793,119.27713535222,120.764573892802,139.862802774878,98.9055158810447,91.9536879768383,91.6106022841647,111.793802577903,128.586514498015,153.574701118309,122.167925413951,107.180526447878,97.6770820547782,103.728189518883,144.172460179813,118.502089909947,99.594411157271,96.506453143555,98.3128157770798,168.728769641946,172.122159129856,341.666606276726,109.450269268894,220.6736055162,265.254957799368,115.132118660043,163.9863403509,106.717954328172,108.452318442381,102.290997509517,104.300895855677,158.172364908573,134.398882745014,114.093737161164,100.119161812407,129.838932694367,103.829586148298,111.980199866437,106.716893907093,131.631354754914,151.809457351793,100.957253565912,106.300761038802,99.5991324919527,121.880293886357,104.279261525913,122.636984251347,95.9180007054002,110.465534784562,177.822189871711,92.1406789071535,94.2163102816778,93.2811770876201,186.30161216524,142.549107696878,123.479275438317,120.259687304787,110.670043805376,209.130513603156,140.361654108715,164.077214856616,237.032799183115,231.461705567736,130.895976874582,147.526849881444,205.742157188479,118.833868419224,100.438077234952,101.91058861626,98.0999911586994,112.250364828227,105.181827201807,144.12840796756,96.6533020638584,96.5263912166852,121.887517207913,111.409629671254,238.78657574009,103.443559056311,122.636071173989,112.358698041305,92.5915255137146,147.497618474625,92.8446707476948,93.4533461865349,147.815173169636,96.4402156411595,194.644487962063,148.993333652485,110.387073291864,87.9587205897121,200.304848193395,98.8910155987282,201.305440505348,121.884472166819,110.320179844007,315.654583482994,271.851357671963,107.53088237885,139.644123984518,168.503880869458,145.212818147129,116.836493220548,124.176500898368,94.138549317628,94.8461713813856,99.6093393440444,94.5605515624176,95.8807327020086,120.58525664116,95.7289666441814,125.090649408425,103.008450792458,101.0003420199,102.002557676401,116.629065367227,95.3089159508065,93.2140383373871,107.134484755029,135.628480721301,93.5663008480111,133.807078179496,146.180088666054,95.5846219130213,101.075037277696,104.34994261028,99.3557443471095,98.2223441357187,99.9093405675349,111.017993710487,93.296035282552,126.024342902989,157.413276698092,150.367259338544,95.3019420135003,92.8243465682964,93.4913781495452,93.030735695705,105.274325009459,164.793685364755,93.3789709653752,193.933046671537,98.0811604056004,100.764118570113,193.780108372617,102.236692447856,101.362631272153,96.9434284541581,101.179425195033,143.043427410898,96.8808876177205,121.05589416,153.023479277251,148.650745589904,102.696130138873,91.9291178223796,97.1236182674934,87.9183644507941,128.212954834887,97.5371250752731,112.678076657583,125.492988462858,173.03280492418,157.320911534232,131.357940558209,120.995566803978,95.9391246352455,96.578510116162,94.698545333618,93.7608310554988,93.5715788781577,97.2542364115462,111.717742657106,99.1483213340509,92.9560621171671,117.157608081578,91.7240237685686,98.1642790408467,94.8386545575086,141.770728490804,115.081266629048,95.3735299905196,104.926265140696,156.345277219697,101.952430336037,119.300245255499,115.33791990235,102.14260248309,158.302475510398,148.128410941777,209.861235163353,149.113501667276,116.747790874936,94.5612500607261,126.45370193678,88.216512832704,94.2133235156108,95.0088739165599,100.554028039814,89.6917092767157,90.6712128810829,114.953696325052,101.741105209654,157.305862282547,113.228391138072,93.0740450365532,113.717150773998,117.524875402189,116.988206768468,116.744209274584,108.051371192498,147.709284602754,139.811506809541,92.7727285457614,103.107617071974,91.1721850036605,79.9496815429482,166.894163518204,97.1307353678972,96.7660217313559,102.465567462701,134.923281309844,145.808738708356,98.9668420513663,188.339873000624,166.827461061038,100.334567002784,103.182080761836,99.3343323764236,200.425164184284,124.544313733592,98.4544257028816,96.7826640200542,103.080655914612,97.8170398773355,96.8920565868948,101.80454782602,100.098931776878,132.962958093202,154.54386935093,131.622626293633,95.0972979677571,122.388538571177,101.201918879347,132.300433562275,119.814996122813,219.495105143985,178.82291790773,208.699036833386,296.398514347251,263.774804512914,127.071174532337,180.478418586899,105.925150894912,128.993519031189,130.542763953066,103.899837995738,103.913713722261,150.736762276186,148.614036094159,129.386192262214,145.839192313576,145.955258946236,105.323776915503,113.276484556437,131.848964392391,136.258430329278,137.474061518014,263.211501891688,212.204885433035,179.639733926993,163.736862136928,137.243441466554,147.113525305366,123.935035001173,100.262862415984,101.58456894335,183.263187876198,94.777423235956,110.245868539516,108.940951445415,99.726463464137,93.2237324424423,113.920658579631,136.916555890424,269.286001390012,256.928170629812,318.574155463461,363.285117164164,300.340646811188,336.362871263211,310.785666481629,130.784210244313,288.560315305514,352.736619565524,227.881607669524,104.145260138243,188.942506303935,217.25168801673,102.805738577215,106.294075008039,185.763751187938,122.915892900893,127.027358762098,116.160518537521,109.890556082639,116.967695736881,124.632417864127,114.106781834007,110.378027713085,192.846203670517,109.241708345469,124.424097793862,170.241986344048,111.545797690105,128.051609536706,112.37316989618,109.157757814033,107.970710882143,103.854277699336,181.060051276675,105.599324207157,110.746172528652,151.707265982948,227.916590771337,110.65550617073,118.428153473471,122.472025105053,105.257487460839,98.3211138108902,97.6718902790678,130.035563517821,110.354259607678,123.850654856303,109.593291800672,93.3181482641182,97.7860577818748,98.1955438750569,97.1887848775971,91.3448869236413,136.266139857713,247.853659977947,126.007417910232,101.947839535695,132.358454068706,141.926918384033,116.128731835713,131.824317389009,98.1361658176266,111.15930640831,92.468448922367,94.2598834900964,122.741240737129,121.958409850728,175.339672885889,106.884475970788,113.129119952869,106.162220451423,93.1053509233988,96.6876965810483,101.485356439073,101.771251848633,145.269051195061,102.892353180987,101.638499840152,98.4771714889889,104.774646704906,107.496320563339,141.180696324234,175.122786771422,158.445100693239,106.525024981171,101.02658622272,87.5637321008581,108.06658152045,96.6429198895455,93.0562659907397,152.486240281099,145.977005941951,189.906721654987,192.971397094469,117.122947322105,183.047609999629,218.898872157604,171.322340104415,227.766138234559,266.814080586877,239.865219403657,217.002636249406,106.799587829628,156.672663506111,144.880679199877,93.3258785348947,95.4456221608432,97.5121420654306,95.5230537709355,95.5528292396187,99.4516307613459,180.767087490898,140.687544310233,103.222558387369,109.289024787805,101.947295493154,96.773506261511,123.922525973304,94.6712223859292,108.242110945182,98.9614051108305,93.1553928903299,110.201987070671,95.0384319348532,94.7251338853284,95.2854109827564,93.4446339898156,102.655291557558,118.251949848638,95.9483994547542,97.5113727894115,97.2544809115201,104.858044211194,95.1231508031027,95.3373973805843,102.060673407717,94.1777858606395,92.8611590729138,95.5273517276261,93.8955100830156,137.010055111352,113.032852850316,115.54226277575,105.949859656659,101.190432340686,96.6327428804549,111.566961216831,96.519616432086,93.2129485046134,101.682882367996,111.560050932916,94.9033426077872,102.036119295074,93.184974128712,106.881829323882,135.168624081861,120.105684952284,94.6801291502787,189.542255826499,110.604525552032,99.0714581377852,97.5879326027839,187.748691202323,99.6029563572766,128.53922545134,164.857195303803,88.848102223832,87.2601038719751,205.528100177992,169.81543295045,99.6610148404814,133.022001894359,101.591657944718,94.962452173263,151.773207293136,243.558662934827,138.80688481978,105.716341007823,175.830561629502,223.41530320251,211.497641152962,168.404127736299,100.236803434383,146.333358357479,132.475597426026,262.521674540329,95.3831195736227,89.1284999221993,94.9137013555527,100.772114893931,91.3389183008992,188.666554437036,114.110077709355,205.065860918331,197.776959776337,227.639023757733,187.262487905755,118.78055755605,221.495072930441,176.621736572271,263.144955380087,270.917668047918,100.372919093917,261.337300410076,158.907433064463,169.426898257163,203.266592822132,135.462640730384,147.500987859427,187.48065287259,162.606529905042,192.527499962335,193.928762529374,242.843678451734,123.191147060031,158.40188405235,252.732252792466,119.179981862304,107.494433513297,168.847231419046,115.110399614626,229.202561292094,144.892615159473,167.040646988051,170.444939955157,115.369647389129,101.129682835986,170.260730517239,118.31706929559,170.89095157339,213.442453578857,125.724665782649,223.34835608789,112.966444236147,204.868182642069,108.937526101981,100.528179424019,113.429600764197,186.48547096425,111.367713922439,209.567914896827,295.424416716767,274.412562207055,244.584393475268,236.099086691719,107.801370812423,130.99477549161,92.6652585426561,107.001001224127,110.02092595316,237.151290206127,121.906256084093,121.588742348033,142.740746565247,104.157251328868,103.624889389399,263.473822590098,112.706781998281,122.448343186459,128.633654026733,137.637359971969,87.5032772644588,122.039850443923,125.495105397022,96.550332890978,96.0783949926889,85.7525269729962,83.1110305387992,93.7797456280381,94.080374796788,155.275810478705,167.89940472825,190.179576311198,166.236898639746,243.528753034199,121.587690893495,133.095853077914,185.797051853244,84.4730192451457,91.944500955345,93.740793607895,140.667714098444,203.44863354474,113.533400443041,238.935999170886,142.99606300977,221.789235936376,195.086456938654,154.408726803236,234.699851058585,256.902728301209,104.101752199242,156.188452931722,160.773015925966,232.622681868473,234.405031902169,165.812463952362,114.367854690147,178.610146430287,151.875342631317,235.825434629233,130.076872987544,151.227931914866,109.640221233197,109.447775136588,105.81881997982,137.913458630504,110.797053184126,108.53846227445,125.127267579494,107.307200631177,101.254209918704,109.371143589933,131.803775317605,131.477378782375,128.132088142487,178.171655843879,128.809211999582,245.830301465147,164.656151699714,113.903663546442,178.036311469812,182.594092136996,164.76268947944,179.600508739624,197.711544098994,197.544613456523,206.696439097783,121.851701549076,128.935102760923,169.623297989283,167.681793312818,108.805054486032,279.701770183786,222.964303788872,219.023948413352,224.193971768645,111.049648923362,116.801562171407,117.463512420073,110.532426275858,161.345941612136,126.50676750577,91.9310303182019,142.892918650369,83.5687827476636,79.0794728585077,84.3660958099329,100.037068803361,100.096294087701,78.0201879843107,97.8569605289204,96.1277671522182,94.1635705453258,98.128599631123,101.409988555528,102.687203741133,111.731213049655,115.935260567538,271.361686615961,241.968556145559,152.991202061743,99.3692499507363,91.5423097801919,90.5956468734684,213.622470613545,117.23224932732,112.059371146259,139.309450489774,102.712999245967,83.7993918536222,86.8614969784116,99.9830341632461,84.6609765828744,94.334834108513,80.5036281241021,82.1477431660247,184.300783632636,200.822800563354,83.1185178564458,113.710495293388,127.224219550583,182.540201682925,163.044731409736,123.697902598658,123.538995711592,153.321339126391,144.10450120394,187.392923014528,187.795342627866,94.3809731048864,112.591291473908,137.439248203506,146.223602026712,81.4667775387473,142.327278479665,212.546940273612,140.317304693773,166.760675178471,124.675966232995,177.203145911151,100.232010801687,101.41835922144,111.794742895672,116.676113436136,147.970938780699,107.203981666011,100.439466791637,125.241936359479,116.155056729187,133.796024537777,103.667307306867,116.173345723498,157.464786976462,129.710270907461,147.28127268567,116.047677053183,107.678950675068,111.814005262996,113.593691192481,118.435994266153,148.881538926125,109.151021821583,103.870218492983,119.268896546126,107.773753637245,111.209179929199,111.076816677835,139.008984982532,113.422783889127,115.67068105073,101.726955570133,142.521844764655,182.693275152255,112.782623365508,113.982482988453,112.543991672034,110.231037686896,105.14201991271,110.547403159543,149.676053354619,104.821252238083,101.773038497779,109.345088833177,117.108081568018,106.666091985803,102.164871603216,156.347505335064,199.06717684603,168.701133877313,113.842408476115,180.84762816685,162.516263316792,172.503975524167,120.002097356279,107.749474136636,144.54156195444,113.635710973851,183.89698435157,161.11407078831,111.588006405379,160.897614486996,175.454404943807,140.13858549776,153.139542933975,180.318132154138,110.075006418724,133.876744336665,111.07989194184,102.177117237247,170.204094470452,111.742456851397,149.535362589936,129.204068240849,106.272871151431,126.599122785236,103.204816023901,105.953269791822,96.0597253455453,111.104441108172,98.3019996514645,109.937113890373,115.865033778779,112.678693975756,112.511603213265,144.695993041913,120.559622030867,135.047179961947,177.845897059148],"x":[197.2,139.06,82.655,85.62,70.415,80.5,63.47,81.635,62.9,125,102.43,105.08,171.94,71.11,87.61,151.67,93.67,184.85,152.78,189.55,164.94,98.135,56.72,67.14,140,51.56,134.71,36.68,243.715,198.33,160.4,170.23,87.63,53.44,253.12,46.28,53.14,43.49,51.13,128.42,102.78,97.14,156.27,85.31,73.43,80.04,174.69,183.45,62.57,239.73,49.57,67.87,237.47,61.2,128.63,111.96,109.1,193.53,157.87,142.38,65.34,158.61,93.61,101.33,72.57,142.92,173.67,270.83,119.42,191.39,77.4,83.57,156.745,58.29,289,216.93,69.88,112.99,109.44,172.87,101.665,113.97,115.5,753.31,142.98,64.475,65.54,147.08,215.03,150,175.86,198.38,143.62,74.12,70,104.72,215,179.06,137.45,54.9,282.64,160.61,111.5,226.565,356.16,143.35,92.96,126.92,164.17,145.96,423.9,179.02,65.08,132.8,161.225,94.97,114.92,113.95,325.53,110.63,165.05,74.415,57.6,112.735,114.86,175,53,103,42.61,160,115.14,103.3,138.75,176.875,225.88,79.6,68.8,93.1,143,132,107.01,69.38,106.33,171.13,91.67,128.17,146,84.17,240.67,51.7,58.45,153.45,115.67,53.17,88.15,65,90.475,33.05,170.39,71.06,57.15,127.97,98.34,108.84,154.015,155.86,75.315,49.56,148.33,123,173.64,114.9,200.75,130.58,87.5,259.25,102.67,79.29,137.92,106.31,191.33,111.455,133.11,84.67,91.27,176.53,147.43,144.32,81.25,88.33,241.81,392.2,106.19,142.54,78.33,228.65,125,250.16,177.49,105,267,248.35,171.94,121.96,84.35,90.19,183.79,116.78,215.65,258.95,129.35,108.33,121.75,136.135,477.27,97.515,125,108.39,114.86,119.725,113.25,210.48,93.55,73.23,177.91,279.24,106.37,171.43,111.265,52,94.015,102.81,120.71,158.86,67.71,55.82,56.25,155.945,165.58,100.29,123.905,226.52,121.11,90.95,200.51,189.075,170.9,208.82,119.24,141.31,89.23,101.69,92.83,150.585,101.39,108.33,103.515,78.66,89.17,100.28,75.83,135,137.17,173.05,70.89,75.84,204.89,88.75,45.83,129.24,188.69,96.26,75.46,97.36,87.97,154,65,116.38,73.78,120.88,82.47,127.31,60.13,148.17,118.51,143.89,102.74,107.99,35.175,69.07,116.29,74.955,128.905,133.33,111.2,142.29,162.78,123.25,100,113.03,56.88,37.04,76.61,104.38,285.99,135,74.31,95.56,67.5,164.165,94.62,62.82,73.48,109.32,130,76.08,381.34,153.75,178.06,122.11,71.67,123.43,54.17,80.75,53.33,125.345,194.92,281.77,141.35,124.75,153.74,143.39,93.285,86,160,238.67,53.29,72.38,112.51,181.99,116.57,100.63,80.83,91.25,82.69,87.475,53.61,98.355,142.5,156.79,80,144.6,124.51,242.26,303.02,106.815,250.79,244.5,119.75,132.06,284.54,175.21,98.88,108.33,109.88,129.58,118.33,105.32,82.21,87.17,61.42,47.62,125,89.44,235.645,82.08,65.955,263.9,32.24,99.69,185.83,94.33,398.78,245.04,158.89,70.3,156.77,121.17,210.82,112.52,80.55,446.06,297.62,136.2,157.58,123.28,134.785,153.22,100,112.65,125.23,99.09,54.86,57.13,241.445,32.21,93.19,94.79,78.91,129,99.14,82,33.61,100.91,109.52,48.32,201.51,121.46,65.21,65,72.92,56.41,76.99,97.66,100,68.83,154.15,203.12,124.61,78.615,131.53,68.96,117,150,160.01,92.59,160.02,129.77,90.36,195.22,141.22,96.55,74.32,91.71,208.29,85.29,109.3,129,119.33,99.42,84.27,76.65,58.73,88.09,136.5,130.18,96.67,190.25,135.91,86.1,129.47,130.51,91.54,56.63,67.4,52.11,92.12,154.88,45.42,99.19,100.82,53.54,55.75,81.5,180.25,137.61,86.94,116.67,325,99.65,124.25,136.36,160.97,100,147.5,138.68,145.315,191.67,108,150,61.06,91.44,56.72,140.95,117.67,70.96,112.14,105.14,260.98,156.19,92.97,84.11,142.03,73.67,152.54,117.29,215,139.05,117.64,108.03,81.49,47.955,126.71,110,112.9,69.34,139.58,95,167.15,246,181.25,149.07,180.25,66.54,106.99,139.1,89.06,76.43,139.39,108.23,74.86,59.39,98.17,174.29,278.11,84.69,122.55,180.67,113.43,133.13,156.25,302.07,165.17,136.25,342.75,228.75,184.815,120,108.33,186.39,114.895,115.84,86.8,163.46,116.94,121.39,97.73,125.27,104.015,83.31,116.165,144,194.98,432.92,482.33,168.41,120.73,102.54,140.2,118.25,80.44,136.21,254.15,113.655,121.67,95.63,53.97,32.605,118.67,174.37,395.44,879.9,375,266.67,483.21,533.61,203.17,116.39,425.995,141.6,481.02,90,143.75,184.47,117.67,90.68,208.66,91.73,151.94,116.04,95.88,113.615,173.1,132.85,98.18,100,176.39,126.25,133.75,115.23,123.59,91.23,87.75,89,136.67,217.5,60.76,74.91,126.81,276.73,114.55,72.585,89.12,84.95,44.48,64.43,149.61,100.83,124.33,128.06,43.18,68.13,105.19,107.38,39.44,201.4,164.79,200.305,81.4,155.15,191.25,163.56,90.06,68.06,139.21,43.33,88.515,201.43,112.5,249.55,62.86,120.55,116.02,129.54,99.6,92.78,99.71,333.34,84.93,87.18,75.56,118.215,189.91,190.35,285.75,203.95,107.14,87.54,58.75,112.96,119.58,51.13,240.41,120,185.27,125,95.96,296.46,194.96,166.67,219.26,293.97,360,259.38,70.9,106.25,116.5,110.96,73.15,98.23,67.5,139,68.19,169.78,148.75,98.6,82.11,154.97,89.78,75.75,45.57,171.61,107.96,56.11,125.775,117.38,116.97,125.365,71.47,260.21,85,75.33,73.83,104.4,120.67,77.12,99.42,101.575,131.46,107.5,113.33,55.96,250.42,155.17,79.63,98.02,97.25,167.475,94.9,42.96,152.6,64.23,110.915,58.25,102.59,89.89,69.48,111.19,169.16,80.33,163.34,52,91.25,103.75,295.73,125.305,145,194.04,133.61,77.095,396.91,235.53,154.59,65.835,119.13,80.88,117.07,155.88,151.41,58.03,200.89,246.75,329.815,150.66,84.71,143,112.32,100,97.92,54.97,80.665,97.5,58.14,104.72,131.01,111.165,181.295,181.05,118.33,87.79,175.5,166.78,314.68,173.17,116.46,218.33,134.38,159.13,214.39,128.37,124.03,146.31,120.25,265.1,184.17,163.92,75.67,236.655,279.83,176.78,70.42,116.33,121.48,141.05,137.78,146.66,215.36,91.825,136.85,129.75,156.54,130,231.02,130,302.92,87.395,188.35,104.55,111.31,78.54,151.38,93.58,191.24,215.71,328.275,256.67,205.22,119.67,118.75,96.92,76.98,55.58,201.38,189.76,97.5,132.17,98.79,65.16,80,104.73,96.915,123.17,156.2,38.47,87.25,160.105,173.55,126.205,106.92,94.55,136.67,74.44,173.41,191.19,160.88,127.67,184.77,94.82,125.03,194.32,67.24,68.7,115.325,118.33,269.78,67.92,126.67,131.2,254.15,126.69,135.56,159.96,220,79.17,340.205,190.13,332.34,121.82,210.6,107.6,187.24,140.19,336.235,87.61,136.49,95.36,77.14,95.86,129.86,66.64,79.82,196.48,62.28,139.84,122.14,139.67,120.92,100.68,247.025,102.635,212.685,190.99,107.67,166.67,139.85,92.005,233.92,145.91,156.875,255.71,150.3,59.46,279.3,111.46,81.455,265,136.56,174.53,310.96,105.43,109.71,78.01,93.52,147.72,102.78,67.33,132.56,62.44,71.03,116.67,74.78,147.985,109.33,120.79,100.07,93.605,64.65,137.44,118.77,144.06,119.675,197.64,256.685,110.84,75.64,52.25,96.47,175,146.88,113.97,200,131.315,50.33,92.71,90.48,92.08,113.49,84.19,76.105,197.98,173,74.46,178.06,159.96,152.5,153.665,128.84,83.19,211.11,138.46,90.61,132.52,99.44,194.52,140.95,149.58,100,213.33,228.03,118.75,188.62,108.5,196.08,74.92,56.68,111.76,88.05,129.02,48.86,50.27,126.81,58.18,188.44,123.86,69.88,94,224.94,142.78,86.67,63.89,58.36,131.35,90.27,187.335,76.64,53.04,143.4,64.29,93.92,167.63,223.04,108.8,90.175,135,148.31,202.75,119.31,100.84,145.14,75.86,51.95,88.37,250,98.83,77.88,93.47,100,49.57,75.63,248,207.65,91.56,81.67,117,178.28,215.23,106.13,74.03,191.07,123.63,118.92,176.11,115.84,218.32,251.13,261.16,161.11,229.05,65.07,241.1,84.88,95.08,225,90.86,300,160,168.33,101.04,131.63,108.29,119.9,73.36,74,89.625,105.055,136.39,98.05,112.515,112.67,86.85,237.39],"mode":"markers","marker":{"color":"black","opacity":0.3},"name":"training set","alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter"},"3ca627c25119.1":{"y":[91.8368846694956,114.641583059156,183.899486297016,114.107627458993,134.877240047482,97.0570748963158,146.747422121954,113.852918957966,111.432368471278,95.9494329574843,106.209877744625,94.5880797040269,120.327304885823,90.6880552117342,231.260038286718,113.288425754176,149.064560757359,110.648907415409,196.672465922035,385.554198343221,349.239278423424,99.6188759571435,180.633100505946,169.655681290482,120.238337602509,120.504323453462,143.192809721234,172.106721503313,97.4925578234395,180.896874849178,101.617516784312,170.875750414504,99.4220463238322,112.197814784426,138.810915982677,236.638818707642,103.670925838572,177.175945715458,94.3273920408011,157.669448708082,255.844828237579,135.668812689872,112.186341382762,268.141950035709,114.343821869601,97.6878006962658,80.2908826553269,81.7077535136683,105.159281707256,116.90601248131,130.177290410542,101.280998681148,123.731049663848,111.808713190561,118.097788385194,173.929952228597,116.570854299128,174.729351387131,109.697484318737,108.020809116798,103.728537055046,121.389053981029,108.709870852457,89.2473950788474,114.094507328133,170.12960046794,103.460210792691,219.864273918946,96.5629867231662,114.309027926715,151.788690740641,101.107987284052,97.1382599327995,126.163007933546,147.273423376109,108.787901174974,99.6709676073942,114.332452127759,216.690171204158,95.1487235526814,101.796447780113,121.85982484956,107.866757918951,120.604740679671,157.07867865219,96.9718916981201,94.3325674059247,114.472390008589,136.775084954121,107.08089160057,164.816229394832,98.7988177824597,158.071523421499,188.033703889034,185.812640619178,154.811045453462,166.210651868235,97.4000097882327,139.916260726146,113.704870909321,97.9926538814992,96.0434427705018,95.7133658963296,93.0432372926477,91.5000485857725,89.7706896082825,94.2294802091257,90.3080976651782,124.886341687142,104.397870669653,90.8953828129194,113.973036727488,94.880719015688,137.272905219472,124.455862815092,135.176354904562,124.829325290812,96.7958254620205,108.850760134812,142.285552137118,99.4874061374364,99.2523805565809,274.532084159948,185.739155308062,141.853929016676,123.017753965739,98.3437595087186,135.692232376887,127.918683654314,157.153294635604,260.503834872803,139.858546027446,138.465242994734,168.701435250932,111.866303363743,117.509597170073,258.832141702922,283.638436082238,176.205216347797,138.68957403965,110.848076560412,129.434438682212,160.315312940513,111.611527253221,102.839734917909,97.8097553421175,365.706076325227,115.128102709131,106.005132160161,204.903314288114,180.332169543752,304.200146651341,90.5483072425118,139.31178143072,129.05844093005,108.544935699179,180.298196939442,85.9523245571663,146.170197210964,217.301380927015,247.911082678166,183.166775658177,95.5066939949419,234.25050001565,89.6296033774414,97.4254698404109,102.173614341882,114.713249284196,125.526049178732,93.5079902995736,153.850106285384,92.1263691419752,98.180420006498,95.6774433543907,115.733002646557,96.7098515969722,117.032765762412,141.851817027922,110.179553712767,96.4840802572267,133.283924332778,99.5206339015639,181.056306806569,101.982866203166,97.0979473961108,102.442453449087,80.7241229473568,211.657343907052,90.0184863003442,116.997099813104,117.675313408415,149.958587301597,137.828649262424,104.735616981252,220.419787845511,269.011326655287,131.805309306416,108.281924413947,168.647798017534,146.570229482898,162.712485259207,114.442337619668,98.8529384447753,121.334550365124,156.736251799486,145.546836218955,201.981240999083,161.837603535413,102.615847392757,79.5151781249226,178.727508023329,171.072445190579,145.549800661409,120.577996608047,230.061468643894,212.214337658148,81.4825890432031,152.809310448194,93.6974018707932,98.0544761406006,205.726661851377,271.898263323652,313.299669272946,209.218623091022,154.481001078766,259.664239567019,182.897490848932,139.55095989478,200.639936421278,81.1092287187683,103.599951768589,100.29081023409,81.529191262003,97.5417377424698,121.846451686349,183.244712734967,118.206362450246,142.162324557125,109.197544755871,102.777264898132,177.925091354326,99.1022584789748,139.108138976443,140.492777244799,106.010892496323,98.6898933111044,118.528777636703,105.186484584746,117.836841684023,113.910819307413,99.6296507183958,110.933801221572,112.692695150463,203.08736587383,105.061159274892,189.091831096214,134.37952052022,189.084486477703,113.99713812206,120.358777731397,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"x":[111.94,156,320.66,111.32,174.375,64.25,200,175.34,120.94,42.29,98.2,53.3,193.945,87.4,128.33,141.28,145,125.73,127.54,281.09,191.21,50.73,101.39,114,81.94,101.39,128.32,251.46,71.49,197.73,72.885,200.22,162.83,132.15,184.17,192.08,143.92,208,88.54,184.38,265.43,140.94,131.9,241.88,93.89,127.5,51.13,95.42,111.87,87.56,157.38,58.78,146.98,92.43,116.38,243.33,132.5,281.34,84.27,65.04,131.39,108.61,101.11,82.17,117.67,178.33,95.81,403.82,122.15,179.66,122.54,66.32,83.98,150.17,251.25,92.17,76.605,123,150.18,129.17,187.5,112.11,104.855,131.4,124.46,56.42,60.43,127.73,176.44,110.71,118.11,129.89,127.56,250,126.32,129.99,205.56,75.5,97.56,164.53,92.5,60.23,105.46,45.15,101.45,63.26,141.2,112.5,179.81,77.52,123.31,73.37,70.51,108.51,89.35,105.14,236.32,69.62,165.83,124.27,112.64,127.34,291.06,236.58,203.34,122.78,70.29,138.6,115.255,258.21,158,147.56,153.43,125.49,108.34,78.73,168.95,227.94,177.86,143.77,81.67,111.84,134.13,132.57,68.78,75,211.87,136.385,66.33,234.95,151.19,165.975,46.18,205.83,123.335,116.45,65.62,49.78,118.445,117.81,194.03,199.33,88.33,157.44,40.615,108.83,158.17,208.65,180,81.31,160.14,68.63,75.13,73.83,80.73,103.94,89.56,200,204.17,66.94,127.88,68.27,115.83,133.33,91.76,102.52,75.34,230.35,162.68,90.81,129.9,158.56,208.84,53.61,169.08,175,133.64,98.835,152.5,108.3,160.67,114.44,113.94,194.445,214.62,145,113.43,156.31,58.27,129.02,145.86,121.62,203.4,100.675,244.17,173,165.92,207.08,51.78,93.92,290.63,115.92,217.34,224.38,162.76,275.57,277.81,232.07,136.78,57.96,135.49,71.33,73.05,85.86,91.53,69.33,91.85,92.63,90.83,76.28,234.76,73.08,151.3,100.75,89.605,86.32,161.94,115.15,121.84,95.67,134.95,155.67,67.64,143.93,89.21,177.69,158.45,186.33,128.45,50.42,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"mode":"markers","marker":{"color":"red","opacity":0.3},"name":"validation set","alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter","inherit":true},"3ca627c25119.2":{"y":[0,880],"x":[0,880],"mode":"lines","marker":{"color":"black","opacity":0.3},"name":"1:1","alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter","inherit":true}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"yaxis":{"domain":[0,1],"automargin":true,"range":[0,510],"title":"predicted (USD)"},"xaxis":{"domain":[0,1],"automargin":true,"range":[0,880],"title":"observed (USD)"},"annotations":[{"x":600,"y":100,"text":"R2 training set: 45 % <br />R2 test set: 40 % <br /> <br />RMSE training set: 54 USD <br />RMSE test set: 57 USD","xref":"x","yref":"y","showarrow":false}],"title":"Income at the segmento level","hovermode":"closest","showlegend":true},"source":"A","config":{"modeBarButtonsToAdd":[{"name":"Collaborate","icon":{"width":1000,"ascent":500,"descent":-50,"path":"M487 375c7-10 9-23 5-36l-79-259c-3-12-11-23-22-31-11-8-22-12-35-12l-263 0c-15 0-29 5-43 15-13 10-23 23-28 37-5 13-5 25-1 37 0 0 0 3 1 7 1 5 1 8 1 11 0 2 0 4-1 6 0 3-1 5-1 6 1 2 2 4 3 6 1 2 2 4 4 6 2 3 4 5 5 7 5 7 9 16 13 26 4 10 7 19 9 26 0 2 0 5 0 9-1 4-1 6 0 8 0 2 2 5 4 8 3 3 5 5 5 7 4 6 8 15 12 26 4 11 7 19 7 26 1 1 0 4 0 9-1 4-1 7 0 8 1 2 3 5 6 8 4 4 6 6 6 7 4 5 8 13 13 24 4 11 7 20 7 28 1 1 0 4 0 7-1 3-1 6-1 7 0 2 1 4 3 6 1 1 3 4 5 6 2 3 3 5 5 6 1 2 3 5 4 9 2 3 3 7 5 10 1 3 2 6 4 10 2 4 4 7 6 9 2 3 4 5 7 7 3 2 7 3 11 3 3 0 8 0 13-1l0-1c7 2 12 2 14 2l218 0c14 0 25-5 32-16 8-10 10-23 6-37l-79-259c-7-22-13-37-20-43-7-7-19-10-37-10l-248 0c-5 0-9-2-11-5-2-3-2-7 0-12 4-13 18-20 41-20l264 0c5 0 10 2 16 5 5 3 8 6 10 11l85 282c2 5 2 10 2 17 7-3 13-7 17-13z m-304 0c-1-3-1-5 0-7 1-1 3-2 6-2l174 0c2 0 4 1 7 2 2 2 4 4 5 7l6 18c0 3 0 5-1 7-1 1-3 2-6 2l-173 0c-3 0-5-1-8-2-2-2-4-4-4-7z m-24-73c-1-3-1-5 0-7 2-2 3-2 6-2l174 0c2 0 5 0 7 2 3 2 4 4 5 7l6 18c1 2 0 5-1 6-1 2-3 3-5 3l-174 0c-3 0-5-1-7-3-3-1-4-4-5-6z"},"click":"function(gd) { \n        // is this being viewed in RStudio?\n        if (location.search == '?viewer_pane=1') {\n          alert('To learn about plotly for collaboration, visit:\\n https://cpsievert.github.io/plotly_book/plot-ly-for-collaboration.html');\n        } else {\n          window.open('https://cpsievert.github.io/plotly_book/plot-ly-for-collaboration.html', '_blank');\n        }\n      }"}],"cloud":false},"data":[{"y":[160.596804241615,126.255342925878,115.386252119412,100.15681805426,96.2590677903116,108.720751993275,104.994787029987,105.102045762321,89.9602505721346,99.3338881494583,109.40657307915,102.445117638893,118.852643507967,93.8614700114466,112.547267515828,111.367244336389,98.6319183820774,103.621871539013,116.525597505292,187.205368487309,116.725713824883,98.3468331800633,99.0742346026125,92.5784353928627,111.477357047241,104.76660132259,104.28749152826,97.0509895532389,128.920235978041,130.87584744274,111.392995016168,134.575564789924,97.0326689788154,95.221736988661,133.355254868407,92.5498452248885,92.2972809472066,91.9779768352353,103.57574310699,117.73669218497,101.192980800613,97.7049224311048,109.216727411235,97.5893775674088,91.2518564470542,99.5761841209361,228.343203295889,120.726436171244,91.0173425323046,169.382681055404,98.6918667480599,98.048838375725,156.35184603053,95.8778294269946,156.642304485512,101.636094228115,97.3297655440319,112.219265384166,103.349791973397,120.416650885458,91.2126754795146,156.061078800526,96.9147038385671,99.7456937812989,84.0064664615009,105.176939237805,116.696931233022,147.393834662337,115.795567976795,105.724849147936,92.4216533345187,107.090123561523,93.8314679016373,98.6235209677408,181.063297045948,107.47435365828,97.3176164026735,103.283691900241,98.1840597830441,183.949659397186,163.770870289873,99.1925809010476,129.344567204631,263.735830941847,104.275678632473,94.6861985694024,95.3119891992035,148.850962309908,141.798763734389,164.560452697303,181.524942844024,144.478201490955,136.763384893341,114.744915719872,117.42341094663,117.453273210234,150.998822010173,111.07223343474,124.291012235475,104.54255874729,247.373196333048,94.1603936894731,107.076259321275,162.981893103252,247.101373854918,151.444082912893,312.597944746772,144.243950311945,216.368283236729,106.891344001179,321.031412755968,205.543744434655,115.282729996304,130.643955888737,119.755689433868,105.62719790399,103.385180638065,130.418755040204,197.516483085773,98.6682498046734,137.75069574554,106.900547825942,107.75183147849,108.160304600745,120.429471967931,132.258262537355,96.907485912213,114.31134626621,92.3097040601596,132.810634102942,109.372339486669,152.939725625186,154.685877686315,219.748543364564,147.337323188271,159.37955916492,89.3929171531291,147.564085510777,148.641638593452,162.065466212507,197.281884368894,102.337638932308,151.855465497793,128.736105263353,119.053800826093,137.247729477303,153.065408545287,132.132597473894,232.125821786354,93.3281328028012,92.8705837127811,124.201684833176,111.873036317541,94.396686708768,95.4120265191405,97.6635809929133,95.3933450016502,95.3818935013989,165.845483010395,94.1540269219456,93.2369921210746,103.712295827281,113.114364711391,99.3172073872503,176.238557012389,122.826676916517,83.9210686251795,95.1029943700332,187.674070126967,143.96466739454,126.619149224977,224.658875591298,164.714984445305,159.666729694811,80.4479657724451,172.437262869301,147.787186198965,114.374903165264,209.191225346031,111.63487555988,205.423934546461,107.048710529459,242.997115799087,118.394579248214,126.51968055784,206.905457616747,149.253786742523,150.428037102405,184.838792514986,161.082018658672,142.07008644692,209.120317582156,130.664171804768,127.020132534792,183.430638606788,176.816677179578,119.534206596413,218.841806285077,140.346148438561,104.68873249934,171.091064387512,173.58922260934,171.566958751239,158.210717931339,99.2977513228883,102.527970413312,219.05392337181,205.043761882067,236.385542713713,204.431918001531,179.524263434125,95.0549085338009,166.601160282352,192.033304271203,263.322246518251,127.291636011102,146.248187455567,172.904580179872,99.9270356550421,149.121353959936,173.592917629565,187.897951378158,100.963235540496,105.427538156144,108.168184635001,177.47495182761,138.132011148489,253.336837549401,143.649498308642,80.2920913891409,91.767361492654,98.5019392608974,105.889447540725,195.456453935556,85.0812916072273,87.8211722621331,98.5318949728885,109.137994053048,90.8633464063754,101.679401588512,122.457070643749,132.256183715416,124.952093210783,86.2972245775202,118.575571806345,190.013773164452,94.3503872419534,195.802291587747,146.241122691502,186.477581450663,105.067411892362,99.223619985605,109.140262855789,155.521415720029,134.997692289872,110.258722477736,106.626426235334,109.086117360654,106.057958260179,124.648368885044,137.642834458809,153.677033890231,156.421604333772,171.552082008514,106.226809042573,110.323914855836,162.284114688031,124.468894506613,105.352945924287,113.39308251705,118.172711532384,156.340123552689,96.1779035680494,107.111219866432,103.296034675495,136.563027863253,108.371483352392,105.675836067779,99.7525414033676,114.888850227421,107.915755842382,108.59482887208,109.193836826792,106.658991515217,108.280476126606,109.985079354758,114.574651402713,98.6299239786024,98.128910295894,108.185527358459,99.4620627924298,107.588492302174,104.421695915101,126.23595317238,105.892875093217,119.671391966793,119.27713535222,120.764573892802,139.862802774878,98.9055158810447,91.9536879768383,91.6106022841647,111.793802577903,128.586514498015,153.574701118309,122.167925413951,107.180526447878,97.6770820547782,103.728189518883,144.172460179813,118.502089909947,99.594411157271,96.506453143555,98.3128157770798,168.728769641946,172.122159129856,341.666606276726,109.450269268894,220.6736055162,265.254957799368,115.132118660043,163.9863403509,106.717954328172,108.452318442381,102.290997509517,104.300895855677,158.172364908573,134.398882745014,114.093737161164,100.119161812407,129.838932694367,103.829586148298,111.980199866437,106.716893907093,131.631354754914,151.809457351793,100.957253565912,106.300761038802,99.5991324919527,121.880293886357,104.279261525913,122.636984251347,95.9180007054002,110.465534784562,177.822189871711,92.1406789071535,94.2163102816778,93.2811770876201,186.30161216524,142.549107696878,123.479275438317,120.259687304787,110.670043805376,209.130513603156,140.361654108715,164.077214856616,237.032799183115,231.461705567736,130.895976874582,147.526849881444,205.742157188479,118.833868419224,100.438077234952,101.91058861626,98.0999911586994,112.250364828227,105.181827201807,144.12840796756,96.6533020638584,96.5263912166852,121.887517207913,111.409629671254,238.78657574009,103.443559056311,122.636071173989,112.358698041305,92.5915255137146,147.497618474625,92.8446707476948,93.4533461865349,147.815173169636,96.4402156411595,194.644487962063,148.993333652485,110.387073291864,87.9587205897121,200.304848193395,98.8910155987282,201.305440505348,121.884472166819,110.320179844007,315.654583482994,271.851357671963,107.53088237885,139.644123984518,168.503880869458,145.212818147129,116.836493220548,124.176500898368,94.138549317628,94.8461713813856,99.6093393440444,94.5605515624176,95.8807327020086,120.58525664116,95.7289666441814,125.090649408425,103.008450792458,101.0003420199,102.002557676401,116.629065367227,95.3089159508065,93.2140383373871,107.134484755029,135.628480721301,93.5663008480111,133.807078179496,146.180088666054,95.5846219130213,101.075037277696,104.34994261028,99.3557443471095,98.2223441357187,99.9093405675349,111.017993710487,93.296035282552,126.024342902989,157.413276698092,150.367259338544,95.3019420135003,92.8243465682964,93.4913781495452,93.030735695705,105.274325009459,164.793685364755,93.3789709653752,193.933046671537,98.0811604056004,100.764118570113,193.780108372617,102.236692447856,101.362631272153,96.9434284541581,101.179425195033,143.043427410898,96.8808876177205,121.05589416,153.023479277251,148.650745589904,102.696130138873,91.9291178223796,97.1236182674934,87.9183644507941,128.212954834887,97.5371250752731,112.678076657583,125.492988462858,173.03280492418,157.320911534232,131.357940558209,120.995566803978,95.9391246352455,96.578510116162,94.698545333618,93.7608310554988,93.5715788781577,97.2542364115462,111.717742657106,99.1483213340509,92.9560621171671,117.157608081578,91.7240237685686,98.1642790408467,94.8386545575086,141.770728490804,115.081266629048,95.3735299905196,104.926265140696,156.345277219697,101.952430336037,119.300245255499,115.33791990235,102.14260248309,158.302475510398,148.128410941777,209.861235163353,149.113501667276,116.747790874936,94.5612500607261,126.45370193678,88.216512832704,94.2133235156108,95.0088739165599,100.554028039814,89.6917092767157,90.6712128810829,114.953696325052,101.741105209654,157.305862282547,113.228391138072,93.0740450365532,113.717150773998,117.524875402189,116.988206768468,116.744209274584,108.051371192498,147.709284602754,139.811506809541,92.7727285457614,103.107617071974,91.1721850036605,79.9496815429482,166.894163518204,97.1307353678972,96.7660217313559,102.465567462701,134.923281309844,145.808738708356,98.9668420513663,188.339873000624,166.827461061038,100.334567002784,103.182080761836,99.3343323764236,200.425164184284,124.544313733592,98.4544257028816,96.7826640200542,103.080655914612,97.8170398773355,96.8920565868948,101.80454782602,100.098931776878,132.962958093202,154.54386935093,131.622626293633,95.0972979677571,122.388538571177,101.201918879347,132.300433562275,119.814996122813,219.495105143985,178.82291790773,208.699036833386,296.398514347251,263.774804512914,127.071174532337,180.478418586899,105.925150894912,128.993519031189,130.542763953066,103.899837995738,103.913713722261,150.736762276186,148.614036094159,129.386192262214,145.839192313576,145.955258946236,105.323776915503,113.276484556437,131.848964392391,136.258430329278,137.474061518014,263.211501891688,212.204885433035,179.639733926993,163.736862136928,137.243441466554,147.113525305366,123.935035001173,100.262862415984,101.58456894335,183.263187876198,94.777423235956,110.245868539516,108.940951445415,99.726463464137,93.2237324424423,113.920658579631,136.916555890424,269.286001390012,256.928170629812,318.574155463461,363.285117164164,300.340646811188,336.362871263211,310.785666481629,130.784210244313,288.560315305514,352.736619565524,227.881607669524,104.145260138243,188.942506303935,217.25168801673,102.805738577215,106.294075008039,185.763751187938,122.915892900893,127.027358762098,116.160518537521,109.890556082639,116.967695736881,124.632417864127,114.106781834007,110.378027713085,192.846203670517,109.241708345469,124.424097793862,170.241986344048,111.545797690105,128.051609536706,112.37316989618,109.157757814033,107.970710882143,103.854277699336,181.060051276675,105.599324207157,110.746172528652,151.707265982948,227.916590771337,110.65550617073,118.428153473471,122.472025105053,105.257487460839,98.3211138108902,97.6718902790678,130.035563517821,110.354259607678,123.850654856303,109.593291800672,93.3181482641182,97.7860577818748,98.1955438750569,97.1887848775971,91.3448869236413,136.266139857713,247.853659977947,126.007417910232,101.947839535695,132.358454068706,141.926918384033,116.128731835713,131.824317389009,98.1361658176266,111.15930640831,92.468448922367,94.2598834900964,122.741240737129,121.958409850728,175.339672885889,106.884475970788,113.129119952869,106.162220451423,93.1053509233988,96.6876965810483,101.485356439073,101.771251848633,145.269051195061,102.892353180987,101.638499840152,98.4771714889889,104.774646704906,107.496320563339,141.180696324234,175.122786771422,158.445100693239,106.525024981171,101.02658622272,87.5637321008581,108.06658152045,96.6429198895455,93.0562659907397,152.486240281099,145.977005941951,189.906721654987,192.971397094469,117.122947322105,183.047609999629,218.898872157604,171.322340104415,227.766138234559,266.814080586877,239.865219403657,217.002636249406,106.799587829628,156.672663506111,144.880679199877,93.3258785348947,95.4456221608432,97.5121420654306,95.5230537709355,95.5528292396187,99.4516307613459,180.767087490898,140.687544310233,103.222558387369,109.289024787805,101.947295493154,96.773506261511,123.922525973304,94.6712223859292,108.242110945182,98.9614051108305,93.1553928903299,110.201987070671,95.0384319348532,94.7251338853284,95.2854109827564,93.4446339898156,102.655291557558,118.251949848638,95.9483994547542,97.5113727894115,97.2544809115201,104.858044211194,95.1231508031027,95.3373973805843,102.060673407717,94.1777858606395,92.8611590729138,95.5273517276261,93.8955100830156,137.010055111352,113.032852850316,115.54226277575,105.949859656659,101.190432340686,96.6327428804549,111.566961216831,96.519616432086,93.2129485046134,101.682882367996,111.560050932916,94.9033426077872,102.036119295074,93.184974128712,106.881829323882,135.168624081861,120.105684952284,94.6801291502787,189.542255826499,110.604525552032,99.0714581377852,97.5879326027839,187.748691202323,99.6029563572766,128.53922545134,164.857195303803,88.848102223832,87.2601038719751,205.528100177992,169.81543295045,99.6610148404814,133.022001894359,101.591657944718,94.962452173263,151.773207293136,243.558662934827,138.80688481978,105.716341007823,175.830561629502,223.41530320251,211.497641152962,168.404127736299,100.236803434383,146.333358357479,132.475597426026,262.521674540329,95.3831195736227,89.1284999221993,94.9137013555527,100.772114893931,91.3389183008992,188.666554437036,114.110077709355,205.065860918331,197.776959776337,227.639023757733,187.262487905755,118.78055755605,221.495072930441,176.621736572271,263.144955380087,270.917668047918,100.372919093917,261.337300410076,158.907433064463,169.426898257163,203.266592822132,135.462640730384,147.500987859427,187.48065287259,162.606529905042,192.527499962335,193.928762529374,242.843678451734,123.191147060031,158.40188405235,252.732252792466,119.179981862304,107.494433513297,168.847231419046,115.110399614626,229.202561292094,144.892615159473,167.040646988051,170.444939955157,115.369647389129,101.129682835986,170.260730517239,118.31706929559,170.89095157339,213.442453578857,125.724665782649,223.34835608789,112.966444236147,204.868182642069,108.937526101981,100.528179424019,113.429600764197,186.48547096425,111.367713922439,209.567914896827,295.424416716767,274.412562207055,244.584393475268,236.099086691719,107.801370812423,130.99477549161,92.6652585426561,107.001001224127,110.02092595316,237.151290206127,121.906256084093,121.588742348033,142.740746565247,104.157251328868,103.624889389399,263.473822590098,112.706781998281,122.448343186459,128.633654026733,137.637359971969,87.5032772644588,122.039850443923,125.495105397022,96.550332890978,96.0783949926889,85.7525269729962,83.1110305387992,93.7797456280381,94.080374796788,155.275810478705,167.89940472825,190.179576311198,166.236898639746,243.528753034199,121.587690893495,133.095853077914,185.797051853244,84.4730192451457,91.944500955345,93.740793607895,140.667714098444,203.44863354474,113.533400443041,238.935999170886,142.99606300977,221.789235936376,195.086456938654,154.408726803236,234.699851058585,256.902728301209,104.101752199242,156.188452931722,160.773015925966,232.622681868473,234.405031902169,165.812463952362,114.367854690147,178.610146430287,151.875342631317,235.825434629233,130.076872987544,151.227931914866,109.640221233197,109.447775136588,105.81881997982,137.913458630504,110.797053184126,108.53846227445,125.127267579494,107.307200631177,101.254209918704,109.371143589933,131.803775317605,131.477378782375,128.132088142487,178.171655843879,128.809211999582,245.830301465147,164.656151699714,113.903663546442,178.036311469812,182.594092136996,164.76268947944,179.600508739624,197.711544098994,197.544613456523,206.696439097783,121.851701549076,128.935102760923,169.623297989283,167.681793312818,108.805054486032,279.701770183786,222.964303788872,219.023948413352,224.193971768645,111.049648923362,116.801562171407,117.463512420073,110.532426275858,161.345941612136,126.50676750577,91.9310303182019,142.892918650369,83.5687827476636,79.0794728585077,84.3660958099329,100.037068803361,100.096294087701,78.0201879843107,97.8569605289204,96.1277671522182,94.1635705453258,98.128599631123,101.409988555528,102.687203741133,111.731213049655,115.935260567538,271.361686615961,241.968556145559,152.991202061743,99.3692499507363,91.5423097801919,90.5956468734684,213.622470613545,117.23224932732,112.059371146259,139.309450489774,102.712999245967,83.7993918536222,86.8614969784116,99.9830341632461,84.6609765828744,94.334834108513,80.5036281241021,82.1477431660247,184.300783632636,200.822800563354,83.1185178564458,113.710495293388,127.224219550583,182.540201682925,163.044731409736,123.697902598658,123.538995711592,153.321339126391,144.10450120394,187.392923014528,187.795342627866,94.3809731048864,112.591291473908,137.439248203506,146.223602026712,81.4667775387473,142.327278479665,212.546940273612,140.317304693773,166.760675178471,124.675966232995,177.203145911151,100.232010801687,101.41835922144,111.794742895672,116.676113436136,147.970938780699,107.203981666011,100.439466791637,125.241936359479,116.155056729187,133.796024537777,103.667307306867,116.173345723498,157.464786976462,129.710270907461,147.28127268567,116.047677053183,107.678950675068,111.814005262996,113.593691192481,118.435994266153,148.881538926125,109.151021821583,103.870218492983,119.268896546126,107.773753637245,111.209179929199,111.076816677835,139.008984982532,113.422783889127,115.67068105073,101.726955570133,142.521844764655,182.693275152255,112.782623365508,113.982482988453,112.543991672034,110.231037686896,105.14201991271,110.547403159543,149.676053354619,104.821252238083,101.773038497779,109.345088833177,117.108081568018,106.666091985803,102.164871603216,156.347505335064,199.06717684603,168.701133877313,113.842408476115,180.84762816685,162.516263316792,172.503975524167,120.002097356279,107.749474136636,144.54156195444,113.635710973851,183.89698435157,161.11407078831,111.588006405379,160.897614486996,175.454404943807,140.13858549776,153.139542933975,180.318132154138,110.075006418724,133.876744336665,111.07989194184,102.177117237247,170.204094470452,111.742456851397,149.535362589936,129.204068240849,106.272871151431,126.599122785236,103.204816023901,105.953269791822,96.0597253455453,111.104441108172,98.3019996514645,109.937113890373,115.865033778779,112.678693975756,112.511603213265,144.695993041913,120.559622030867,135.047179961947,177.845897059148],"x":[197.2,139.06,82.655,85.62,70.415,80.5,63.47,81.635,62.9,125,102.43,105.08,171.94,71.11,87.61,151.67,93.67,184.85,152.78,189.55,164.94,98.135,56.72,67.14,140,51.56,134.71,36.68,243.715,198.33,160.4,170.23,87.63,53.44,253.12,46.28,53.14,43.49,51.13,128.42,102.78,97.14,156.27,85.31,73.43,80.04,174.69,183.45,62.57,239.73,49.57,67.87,237.47,61.2,128.63,111.96,109.1,193.53,157.87,142.38,65.34,158.61,93.61,101.33,72.57,142.92,173.67,270.83,119.42,191.39,77.4,83.57,156.745,58.29,289,216.93,69.88,112.99,109.44,172.87,101.665,113.97,115.5,753.31,142.98,64.475,65.54,147.08,215.03,150,175.86,198.38,143.62,74.12,70,104.72,215,179.06,137.45,54.9,282.64,160.61,111.5,226.565,356.16,143.35,92.96,126.92,164.17,145.96,423.9,179.02,65.08,132.8,161.225,94.97,114.92,113.95,325.53,110.63,165.05,74.415,57.6,112.735,114.86,175,53,103,42.61,160,115.14,103.3,138.75,176.875,225.88,79.6,68.8,93.1,143,132,107.01,69.38,106.33,171.13,91.67,128.17,146,84.17,240.67,51.7,58.45,153.45,115.67,53.17,88.15,65,90.475,33.05,170.39,71.06,57.15,127.97,98.34,108.84,154.015,155.86,75.315,49.56,148.33,123,173.64,114.9,200.75,130.58,87.5,259.25,102.67,79.29,137.92,106.31,191.33,111.455,133.11,84.67,91.27,176.53,147.43,144.32,81.25,88.33,241.81,392.2,106.19,142.54,78.33,228.65,125,250.16,177.49,105,267,248.35,171.94,121.96,84.35,90.19,183.79,116.78,215.65,258.95,129.35,108.33,121.75,136.135,477.27,97.515,125,108.39,114.86,119.725,113.25,210.48,93.55,73.23,177.91,279.24,106.37,171.43,111.265,52,94.015,102.81,120.71,158.86,67.71,55.82,56.25,155.945,165.58,100.29,123.905,226.52,121.11,90.95,200.51,189.075,170.9,208.82,119.24,141.31,89.23,101.69,92.83,150.585,101.39,108.33,103.515,78.66,89.17,100.28,75.83,135,137.17,173.05,70.89,75.84,204.89,88.75,45.83,129.24,188.69,96.26,75.46,97.36,87.97,154,65,116.38,73.78,120.88,82.47,127.31,60.13,148.17,118.51,143.89,102.74,107.99,35.175,69.07,116.29,74.955,128.905,133.33,111.2,142.29,162.78,123.25,100,113.03,56.88,37.04,76.61,104.38,285.99,135,74.31,95.56,67.5,164.165,94.62,62.82,73.48,109.32,130,76.08,381.34,153.75,178.06,122.11,71.67,123.43,54.17,80.75,53.33,125.345,194.92,281.77,141.35,124.75,153.74,143.39,93.285,86,160,238.67,53.29,72.38,112.51,181.99,116.57,100.63,80.83,91.25,82.69,87.475,53.61,98.355,142.5,156.79,80,144.6,124.51,242.26,303.02,106.815,250.79,244.5,119.75,132.06,284.54,175.21,98.88,108.33,109.88,129.58,118.33,105.32,82.21,87.17,61.42,47.62,125,89.44,235.645,82.08,65.955,263.9,32.24,99.69,185.83,94.33,398.78,245.04,158.89,70.3,156.77,121.17,210.82,112.52,80.55,446.06,297.62,136.2,157.58,123.28,134.785,153.22,100,112.65,125.23,99.09,54.86,57.13,241.445,32.21,93.19,94.79,78.91,129,99.14,82,33.61,100.91,109.52,48.32,201.51,121.46,65.21,65,72.92,56.41,76.99,97.66,100,68.83,154.15,203.12,124.61,78.615,131.53,68.96,117,150,160.01,92.59,160.02,129.77,90.36,195.22,141.22,96.55,74.32,91.71,208.29,85.29,109.3,129,119.33,99.42,84.27,76.65,58.73,88.09,136.5,130.18,96.67,190.25,135.91,86.1,129.47,130.51,91.54,56.63,67.4,52.11,92.12,154.88,45.42,99.19,100.82,53.54,55.75,81.5,180.25,137.61,86.94,116.67,325,99.65,124.25,136.36,160.97,100,147.5,138.68,145.315,191.67,108,150,61.06,91.44,56.72,140.95,117.67,70.96,112.14,105.14,260.98,156.19,92.97,84.11,142.03,73.67,152.54,117.29,215,139.05,117.64,108.03,81.49,47.955,126.71,110,112.9,69.34,139.58,95,167.15,246,181.25,149.07,180.25,66.54,106.99,139.1,89.06,76.43,139.39,108.23,74.86,59.39,98.17,174.29,278.11,84.69,122.55,180.67,113.43,133.13,156.25,302.07,165.17,136.25,342.75,228.75,184.815,120,108.33,186.39,114.895,115.84,86.8,163.46,116.94,121.39,97.73,125.27,104.015,83.31,116.165,144,194.98,432.92,482.33,168.41,120.73,102.54,140.2,118.25,80.44,136.21,254.15,113.655,121.67,95.63,53.97,32.605,118.67,174.37,395.44,879.9,375,266.67,483.21,533.61,203.17,116.39,425.995,141.6,481.02,90,143.75,184.47,117.67,90.68,208.66,91.73,151.94,116.04,95.88,113.615,173.1,132.85,98.18,100,176.39,126.25,133.75,115.23,123.59,91.23,87.75,89,136.67,217.5,60.76,74.91,126.81,276.73,114.55,72.585,89.12,84.95,44.48,64.43,149.61,100.83,124.33,128.06,43.18,68.13,105.19,107.38,39.44,201.4,164.79,200.305,81.4,155.15,191.25,163.56,90.06,68.06,139.21,43.33,88.515,201.43,112.5,249.55,62.86,120.55,116.02,129.54,99.6,92.78,99.71,333.34,84.93,87.18,75.56,118.215,189.91,190.35,285.75,203.95,107.14,87.54,58.75,112.96,119.58,51.13,240.41,120,185.27,125,95.96,296.46,194.96,166.67,219.26,293.97,360,259.38,70.9,106.25,116.5,110.96,73.15,98.23,67.5,139,68.19,169.78,148.75,98.6,82.11,154.97,89.78,75.75,45.57,171.61,107.96,56.11,125.775,117.38,116.97,125.365,71.47,260.21,85,75.33,73.83,104.4,120.67,77.12,99.42,101.575,131.46,107.5,113.33,55.96,250.42,155.17,79.63,98.02,97.25,167.475,94.9,42.96,152.6,64.23,110.915,58.25,102.59,89.89,69.48,111.19,169.16,80.33,163.34,52,91.25,103.75,295.73,125.305,145,194.04,133.61,77.095,396.91,235.53,154.59,65.835,119.13,80.88,117.07,155.88,151.41,58.03,200.89,246.75,329.815,150.66,84.71,143,112.32,100,97.92,54.97,80.665,97.5,58.14,104.72,131.01,111.165,181.295,181.05,118.33,87.79,175.5,166.78,314.68,173.17,116.46,218.33,134.38,159.13,214.39,128.37,124.03,146.31,120.25,265.1,184.17,163.92,75.67,236.655,279.83,176.78,70.42,116.33,121.48,141.05,137.78,146.66,215.36,91.825,136.85,129.75,156.54,130,231.02,130,302.92,87.395,188.35,104.55,111.31,78.54,151.38,93.58,191.24,215.71,328.275,256.67,205.22,119.67,118.75,96.92,76.98,55.58,201.38,189.76,97.5,132.17,98.79,65.16,80,104.73,96.915,123.17,156.2,38.47,87.25,160.105,173.55,126.205,106.92,94.55,136.67,74.44,173.41,191.19,160.88,127.67,184.77,94.82,125.03,194.32,67.24,68.7,115.325,118.33,269.78,67.92,126.67,131.2,254.15,126.69,135.56,159.96,220,79.17,340.205,190.13,332.34,121.82,210.6,107.6,187.24,140.19,336.235,87.61,136.49,95.36,77.14,95.86,129.86,66.64,79.82,196.48,62.28,139.84,122.14,139.67,120.92,100.68,247.025,102.635,212.685,190.99,107.67,166.67,139.85,92.005,233.92,145.91,156.875,255.71,150.3,59.46,279.3,111.46,81.455,265,136.56,174.53,310.96,105.43,109.71,78.01,93.52,147.72,102.78,67.33,132.56,62.44,71.03,116.67,74.78,147.985,109.33,120.79,100.07,93.605,64.65,137.44,118.77,144.06,119.675,197.64,256.685,110.84,75.64,52.25,96.47,175,146.88,113.97,200,131.315,50.33,92.71,90.48,92.08,113.49,84.19,76.105,197.98,173,74.46,178.06,159.96,152.5,153.665,128.84,83.19,211.11,138.46,90.61,132.52,99.44,194.52,140.95,149.58,100,213.33,228.03,118.75,188.62,108.5,196.08,74.92,56.68,111.76,88.05,129.02,48.86,50.27,126.81,58.18,188.44,123.86,69.88,94,224.94,142.78,86.67,63.89,58.36,131.35,90.27,187.335,76.64,53.04,143.4,64.29,93.92,167.63,223.04,108.8,90.175,135,148.31,202.75,119.31,100.84,145.14,75.86,51.95,88.37,250,98.83,77.88,93.47,100,49.57,75.63,248,207.65,91.56,81.67,117,178.28,215.23,106.13,74.03,191.07,123.63,118.92,176.11,115.84,218.32,251.13,261.16,161.11,229.05,65.07,241.1,84.88,95.08,225,90.86,300,160,168.33,101.04,131.63,108.29,119.9,73.36,74,89.625,105.055,136.39,98.05,112.515,112.67,86.85,237.39],"mode":"markers","marker":{"color":"black","opacity":0.3,"line":{"color":"rgba(31,119,180,1)"}},"name":"training set","type":"scatter","error_y":{"color":"rgba(31,119,180,1)"},"error_x":{"color":"rgba(31,119,180,1)"},"line":{"color":"rgba(31,119,180,1)"},"xaxis":"x","yaxis":"y","frame":null},{"y":[91.8368846694956,114.641583059156,183.899486297016,114.107627458993,134.877240047482,97.0570748963158,146.747422121954,113.852918957966,111.432368471278,95.9494329574843,106.209877744625,94.5880797040269,120.327304885823,90.6880552117342,231.260038286718,113.288425754176,149.064560757359,110.648907415409,196.672465922035,385.554198343221,349.239278423424,99.6188759571435,180.633100505946,169.655681290482,120.238337602509,120.504323453462,143.192809721234,172.106721503313,97.4925578234395,180.896874849178,101.617516784312,170.875750414504,99.4220463238322,112.197814784426,138.810915982677,236.638818707642,103.670925838572,177.175945715458,94.3273920408011,157.669448708082,255.844828237579,135.668812689872,112.186341382762,268.141950035709,114.343821869601,97.6878006962658,80.2908826553269,81.7077535136683,105.159281707256,116.90601248131,130.177290410542,101.280998681148,123.731049663848,111.808713190561,118.097788385194,173.929952228597,116.570854299128,174.729351387131,109.697484318737,108.020809116798,103.728537055046,121.389053981029,108.709870852457,89.2473950788474,114.094507328133,170.12960046794,103.460210792691,219.864273918946,96.5629867231662,114.309027926715,151.788690740641,101.107987284052,97.1382599327995,126.163007933546,147.273423376109,108.787901174974,99.6709676073942,114.332452127759,216.690171204158,95.1487235526814,101.796447780113,121.85982484956,107.866757918951,120.604740679671,157.07867865219,96.9718916981201,94.3325674059247,114.472390008589,136.775084954121,107.08089160057,164.816229394832,98.7988177824597,158.071523421499,188.033703889034,185.812640619178,154.811045453462,166.210651868235,97.4000097882327,139.916260726146,113.704870909321,97.9926538814992,96.0434427705018,95.7133658963296,93.0432372926477,91.5000485857725,89.7706896082825,94.2294802091257,90.3080976651782,124.886341687142,104.397870669653,90.8953828129194,113.973036727488,94.880719015688,137.272905219472,124.455862815092,135.176354904562,124.829325290812,96.7958254620205,108.850760134812,142.285552137118,99.4874061374364,99.2523805565809,274.532084159948,185.739155308062,141.853929016676,123.017753965739,98.3437595087186,135.692232376887,127.918683654314,157.153294635604,260.503834872803,139.858546027446,138.465242994734,168.701435250932,111.866303363743,117.509597170073,258.832141702922,283.638436082238,176.205216347797,138.68957403965,110.848076560412,129.434438682212,160.315312940513,111.611527253221,102.839734917909,97.8097553421175,365.706076325227,115.128102709131,106.005132160161,204.903314288114,180.332169543752,304.200146651341,90.5483072425118,139.31178143072,129.05844093005,108.544935699179,180.298196939442,85.9523245571663,146.170197210964,217.301380927015,247.911082678166,183.166775658177,95.5066939949419,234.25050001565,89.6296033774414,97.4254698404109,102.173614341882,114.713249284196,125.526049178732,93.5079902995736,153.850106285384,92.1263691419752,98.180420006498,95.6774433543907,115.733002646557,96.7098515969722,117.032765762412,141.851817027922,110.179553712767,96.4840802572267,133.283924332778,99.5206339015639,181.056306806569,101.982866203166,97.0979473961108,102.442453449087,80.7241229473568,211.657343907052,90.0184863003442,116.997099813104,117.675313408415,149.958587301597,137.828649262424,104.735616981252,220.419787845511,269.011326655287,131.805309306416,108.281924413947,168.647798017534,146.570229482898,162.712485259207,114.442337619668,98.8529384447753,121.334550365124,156.736251799486,145.546836218955,201.981240999083,161.837603535413,102.615847392757,79.5151781249226,178.727508023329,171.072445190579,145.549800661409,120.577996608047,230.061468643894,212.214337658148,81.4825890432031,152.809310448194,93.6974018707932,98.0544761406006,205.726661851377,271.898263323652,313.299669272946,209.218623091022,154.481001078766,259.664239567019,182.897490848932,139.55095989478,200.639936421278,81.1092287187683,103.599951768589,100.29081023409,81.529191262003,97.5417377424698,121.846451686349,183.244712734967,118.206362450246,142.162324557125,109.197544755871,102.777264898132,177.925091354326,99.1022584789748,139.108138976443,140.492777244799,106.010892496323,98.6898933111044,118.528777636703,105.186484584746,117.836841684023,113.910819307413,99.6296507183958,110.933801221572,112.692695150463,203.08736587383,105.061159274892,189.091831096214,134.37952052022,189.084486477703,113.99713812206,120.358777731397],"x":[111.94,156,320.66,111.32,174.375,64.25,200,175.34,120.94,42.29,98.2,53.3,193.945,87.4,128.33,141.28,145,125.73,127.54,281.09,191.21,50.73,101.39,114,81.94,101.39,128.32,251.46,71.49,197.73,72.885,200.22,162.83,132.15,184.17,192.08,143.92,208,88.54,184.38,265.43,140.94,131.9,241.88,93.89,127.5,51.13,95.42,111.87,87.56,157.38,58.78,146.98,92.43,116.38,243.33,132.5,281.34,84.27,65.04,131.39,108.61,101.11,82.17,117.67,178.33,95.81,403.82,122.15,179.66,122.54,66.32,83.98,150.17,251.25,92.17,76.605,123,150.18,129.17,187.5,112.11,104.855,131.4,124.46,56.42,60.43,127.73,176.44,110.71,118.11,129.89,127.56,250,126.32,129.99,205.56,75.5,97.56,164.53,92.5,60.23,105.46,45.15,101.45,63.26,141.2,112.5,179.81,77.52,123.31,73.37,70.51,108.51,89.35,105.14,236.32,69.62,165.83,124.27,112.64,127.34,291.06,236.58,203.34,122.78,70.29,138.6,115.255,258.21,158,147.56,153.43,125.49,108.34,78.73,168.95,227.94,177.86,143.77,81.67,111.84,134.13,132.57,68.78,75,211.87,136.385,66.33,234.95,151.19,165.975,46.18,205.83,123.335,116.45,65.62,49.78,118.445,117.81,194.03,199.33,88.33,157.44,40.615,108.83,158.17,208.65,180,81.31,160.14,68.63,75.13,73.83,80.73,103.94,89.56,200,204.17,66.94,127.88,68.27,115.83,133.33,91.76,102.52,75.34,230.35,162.68,90.81,129.9,158.56,208.84,53.61,169.08,175,133.64,98.835,152.5,108.3,160.67,114.44,113.94,194.445,214.62,145,113.43,156.31,58.27,129.02,145.86,121.62,203.4,100.675,244.17,173,165.92,207.08,51.78,93.92,290.63,115.92,217.34,224.38,162.76,275.57,277.81,232.07,136.78,57.96,135.49,71.33,73.05,85.86,91.53,69.33,91.85,92.63,90.83,76.28,234.76,73.08,151.3,100.75,89.605,86.32,161.94,115.15,121.84,95.67,134.95,155.67,67.64,143.93,89.21,177.69,158.45,186.33,128.45,50.42],"mode":"markers","marker":{"color":"red","opacity":0.3,"line":{"color":"rgba(255,127,14,1)"}},"name":"validation set","type":"scatter","error_y":{"color":"rgba(255,127,14,1)"},"error_x":{"color":"rgba(255,127,14,1)"},"line":{"color":"rgba(255,127,14,1)"},"xaxis":"x","yaxis":"y","frame":null},{"y":[0,880],"x":[0,880],"mode":"lines+markers","marker":{"color":"black","opacity":0.3,"line":{"color":"rgba(44,160,44,1)"}},"name":"1:1","type":"scatter","error_y":{"color":"rgba(44,160,44,1)"},"error_x":{"color":"rgba(44,160,44,1)"},"line":{"color":"rgba(44,160,44,1)"},"xaxis":"x","yaxis":"y","frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"base_url":"https://plot.ly"},"evals":["config.modeBarButtonsToAdd.0.click"],"jsHooks":[]}</script>
+<p class="caption">
+Figure 5.1: Observed vs predicted income values, BYM 2 model with covariates selected with the backward stepwise selection process
+</p>
+</div>
+
+</div>
+</div>
+<div class="footnotes">
+<hr />
+<ol start="3">
+<li id="fn3"><p>Processor: Intel(R) Core(TM) i7-7700HQ CPU @ 2.80GHz, 16.0 GB RAM<a href="stepwise.html#fnref3">↩</a></p></li>
+</ol>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="simple-model.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="summary-of-resuls.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"google": false,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"all": ["facebook", "google", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"download": ["SV_mapping.pdf", "SV_mapping.epub"],
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "";
+    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:" && /^https?:/.test(src))
+      src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>
