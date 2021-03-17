@@ -1,5 +1,7 @@
 # Tutorial Spatial Modelling Population Welfare (El Salvador)
 
+This report introduces high resolution mapping based on Bayesian geospatial techniques implemented in the open source statistical computing environment R [@R2018]. The core of the modelling method is implemented in the R package `INLA` [@INLA_theory_1;@INLA_theory_2;@INLA_R_1;@INLA_R_2]. The emphasis is on providing and explaining the R codes required to go from the *raw* data to the final maps.
+
 ## Overview
 
 The aim of the analysis is to create a high resolution map of poverty, income and literacy for El Salvador. The data on these three development indicators come from the 2017 household survey *Encuesta de Hogares de Propositos Multiples* (EHPM). While the survey data are only available for 1,664 *segmentos*, the lowest administrative units, the goal is to provide a map of the three development indicators for all the 12,435 *segmentos* of the country.
