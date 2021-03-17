@@ -1,6 +1,11 @@
 _book/
+docs/*
+data/*
+.Rhistory
+.rstudio/*
 _bookdown_files/
 _main_cache/
 _main_files/
 SV_mapping_cache/
 SV_mapping.Rmd
+.Rproj.user
