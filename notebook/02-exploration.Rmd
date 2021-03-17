@@ -1,0 +1,692 @@
+# Data exploration and preselection of covariates {#explo}
+
+The data used in the model can be separated in two main categories: 
+
+1.    the *outcome* variables, i.e. the three development indicators (income, poverty and literacy)
+2.    the *covariates*, i.e. the set of predictors derived in Section \@ref(data) and which will be used to predict the outcome variables in *segmentos* not sampled in the EHPM survey.
+
+When exploring the outcome data, the aims is to identify possible issues such as a lack of variation or the presence of outliers. It helps also in specifying the likelihood function for the outcome data (e.g. Gaussian, Gamma, Beta, etc). 
+
+For the covariates, we will start by reducing their number in order to limit the effect of multicollinearity, i.e. the presence of highly correlated covariates in the model. Reducing the number of covariates will also reduce the risk of retaining covariates because of chance correlation in a next stepwise covariates selection process carried in section \@ref(stepwise). 
+
+Lastly, we will investigate the correlation of the preselected covariates with the outcome variables.
+
+## Outcome variabes: distribution and outliers 
+```{r echo=FALSE, message=FALSE, warning=FALSE,  results="hide"}
+rm(list=ls())
+source("../utils.R")
+# modify dir_data to where you stored the data
+root_dir="~/"
+project_dir="data/"
+
+dir_data=paste0(root_dir,project_dir)
+
+ehpm17_predictors=read.csv(paste0(dir_data,
+                                  "out/ehpm17_predictors2.csv"))
+segmento_sh=rgdal::readOGR(paste0(dir_data,
+                                  "spatial/shape/admin/STPLAN_Segmentos_simplified.shp"))
+
+# correct for xls missbehaviour
+ehpm17_predictors=ehpm17_predictors%>%
+  mutate(SEG_ID=as.character(SEG_ID),
+         SEG_ID=ifelse(nchar(SEG_ID)==7,
+                       paste0(0,SEG_ID),
+                       SEG_ID))
+```
+
+### Income 
+We start by exploring the distribution of the median income per *segmento*. It is named `ingpe` in the dataset:
+
+
+```{r income-hist-chunck,eval=T,  echo=FALSE, message=FALSE, warning=FALSE, fig.cap='Median income per *segmento*', out.width='80%', fig.align='center', cache=TRUE}
+ehpm17_predictors%>%
+  plotly::plot_ly(x=~ingpe,
+                  y=~AREA_ID,
+                  type = "histogram")%>%
+  layout(yaxis=list(title="Number of segmentos"),
+         xaxis=list(title="Median income (USD)"),
+         title="Distribution of median income (USD)")
+```                
+
+```{r income-hist,eval=F, echo=FALSE,out.width = '100%',fig.cap='Median income per Segmento'}
+knitr::include_graphics("img/graph_dis_ingpe.PNG")
+
+```
+
+As it is common with incomes' distribution, the distribution is right skewed: the median income is between 95 and 105 USD in most *segmentos* and reaches values above 200 USD in a few of them. An option is to log-transform the data to make it *Gaussian*^[A *Gaussian* distribution is a *Normal* distribution. We use the the former terminology as it corresponds to the `INLA` one]. Another option is to model income with a *Gamma* likelihood function which takes into account the asymmetry of the income distribution. 
+
+```{r echo=FALSE,include=FALSE,message=FALSE,message=FALSE}
+segmentos_wgs=sp::spTransform(segmento_sh, 
+                              "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0") 
+
+segmentos_wgs@data=segmentos_wgs@data%>%
+  mutate(SEG_ID=as.character(SEG_ID))%>%
+  select(SEG_ID)%>%
+  left_join(ehpm17_predictors%>%
+              select(SEG_ID,ingpe,n_obs)%>%
+              mutate(SEG_ID=as.character(SEG_ID)),
+            by="SEG_ID")
+
+segmentos_wgs_ehpm=subset(segmentos_wgs,
+                          is.na(segmentos_wgs$n_obs)==F)
+outliers_index=which(segmentos_wgs_ehpm$ingpe>265)
+mega_outliers_index=which(segmentos_wgs_ehpm$ingpe>700)
+
+
+```
+
+```{r income-map-chunk, eval=T, echo=FALSE, message=FALSE, warning=FALSE, fig.cap='Median income map', out.width='80%', fig.width=3, fig.height=3,fig.show='hold',fig.align='center', cache=TRUE}
+segmentos_wgs=sp::spTransform(segmento_sh, 
+                              "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0") 
+
+segmentos_wgs@data=segmentos_wgs@data%>%
+  mutate(SEG_ID=as.character(SEG_ID))%>%
+  select(SEG_ID)%>%
+  left_join(ehpm17_predictors%>%
+              select(SEG_ID,ingpe,n_obs)%>%
+              mutate(SEG_ID=as.character(SEG_ID)),
+            by="SEG_ID")
+
+segmentos_wgs_ehpm=subset(segmentos_wgs,
+                          is.na(segmentos_wgs$n_obs)==F)
+outliers_index=which(segmentos_wgs_ehpm$ingpe>265)
+mega_outliers_index=which(segmentos_wgs_ehpm$ingpe>700)
+leaflet(segmentos_wgs_ehpm)%>%
+  addTiles()%>%
+  addCircleMarkers(sp::coordinates(segmentos_wgs_ehpm)[,1],
+                   sp::coordinates(segmentos_wgs_ehpm)[,2],
+                   weight = 0,
+                   radius = 5,
+                   fillColor =~colorQuantile("RdYlGn", ingpe,na.color = "transparent",)(ingpe),
+                   fillOpacity = 0.7,
+                   popup = ~paste("Median income", segmentos_wgs_ehpm$ingpe,
+                                  "\nNumber of obs:", segmentos_wgs_ehpm$n_obs))%>%
+  addMarkers(sp::coordinates(segmentos_wgs_ehpm)[outliers_index,1],
+             sp::coordinates(segmentos_wgs_ehpm)[outliers_index,2],
+             popup = ~paste("Median income", segmentos_wgs_ehpm$ingpe[outliers_index],
+                            "\nNumber of obs:", segmentos_wgs_ehpm$n_obs[outliers_index]))%>%
+  leaflet.extras::addPulseMarkers(sp::coordinates(segmentos_wgs_ehpm)[mega_outliers_index,1],
+                                  sp::coordinates(segmentos_wgs_ehpm)[mega_outliers_index,2],
+                                  popup = ~paste("Median income", segmentos_wgs_ehpm$ingpe[mega_outliers_index],
+                                                 "\nNumber of obs:", segmentos_wgs_ehpm$n_obs[mega_outliers_index]),
+                                  icon = leaflet.extras::makePulseIcon(heartbeat = 0.5,color ="gold"))
+```                
+
+```{r income-map, eval=F,echo=FALSE,out.width = '100%',fig.cap='Median income map'}
+knitr::include_graphics("img/map_ingpe_1.PNG")
+
+```
+
+Fig. \@ref(fig:income-map) shows that all the *segmentos* with a median income above 265 USD (blue markers) are clustered together in urban centers while the four ones with a income above 700 USD (gold markers) are located in Antiguo Cuscatlan, one of wealthiest neighborhood of the country where several embassies are located.
+
+DIGESTYC provides a classification of *segmentos* into rural and urban one. Fig \@ref(fig:income-rur-urb) shows the log transformed distribution of median income for rural and urban *segmentos* separately.
+
+```{r income-rur-urb-chunk, eval=T,echo=FALSE, message=FALSE, warning=FALSE, fig.cap='Rural urban median income distributiuon', out.width='49%', fig.show='hold',fig.align='center', cache=TRUE}
+ehpm17_predictors%>%
+  group_by(AREA_ID)%>%
+  plotly::plot_ly(alpha = 0.6,
+                  x=~log(ingpe), # log transform income
+                  color = ~AREA_ID,
+                  type = "histogram")%>%
+  plotly::layout(title="Median income in log",
+                 xaxis=list(title="Log Median income per capita (USD)"),
+                 yaxis=list(title="Number of *segmento*"),
+                 barmode = "overlay")
+```                
+
+
+```{r income-rur-urb,eval=F, echo=FALSE,out.width = '100%',fig.cap='Rural urban median income distributiuon'}
+knitr::include_graphics("img/graph_dis_ingpe_rur_urb.PNG")
+
+```
+
+Fig \@ref(fig:income-rur-urb) shows that log transformation appears to be successful at making the distribution *Gaussian*. As already seen on Fig. \@ref(fig:income-map), median income is higher among urban *segmentos* than rural *segmentos*.
+
+Furthermore, the main difference between the rural and urban income distributions is a location shift: the variance or skewness of the income distribution doesn't appear to vary significantly between rural and urban *segmentos*. Fig \@ref(fig:income-rur-urb) suggests hence that a single model could be used provided that a binary covariate identifying rural and urban *segmentos* is used in the model (instead of running two separate models for rural and urban *segmentos*). 
+
+As a summary, this first exploration of the median income outcome data suggests that one could use a *Gamma* likelihood function or a *Gaussian* one. In the latter case, income should be log-transformed. Furthermore, there are clear spatial patterns, whereby urban areas have higher income levels than rural ones and *segmentos* close from each other tend to have similar income levels. Modelling explicitly spatial dependency is hence likely to improve the goodness of fit of the model. Lastly, we do not see any major difference between the distributions of income of rural and urban *segmentos* except for a location shift (all values shifted to the right among urban segmento). A single model ran both on rural and urban *segmentos* appears hence appropriate, provided a binary covariate identifying the rural/urban categories is used. 
+
+### Literacy
+The variable `literacy_rate` provides the proportion of survey participants 16 years or older who can read and write. Its domain is hence bounded between 0 to 100%. 
+
+```{r lit-dis-chunck, eval=T, echo=FALSE, message=FALSE, warning=FALSE, cache=TRUE}
+ehpm17_predictors%>%
+  group_by(AREA_ID)%>%
+  plotly::plot_ly(alpha = 0.6,
+                  x=~literacy_rate, # log transform income
+                  color = ~AREA_ID,
+                  type = "histogram")%>%
+  plotly::layout(title="Literacy rate",
+                 xaxis=list(title="% of literate respondents",
+                            tickformat = "%"),
+                 yaxis=list(title="Number of *segmento*"),
+                 barmode = "overlay")
+```
+
+```{r lit-dis, eval=F,echo=FALSE,out.width = '100%',fig.cap='Rural and urban literacy rate'}
+knitr::include_graphics("img/graph_dis_lit_rur_urb.PNG")
+
+```
+
+The distribution of literacy in rural and urban *segmentos* appears quite different. Out of the 950 urban *segmentos*, 181 have 100% literacy rate among the adult EHPM respondents. By contrast, no such spike is observed in the rural areas. In urban areas, this suggest that literacy could be modeled as a two step process: first, the presence/absence of illiteracy is modeled; second, the proportion of illiteracy is modeled. In rural areas, only the second step would be necessary.
+
+Fig \@ref(fig:lit-map) shows the map of literacy for the EHPM *segmentos*.
+
+```{r echo=FALSE,include=FALSE,warning=FALSE,message=FALSE}
+segmentos_wgs=sp::spTransform(segmento_sh, 
+                              "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0") 
+
+segmentos_wgs@data=segmentos_wgs@data%>%
+  mutate(SEG_ID=as.character(SEG_ID))%>%
+  select(SEG_ID)%>%
+  left_join(ehpm17_predictors%>%
+              select(SEG_ID,literacy_rate,n_obs)%>%
+              mutate(SEG_ID=as.character(SEG_ID)),
+            by="SEG_ID")
+
+segmentos_wgs_ehpm=subset(segmentos_wgs,
+                          is.na(segmentos_wgs$n_obs)==F)
+
+```
+
+```{r lit-map-chunck, eval=T, echo=FALSE, message=FALSE, warning=FALSE, cache=TRUE}
+segmentos_wgs=sp::spTransform(segmento_sh, 
+                              "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0") 
+
+segmentos_wgs@data=segmentos_wgs@data%>%
+  mutate(SEG_ID=as.character(SEG_ID))%>%
+  select(SEG_ID)%>%
+  left_join(ehpm17_predictors%>%
+              select(SEG_ID,literacy_rate,n_obs)%>%
+              mutate(SEG_ID=as.character(SEG_ID)),
+            by="SEG_ID")
+
+segmentos_wgs_ehpm=subset(segmentos_wgs,
+                          is.na(segmentos_wgs$n_obs)==F)
+
+# Quantile color bins to increase contrast between areas with different literacy rate
+qpal = colorQuantile("RdYlGn", segmentos_wgs_ehpm$literacy_rate,na.color = "transparent",n = 5)
+
+qpal_colors = unique(qpal(sort(segmentos_wgs_ehpm$literacy_rate))) # hex codes
+qpal_labs = quantile(segmentos_wgs_ehpm$literacy_rate, seq(0, 1, .2),na.rm=T) # depends on n from pal
+qpal_labs=round(qpal_labs*100)
+qpal_labs = paste(lag(qpal_labs), qpal_labs, sep = " - ")[-1] # first lag is NA
+qpal_labs=paste(qpal_labs, "%")
+
+# map
+leaflet(segmentos_wgs_ehpm)%>%
+  addTiles()%>%
+  addCircleMarkers(sp::coordinates(segmentos_wgs_ehpm)[,1],
+                   sp::coordinates(segmentos_wgs_ehpm)[,2],
+                   weight = 0,
+                   radius = 5,
+                   fillColor =~qpal(literacy_rate),
+                   fillOpacity = 1,
+                   popup = ~paste("Literacy", round(segmentos_wgs_ehpm$literacy_rate*100),"%",
+                                  "\nNumber of obs:", segmentos_wgs_ehpm$n_obs))%>%
+  addLegend(colors = qpal_colors, 
+            labels = qpal_labs,
+            opacity = 1)
+```
+
+```{r lit-map,eval=F, echo=FALSE,out.width = '100%',fig.cap='Literacy rate map'}
+knitr::include_graphics("img/map_lit_1.PNG")
+
+```
+
+There is a clear spatial pattern: literacy rates are the highest in urban areas and particularly around the capital city. Furthermore, areas in the north west (Department of San Miguel, Morazan and La Union) have low level of literacy.
+
+As a summary, modelling literacy will be more complex than income. First, a zero-inflated model might be appropriate, particularly in for urban *segmentos*. Second, the distribution of literacy appears to vary between rural and urban segmentos and not only in terms of the location. Hence separate or mixed models for rural and urban *segmentos* might be more appropriate. In both cases, a *Beta* likelihood function might be appropriate as literacy rate are bounded between 0 and 100%. Lastly, there is a clear spatial pattern, which suggests that taking into account explicitly the spatial dependence structure will increase the goodness of fit of the model.
+
+
+### Moderate Poverty
+The variable `pobreza_mod` provides the proportion of survey participants 16 years or older living in moderate poverty. Its domain is hence bounded between 0 to 1. 
+
+```{r modpov-dis-chunk, eval=T, echo=FALSE, message=FALSE, warning=FALSE, cache=TRUE}
+ehpm17_predictors%>%
+  group_by(AREA_ID)%>%
+  plotly::plot_ly(alpha = 0.6,
+                  x=~pobreza_mod, # log transform income
+                  color = ~AREA_ID,
+                  type = "histogram")%>%
+  plotly::layout(title="Moderate Poverty",
+                 xaxis=list(title="% of adult respondents living in moderate poverty",
+                            tickformat = "%"),
+                 yaxis=list(title="Number of segmentos"),
+                 barmode = "overlay")
+```
+
+
+```{r modpov-dis, eval=F,echo=FALSE,out.width = '100%',fig.cap='Rural and urban moderate poverty rate'}
+knitr::include_graphics("img/graph_dis_modpov_rur_urb.PNG")
+
+```
+
+
+Fig \@ref(fig:modpov-dis) shows that more than 100 urban *segmentos* have no adults EHPM respondents living in poverty, while no rural *segmento* is in this situation. Except for this important difference, the distribution of poverty of rural and urban *segmentos* doesn't appear to differ much.
+
+Fig \@ref(fig:pov-map) shows the map of moderate poverty for the EHPM *segmentos*.
+```{r pov-map-chunk, eval=T, echo=FALSE, message=FALSE, warning=FALSE, cache=TRUE}
+segmentos_wgs=sp::spTransform(segmento_sh, 
+                              "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0") 
+
+segmentos_wgs@data=segmentos_wgs@data%>%
+  mutate(SEG_ID=as.character(SEG_ID))%>%
+  select(SEG_ID)%>%
+  left_join(ehpm17_predictors%>%
+              select(SEG_ID,pobreza_mod,n_obs)%>%
+              mutate(SEG_ID=as.character(SEG_ID)),
+            by="SEG_ID")
+
+segmentos_wgs_ehpm=subset(segmentos_wgs,
+                          is.na(segmentos_wgs$n_obs)==F)
+
+# Quantile color bins to increase contrast between areas with different literacy rate
+qpal = colorQuantile("RdYlGn", segmentos_wgs_ehpm$pobreza_mod,na.color = "transparent",n = 5,
+                     reverse = T)
+
+qpal_colors = unique(qpal(sort(segmentos_wgs_ehpm$pobreza_mod))) # hex codes
+qpal_labs = quantile(segmentos_wgs_ehpm$pobreza_mod, seq(0, 1, .2),na.rm=T) # depends on n from pal
+qpal_labs=round(qpal_labs*100)
+qpal_labs = paste(lag(qpal_labs), qpal_labs, sep = " - ")[-1] # first lag is NA
+qpal_labs=paste(qpal_labs, "%")
+
+# map
+leaflet(segmentos_wgs_ehpm)%>%
+  addTiles()%>%
+  addCircleMarkers(sp::coordinates(segmentos_wgs_ehpm)[,1],
+                   sp::coordinates(segmentos_wgs_ehpm)[,2],
+                   weight = 0,
+                   radius = 5,
+                   fillColor =~qpal(pobreza_mod),
+                   fillOpacity = 1,
+                   popup = ~paste("Moderare Poverty", round(segmentos_wgs_ehpm$pobreza_mod*100),"%",
+                                  "\nNumber of obs:", segmentos_wgs_ehpm$n_obs))%>%
+  addLegend(colors = qpal_colors, 
+            labels = qpal_labs,
+            opacity = 1)
+```
+
+```{r pov-map, eval=F,echo=FALSE,out.width = '100%',fig.cap='Moderate poverty map'}
+knitr::include_graphics("img/map_modpov_1.PNG")
+
+```
+
+Interestingly, the picture is much less clear when mapping moderate poverty than income. However, the general urban-rural divide appears to hold.
+
+As poverty is measured as a proportion, we will use a *Beta* likelihood. Given the high number of *segmentos* with zero respondents living in poverty, we will test a zero-inflated *Beta* likelihood. Lastly, as the excess number of zeros is only present among urban *segmentos*, we will compare results where two separate models for rural and urban *segmentos* with the results where only one model is ran
+
+## Unsupervised dimension reduction based on distance correlation
+We are now going to reduce the number of covariates by removing highly correlated covariates. Before starting the process, we standardize the covariates in order to limit the effect of the various scales and measurement units of each covariates on the computation of the correlation. 
+
+### Obtaining a dataframe with standardized covariates 
+We start by storing the candidate covariates in an data frame.
+
+```{r}
+# join wiyth shapefile ####
+segmento_sh_data=segmento_sh
+segmento_sh_data@data=segmento_sh_data@data%>%
+  dplyr::select(SEG_ID)%>%
+  mutate(SEG_ID=as.character(SEG_ID))%>%
+  left_join(ehpm17_predictors,
+            by="SEG_ID")
+
+# identify EHPM segmentos ####
+segmento_sh_data_model=segmento_sh_data 
+
+ehpm_index=which(is.na(segmento_sh_data_model$n_obs)==F)
+ehpm17_predictors_survey=segmento_sh_data_model@data[ehpm_index,]
+
+# Remove outcome variables and admin information ####
+
+# covariates=ehpm17_predictors_survey%>%
+#   select(-c(SEG_ID,municauto,n_obs,pobreza_extrema,pobreza_mod,literacy_rate,ingpe,DEPTO,
+#             COD_DEP,MPIO,COD_MUN,CANTON,COD_CAN,COD_ZON_CE,COD_SEC_CE,COD_SEG_CE,LZCODE,
+#             ndvi_17_perc_median,ndvi_17_perc_sd,ndvi_17_perc_sum,
+#             chirps_ev_perc_norm,chirps_ev_2017, chirps_ev_perc_norm,
+#             dist2allpubserv,lights_sd,gpw_es_TOT,gpw_es_avg_dens,dist2water_r,
+#             soil_prod_state,soil_carb,soil_luc,soil_prod_prf,soil_prod_state,soil_prod_trj,settlements))
+```
+
+```{r}
+covariates=ehpm17_predictors_survey%>%
+  select(-c(SEG_ID,municauto,n_obs,pobreza_extrema,pobreza_mod,literacy_rate,ingpe,DEPTO,
+            COD_DEP,MPIO,COD_MUN,CANTON,COD_CAN,COD_ZON_CE,COD_SEC_CE,COD_SEG_CE,LZCODE,OBJECTID, SHAPE_Leng,AREA_KM2,dens_bus,dens_luxury))
+
+# create binary variables from the livelihood zones categories
+covariates=covariates%>%
+  mutate(AREA_ID=ifelse(AREA_ID=="U",1,0),
+         LZ_BasicGrainLaborZone=ifelse(LZNAMEEN=="Basic Grain and Labor Zone",
+                                       1,0),
+         LZ_CentralIndusServ=ifelse(LZNAMEEN=="Central Free-Trade, Services and Industrial Labor Zone",
+                                       1,0),
+         LZ_CoffeeAgroIndus=ifelse(LZNAMEEN=="Coffee, Agro-Industrial and Labor Zone",
+                                    1,0),
+         LZ_LvstckGrainRem=ifelse(LZNAMEEN=="Eastern Basic Grain, Labor, Livestock and Remittance Zone",
+                                   1,0),
+         LZ_FishAgriTourism=ifelse(LZNAMEEN=="Fishing, Aquaculture and Tourism Zone",
+                                  1,0))%>%
+  select(-LZNAMEEN)
+```
+
+We write a function `myStd` to  standardise the covariates by subtracting the mean from each observation and dividing by the standard deviation. 
+
+```{r}
+myStd=function(x){ # myStd is a function to standaridise a given covariate x
+  mu_x=mean(x,na.rm = T)
+  sd_x=sd(x,na.rm = T)
+  x_std=(x-mu_x)/sd_x
+  return(x_std)
+}
+```
+
+We apply `myStd` to each covariate.
+```{r}
+covariates_std=apply(covariates,2,myStd) # with apply the function myStd to each covariate
+
+```
+
+The dataframe `covariates_std` contains the standardized covariates.
+
+Before removing highly correlated covariates, we compute the variance inflation factor (VIF) in order to assess to presence of multicollinearity.
+
+```{r}
+# calculate vif before cov selection ####
+covariates_std_df=as.data.frame(covariates_std)
+
+data_model=covariates_std_df%>%
+  bind_cols(ehpm17_predictors_survey%>%
+              select(ingpe))
+formula_glm= reformulate(paste(names(covariates_std_df),collapse="+"),
+                         "ingpe")
+glm_0=glm(formula_glm,
+          data=data_model)
+
+sort(car::vif(glm_0))
+```
+```{r}
+dim(covariates_std_df)
+vif_res=car::vif(glm_0)
+length(which(c(vif_res)>5))
+```
+
+Values below 3 means no multicollinearity issues. Values above 5 are indicative of multicollinearity issues. Out of the 82 candidate covariates, 22 have a VIF higher than 5. Some covariates preselection is hence justified. This is multicollinearity is might be caused by the fact that: 
+
+*   many predictors are various expression of the same raw data (e.g. distance to schools and distance to public services)
+*   some predictors are covers similar physical features but comes from different data sources (e.g. distance to coastline and distance to water bodies)
+*   some predictors are closely associated with each other (e.g. lights at night and percentage of the area classified as urban)
+
+### Dimension reduction based on distance correlation
+We start by computing the distance correlation between all pairs of covariates. We will measure correlation with the *Distance* correlation. The advantage over the standard *Pearson* correlation is that the *distance* correlation allows to take better into account non-linearity in the relationship between two variables.
+
+This can be illustrated by computing the *Pearson* and *Distance* correlations in the case of a linear or quadratic relationship. 
+```{r cache=TRUE,eval=T}
+x=seq(-10,10,length.out=1000)
+y=2*x+rnorm(mean=2,sd=10,1000)
+
+plotly::plot_ly(x=x,
+        y=y,
+        type="scatter",
+        mode="markers")%>%
+  plotly::layout(title=paste0("Pearson corr:",format(round(cor(x,y),4),scientific=F),
+                 "\nDistance corr:",round(dcor(x,y),4)))
+x=seq(-10,10,length.out=1000)
+y=-x^2+rnorm(mean=2,sd=10,1000)
+plotly::plot_ly(x=x,
+        y=y,
+        type="scatter",
+        mode="markers")%>%
+  plotly::layout(title=paste0("Pearson corr:",format(round(cor(x,y),4),scientific=F),
+                 "\nDistance corr:",round(dcor(x,y),4)))
+```
+```{r linear, eval=F,echo=FALSE,out.width = '80%',fig.cap='Linear relationship: Pearson correlation picks it up'}
+knitr::include_graphics("img/linear.PNG")
+```
+
+```{r quadra, eval=F,echo=FALSE,out.width = '80%',fig.cap='Quadratic relationship: only the Distance correlation picks it up'}
+knitr::include_graphics("img/quadra.PNG")
+```
+
+While the measure of association is similar for both correlation metrics when the dependence between the variables is linear as shown on Fig. \@ref(fig:linear), *Distance* correlation is much better at capturing the association between $X$ and $Y$ when their relation in non-linear as shown by the *Distance* correlation of 0.46 against -0.0128 for the *Pearson* correlation reported on Fig. \@ref(fig:quadra).
+
+Distance correlation for all pairs of covariates is computed as follow. 
+
+```{r cache=TRUE, eval=T}
+# 1) compute distance correlation between all pairs of covariates
+tic()
+distMatrix=dcor.matrix(covariates_std)
+toc()
+diag(distMatrix)=NA # replace diag with NA
+```
+
+We then remove randomly one of the two most correlated covariates and we repeat the process until only 50 covariates are left, i.e. 5% of sample size of the training. The latter figure is generally accepted rule of thumb to decide on an appropriate number of covariates to start the backward covariate selection process as it limits the risk of chance correlation, i.e finding a significant correlation by chance.
+
+```{r eval=T}
+# 2) remove randomly one of the two most correlated covariates 
+trainig_set_n=dim(covariates_std)[1]*0.6 # size of the traing set=60%, validation set = 20%, test set=20%
+target_n_cov=round(0.045*trainig_set_n) # target number of cov: 5% of training set= 50
+n_cov=dim(covariates_std)[2] # starting number of covariate= 58 
+n_to_remove=n_cov-target_n_cov
+
+i=1
+distMatrix_reduced=distMatrix
+
+for(i in 1:n_to_remove){ # 3) repeat step (2) until only number of covariates = 5% of training set 
+  index_max <- arrayInd(which.max(distMatrix_reduced),
+                        dim(distMatrix_reduced)) # get column's and row's index of the max d-corr cell
+  
+  set.seed(i+2) # set seeds for replicability
+  print(paste(colnames(distMatrix_reduced)[index_max]))
+  print(distMatrix_reduced[index_max])
+
+  remove_cov_pair=round(runif(1)+1) # either the row (1) or column covariate (2)
+  remove_cov=index_max[remove_cov_pair] # select index of row or column
+  print(paste("cov removed",colnames(distMatrix_reduced)[remove_cov])) # print names of cov removed
+  print("")
+  distMatrix_reduced=distMatrix_reduced[-remove_cov,-remove_cov] # remove the corresponding cov from distMatrix
+  
+}
+```
+
+Let us recompute the VIF with the remaining 50 covariates. Median lights at night (named `lights_med` in the dataset), the rural-urban DYGESTIC binary *segmentos* classification (named `AREA_ID` in the dataset), population density (`pop_dens`) and  slope (`slope`) were removed in the process. We re-introduce them as we expect them to be important predictors of the development outcomes.
+```{r eval=T}
+# RE calculate vif ####
+sort(colnames(distMatrix_reduced))
+
+covariates_std_reduced=covariates_std[,c(colnames(distMatrix_reduced),"lights_med","AREA_ID","pop_dens","slope")]
+covariates_std_reduced_df=as.data.frame(covariates_std_reduced)
+
+data_model=covariates_std_reduced_df%>%
+  bind_cols(ehpm17_predictors_survey%>%
+              select(ingpe))
+formula_glm_1= reformulate(paste(names(covariates_std_reduced_df),collapse="+"),
+                         "ingpe")
+glm_1=glm(formula_glm_1,
+          data=data_model)
+sort(car::vif(glm_1))
+sort(names(covariates_std_reduced_df))
+```
+The VIF figures are much more acceptable now. The reduced number of covariates limit the risk of chance correlation. We write the covariates and their names in `.csv` files for later use.
+```{r eval=T}
+# write the names of selected features into csv ####
+write.table(names(covariates_std_reduced_df),
+            paste0(dir_data,
+                   "out/distance_corr_var/selected_all.txt"),
+            row.names = F)
+
+# write the selected features and outcome into csv ####
+covariates_std_reduced_df$SEG_ID=ehpm17_predictors_survey$SEG_ID
+covariates_std_reduced_df$ingpe=ehpm17_predictors_survey$ingpe
+covariates_std_reduced_df$literacy_rate=ehpm17_predictors_survey$literacy_rate
+covariates_std_reduced_df$pobreza_extrema=ehpm17_predictors_survey$pobreza_extrema
+covariates_std_reduced_df$pobreza_mod=ehpm17_predictors_survey$pobreza_mod
+covariates_std_reduced_df$n_obs=ehpm17_predictors_survey$n_obs
+
+write.csv(covariates_std_reduced_df,
+            paste0(dir_data,
+                   "out/all_covariates_and_outcomes.csv"),
+            row.names = F)
+```
+
+
+## Correlations between predictors and the outcome variables
+We now explore the relationship between predictors and the outcome variables. This will give us a feel of the important covariate in the model.
+
+### Correlation with income
+We compute the distance correlation for all covariates with a loop and store these correlations in a dataframe.
+
+```{r eval=T}
+covariates_std_reduced_df$SEG_ID=ehpm17_predictors_survey$SEG_ID
+covariates_std_reduced_df$ingpe=ehpm17_predictors_survey$ingpe
+covariates_std_reduced_df$literacy_rate=ehpm17_predictors_survey$literacy_rate
+covariates_std_reduced_df$pobreza_extrema=ehpm17_predictors_survey$pobreza_extrema
+covariates_std_reduced_df$pobreza_mod=ehpm17_predictors_survey$pobreza_mod
+covariates_std_reduced_df$n_obs=ehpm17_predictors_survey$n_obs
+corr_re=list()
+names_re=list()
+
+for(i in 1:50){ # where 50 are the number of 
+  cor_test=energy::dcor(covariates_std_reduced_df$ingpe,covariates_std_reduced_df[,i])
+  corr_re[[i]]=c(cor_test)
+  names_re[[i]]=names(covariates_std_reduced_df)[i]
+}
+corr_df=do.call(rbind,corr_re)
+names_df=do.call(rbind,names_re)
+
+corr_df=as_tibble(corr_df)
+corr_df$covariate = names_df 
+
+names(corr_df)[1]="cor"
+
+corr_df=corr_df %>% 
+  arrange(desc(abs(cor)))
+```
+
+Lastly, we select only the variables with an absolute distance correlation with income higher than 20% and we plot the correlation with income. The latter selection is only for illustration purposes:we do not want to clutter the graph.  
+```{r cache=TRUE, eval=T}
+corr_df_top=corr_df%>%
+    filter(!(covariate%in%c("pobreza_mod","literacy_rate","ingpe")))%>%
+  filter(abs(cor)>=.2)
+
+corr_df_top$covariate_f=factor(corr_df_top$covariate,
+                               levels = corr_df_top$covariate)
+plot_ly(x=corr_df_top$covariate_f,
+       y=corr_df_top$cor,
+       type="bar",
+       name = corr_df_top$covariate)%>%
+  layout(title="Covariates correlations with Income",
+         yaxis=list(tickformat = "%"))
+
+```
+
+```{r corr-ingpe, eval=F, Techo=FALSE,out.width = '80%',fig.cap='Correlation of candidate covariates with income'}
+knitr::include_graphics("img/corr_ingpe.PNG")
+```
+
+As expected, among 3 most important covariates are those indicative urban centers: light at night intensity, rural/urban classification the *segmento* and distance to public amenities. 
+
+In order to get a sense of the direction of the correlation and the associations between the variables, we plot a correlogram.
+
+```{r cache=TRUE, eval=T}
+covariates_std_reduced_df_selected=covariates_std_reduced_df%>%
+  select(c("ingpe",corr_df_top$covariate))
+
+qgraph::qgraph(cor(covariates_std_reduced_df_selected),
+               minimum=0.20,
+               layout="spring",
+               # groups=gr,
+               labels=names(covariates_std_reduced_df_selected),
+               label.scale=F,
+               title="Correlations: Income and predictors")
+```
+
+```{r corrgram-ingpe,  eval=F,echo=FALSE,out.width = '80%',fig.cap='Correlogram of income (ingpe) with candidate covariatse'}
+knitr::include_graphics("img/corrgram_ingpe.PNG")
+```
+
+The plot on Fig.\@ref(fig:corrgram-ingpe) corrgram-ingpeshows clearly that the top predictors are highly correlated.     
+
+### Correlation with literacy
+The process described above is repeated for literacy.
+  
+```{r eval=T,echo=FALSE, warning=FALSE,message=FALSE,cache=TRUE}
+corr_re=list()
+names_re=list()
+
+for(i in 1:50){ # where 40 are the number of 
+  cor_test=energy::dcor(covariates_std_reduced_df$literacy_rate,covariates_std_reduced_df[,i])
+  corr_re[[i]]=c(cor_test)
+  names_re[[i]]=names(covariates_std_reduced_df)[i]
+}
+corr_df=do.call(rbind,corr_re)
+names_df=do.call(rbind,names_re)
+
+corr_df=as_tibble(corr_df)
+corr_df$covariate = names_df 
+
+
+names(corr_df)[1]="cor"
+
+corr_df=corr_df%>%
+  arrange(desc(abs(cor)))
+
+corr_df_top=corr_df%>%
+    filter(!(covariate%in%c("pobreza_mod","literacy_rate","ingpe")))%>%
+  filter(abs(cor)>=.2)
+
+corr_df_top$covariate_f=factor(corr_df_top$covariate,
+                               levels = corr_df_top$covariate)
+plot_ly(x=corr_df_top$covariate_f,
+       y=corr_df_top$cor,
+       type="bar",
+       name = corr_df_top$covariate)%>%
+  layout(title="Covariates correlations with Literacy",
+         yaxis=list(tickformat = "%"))
+
+```
+
+```{r corr-lit,  eval=F,echo=FALSE,out.width = '80%',fig.cap='Correlation of candidate covariates with literacy'}
+knitr::include_graphics("img/corr_lit.PNG")
+```
+
+Light at night comes again as the best predictor of literacy,  by distance the rural-urban *segmento* identifier and NDVI.
+
+### Correlation with poverty
+NDVI and distance to puiblic amenities and hospitals in particular come first. We see that the level of correlation is lower than in previous plot, suggesting that it might be harder to find good model fit for moderate poverty than for the other indicators.
+```{r eval=T, echo=FALSE, warning=FALSE,message=FALSE,cache=TRUE}
+corr_re=list()
+names_re=list()
+
+for(i in 1:40){ # where 40 are the number of 
+  cor_test=energy::dcor(covariates_std_reduced_df$pobreza_mod,covariates_std_reduced_df[,i])
+  corr_re[[i]]=c(cor_test)
+  names_re[[i]]=names(covariates_std_reduced_df)[i]
+}
+corr_df=do.call(rbind,corr_re)
+names_df=do.call(rbind,names_re)
+
+corr_df=as_tibble(corr_df)
+corr_df$covariate = names_df 
+
+names(corr_df)[1]="cor"
+
+corr_df=corr_df%>%
+  arrange(desc(abs(cor)))
+
+corr_df_top=corr_df%>%
+    filter(!(covariate%in%c("pobreza_mod","literacy_rate","ingpe")))%>%
+  filter(abs(cor)>=.1)
+
+corr_df_top$covariate_f=factor(corr_df_top$covariate,
+                               levels = corr_df_top$covariate)
+plot_ly(x=corr_df_top$covariate_f,
+       y=corr_df_top$cor,
+       type="bar",
+       name = corr_df_top$covariate)%>%
+  layout(title="Covariates correlations with Moderate Poverty",
+         yaxis=list(tickformat = "%"))
+```
+
+```{r corr-modpov,  eval=F,echo=FALSE,out.width = '80%',fig.cap='Correlation of candidate covariates with moderate poverty'}
+knitr::include_graphics("img/corr_modpov.PNG")
+```
