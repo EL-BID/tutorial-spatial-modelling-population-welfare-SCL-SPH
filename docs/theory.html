@@ -1,15 +1,14 @@
 <!DOCTYPE html>
-<html >
-
+<html lang="" xml:lang="">
 <head>
 
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>Section 8 Appendix 1: Primer on INLA | High-resolution spatial modelling of population welfare in El Salvador, a coding tutorial</title>
-  <meta name="description" content="This is report provides a tutorial to conduct proof-of-concept high-resolution maps of poverty, average income and literacy. The emphasis is put on providing replicable code exemples.">
-  <meta name="generator" content="bookdown  and GitBook 2.6.7">
+  <meta name="description" content="This is report provides a tutorial to conduct proof-of-concept high-resolution maps of poverty, average income and literacy. The emphasis is put on providing replicable code exemples." />
+  <meta name="generator" content="bookdown 0.19 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="Section 8 Appendix 1: Primer on INLA | High-resolution spatial modelling of population welfare in El Salvador, a coding tutorial />
+  <meta property="og:title" content="Section 8 Appendix 1: Primer on INLA | High-resolution spatial modelling of population welfare in El Salvador, a coding tutorial" />
   <meta property="og:type" content="book" />
   
   
@@ -17,23 +16,23 @@
   
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="Section 8 Appendix 1: Primer on INLA | High-resolution spatial modelling of population welfare in El Salvador, a coding tutorial />
+  <meta name="twitter:title" content="Section 8 Appendix 1: Primer on INLA | High-resolution spatial modelling of population welfare in El Salvador, a coding tutorial" />
   
   <meta name="twitter:description" content="This is report provides a tutorial to conduct proof-of-concept high-resolution maps of poverty, average income and literacy. The emphasis is put on providing replicable code exemples." />
   
 
-<meta name="author" content="Xavier Vollenweider, Claudio Bosco, Roberto Sánchez A, Luis Tejerina">
+<meta name="author" content="Xavier Vollenweider, Claudio Bosco, Roberto Sánchez A, Luis Tejerina" />
 
 
-<meta name="date" content="2021-03-25">
+<meta name="date" content="2021-05-20" />
 
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   
   
-<link rel="prev" href="discussion.html">
-<link rel="next" href="data.html">
+<link rel="prev" href="discussion.html"/>
+<link rel="next" href="data.html"/>
 <script src="libs/jquery-2.2.3/jquery.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
@@ -41,6 +40,7 @@
 <link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
 
 
 
@@ -48,63 +48,92 @@
 
 
 
-<script src="libs/htmlwidgets-1.3/htmlwidgets.js"></script>
+
+
+<script src="libs/htmlwidgets-1.5.1/htmlwidgets.js"></script>
 <link href="libs/leaflet-1.3.1/leaflet.css" rel="stylesheet" />
 <script src="libs/leaflet-1.3.1/leaflet.js"></script>
 <link href="libs/leafletfix-1.0.0/leafletfix.css" rel="stylesheet" />
 <script src="libs/Proj4Leaflet-1.0.1/proj4-compressed.js"></script>
 <script src="libs/Proj4Leaflet-1.0.1/proj4leaflet.js"></script>
 <link href="libs/rstudio_leaflet-1.3.1/rstudio_leaflet.css" rel="stylesheet" />
-<script src="libs/leaflet-binding-2.0.2/leaflet.js"></script>
-<script src="libs/leaflet-providers-1.1.17/leaflet-providers.js"></script>
-<script src="libs/leaflet-providers-plugin-2.0.2/leaflet-providers-plugin.js"></script>
-<script src="libs/plotly-binding-4.8.0/plotly.js"></script>
+<script src="libs/leaflet-binding-2.0.3/leaflet.js"></script>
+<script src="libs/leaflet-providers-1.9.0/leaflet-providers_1.9.0.js"></script>
+<script src="libs/leaflet-providers-plugin-2.0.3/leaflet-providers-plugin.js"></script>
+<script src="libs/plotly-binding-4.9.2.1/plotly.js"></script>
 <script src="libs/typedarray-0.1/typedarray.min.js"></script>
-<link href="libs/crosstalk-1.0.0/css/crosstalk.css" rel="stylesheet" />
-<script src="libs/crosstalk-1.0.0/js/crosstalk.min.js"></script>
-<link href="libs/plotly-htmlwidgets-css-1.39.2/plotly-htmlwidgets.css" rel="stylesheet" />
-<script src="libs/plotly-main-1.39.2/plotly-latest.min.js"></script>
+<link href="libs/crosstalk-1.1.0.1/css/crosstalk.css" rel="stylesheet" />
+<script src="libs/crosstalk-1.1.0.1/js/crosstalk.min.js"></script>
+<link href="libs/plotly-htmlwidgets-css-1.52.2/plotly-htmlwidgets.css" rel="stylesheet" />
+<script src="libs/plotly-main-1.52.2/plotly-latest.min.js"></script>
 <link href="libs/lfx-pulse-icon-0.1.0/lfx-pulse-icon-prod.css" rel="stylesheet" />
 <script src="libs/lfx-pulse-icon-0.1.0/lfx-pulse-icon-prod.js"></script>
 <script src="libs/lfx-pulse-icon-0.1.0/lfx-pulse-icon-bindings.js"></script>
 
 
 <style type="text/css">
-div.sourceCode { overflow-x: auto; }
-table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
-  margin: 0; padding: 0; vertical-align: baseline; border: none; }
-table.sourceCode { width: 100%; line-height: 100%; }
-td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
-td.sourceCode { padding-left: 5px; }
-code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
-code > span.dt { color: #902000; } /* DataType */
-code > span.dv { color: #40a070; } /* DecVal */
-code > span.bn { color: #40a070; } /* BaseN */
-code > span.fl { color: #40a070; } /* Float */
-code > span.ch { color: #4070a0; } /* Char */
-code > span.st { color: #4070a0; } /* String */
-code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
-code > span.ot { color: #007020; } /* Other */
-code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
-code > span.fu { color: #06287e; } /* Function */
-code > span.er { color: #ff0000; font-weight: bold; } /* Error */
-code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
-code > span.cn { color: #880000; } /* Constant */
-code > span.sc { color: #4070a0; } /* SpecialChar */
-code > span.vs { color: #4070a0; } /* VerbatimString */
-code > span.ss { color: #bb6688; } /* SpecialString */
-code > span.im { } /* Import */
-code > span.va { color: #19177c; } /* Variable */
-code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
-code > span.op { color: #666666; } /* Operator */
-code > span.bu { } /* BuiltIn */
-code > span.ex { } /* Extension */
-code > span.pp { color: #bc7a00; } /* Preprocessor */
-code > span.at { color: #7d9029; } /* Attribute */
-code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
-code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
-code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
-code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code.sourceCode > span { display: inline-block; line-height: 1.25; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
 </style>
 
 <link rel="stylesheet" href="style.css" type="text/css" />
@@ -125,107 +154,107 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li class="divider"></li>
 <li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Introduction</a></li>
 <li class="chapter" data-level="2" data-path="overview.html"><a href="overview.html"><i class="fa fa-check"></i><b>2</b> Overview</a><ul>
-<li class="chapter" data-level="2.1" data-path="overview.html"><a href="overview.html#first-look-at-the-data"><i class="fa fa-check"></i><b>2.1</b> First look at the data</a></li>
+<li class="chapter" data-level="2.1" data-path="overview.html"><a href="overview.html#the-first-look-at-the-data"><i class="fa fa-check"></i><b>2.1</b> The First Look at the Data</a></li>
 </ul></li>
 <li class="chapter" data-level="3" data-path="explo.html"><a href="explo.html"><i class="fa fa-check"></i><b>3</b> Data exploration and preselection of covariates</a><ul>
-<li class="chapter" data-level="3.1" data-path="explo.html"><a href="explo.html#outcome-variabes-distribution-and-outliers"><i class="fa fa-check"></i><b>3.1</b> Outcome variabes: distribution and outliers</a><ul>
+<li class="chapter" data-level="3.1" data-path="explo.html"><a href="explo.html#outcome-variables-distribution-and-outliers"><i class="fa fa-check"></i><b>3.1</b> Outcome Variables: Distribution and Outliers</a><ul>
 <li class="chapter" data-level="3.1.1" data-path="explo.html"><a href="explo.html#income"><i class="fa fa-check"></i><b>3.1.1</b> Income</a></li>
 <li class="chapter" data-level="3.1.2" data-path="explo.html"><a href="explo.html#literacy"><i class="fa fa-check"></i><b>3.1.2</b> Literacy</a></li>
 <li class="chapter" data-level="3.1.3" data-path="explo.html"><a href="explo.html#moderate-poverty"><i class="fa fa-check"></i><b>3.1.3</b> Moderate Poverty</a></li>
 </ul></li>
-<li class="chapter" data-level="3.2" data-path="explo.html"><a href="explo.html#unsupervised-dimension-reduction-based-on-distance-correlation"><i class="fa fa-check"></i><b>3.2</b> Unsupervised dimension reduction based on distance correlation</a><ul>
-<li class="chapter" data-level="3.2.1" data-path="explo.html"><a href="explo.html#obtaining-a-dataframe-with-standardized-covariates"><i class="fa fa-check"></i><b>3.2.1</b> Obtaining a dataframe with standardized covariates</a></li>
-<li class="chapter" data-level="3.2.2" data-path="explo.html"><a href="explo.html#dimension-reduction-based-on-distance-correlation"><i class="fa fa-check"></i><b>3.2.2</b> Dimension reduction based on distance correlation</a></li>
+<li class="chapter" data-level="3.2" data-path="explo.html"><a href="explo.html#unsupervised-dimension-reduction-based-on-distance-correlation"><i class="fa fa-check"></i><b>3.2</b> Unsupervised Dimension Reduction Based on Distance Correlation</a><ul>
+<li class="chapter" data-level="3.2.1" data-path="explo.html"><a href="explo.html#obtaining-a-data-frame-with-standardized-covariates"><i class="fa fa-check"></i><b>3.2.1</b> Obtaining a Data Frame with Standardized Covariates</a></li>
+<li class="chapter" data-level="3.2.2" data-path="explo.html"><a href="explo.html#dimension-reduction-based-on-distance-correlation"><i class="fa fa-check"></i><b>3.2.2</b> Dimension Reduction Based on Distance Correlation</a></li>
 </ul></li>
-<li class="chapter" data-level="3.3" data-path="explo.html"><a href="explo.html#correlations-between-predictors-and-the-outcome-variables"><i class="fa fa-check"></i><b>3.3</b> Correlations between predictors and the outcome variables</a><ul>
-<li class="chapter" data-level="3.3.1" data-path="explo.html"><a href="explo.html#correlation-with-income"><i class="fa fa-check"></i><b>3.3.1</b> Correlation with income</a></li>
-<li class="chapter" data-level="3.3.2" data-path="explo.html"><a href="explo.html#correlation-with-literacy"><i class="fa fa-check"></i><b>3.3.2</b> Correlation with literacy</a></li>
-<li class="chapter" data-level="3.3.3" data-path="explo.html"><a href="explo.html#correlation-with-poverty"><i class="fa fa-check"></i><b>3.3.3</b> Correlation with poverty</a></li>
+<li class="chapter" data-level="3.3" data-path="explo.html"><a href="explo.html#correlations-between-the-predictors-and-the-outcome-variables"><i class="fa fa-check"></i><b>3.3</b> Correlations between the Predictors and the Outcome Variables</a><ul>
+<li class="chapter" data-level="3.3.1" data-path="explo.html"><a href="explo.html#correlation-with-income"><i class="fa fa-check"></i><b>3.3.1</b> Correlation with Income</a></li>
+<li class="chapter" data-level="3.3.2" data-path="explo.html"><a href="explo.html#correlation-with-literacy"><i class="fa fa-check"></i><b>3.3.2</b> Correlation with Literacy</a></li>
+<li class="chapter" data-level="3.3.3" data-path="explo.html"><a href="explo.html#correlation-with-poverty"><i class="fa fa-check"></i><b>3.3.3</b> Correlation with Poverty</a></li>
 </ul></li>
 </ul></li>
 <li class="chapter" data-level="4" data-path="simple-model.html"><a href="simple-model.html"><i class="fa fa-check"></i><b>4</b> Fitting a simple model</a><ul>
-<li class="chapter" data-level="4.1" data-path="simple-model.html"><a href="simple-model.html#loading-the-data"><i class="fa fa-check"></i><b>4.1</b> Loading the data</a></li>
-<li class="chapter" data-level="4.2" data-path="simple-model.html"><a href="simple-model.html#area-data"><i class="fa fa-check"></i><b>4.2</b> Area data</a><ul>
-<li class="chapter" data-level="4.2.1" data-path="simple-model.html"><a href="simple-model.html#spatial-dependency-with-area-data-data"><i class="fa fa-check"></i><b>4.2.1</b> Spatial dependency with <em>area data</em> data</a></li>
-<li class="chapter" data-level="4.2.2" data-path="simple-model.html"><a href="simple-model.html#store-the-data-for-modelling"><i class="fa fa-check"></i><b>4.2.2</b> Store the data for modelling</a></li>
-<li class="chapter" data-level="4.2.3" data-path="simple-model.html"><a href="simple-model.html#split-the-sample-into-a-8020-training-and-validation-sets"><i class="fa fa-check"></i><b>4.2.3</b> Split the sample into a 80/20 training and validation sets</a></li>
-<li class="chapter" data-level="4.2.4" data-path="simple-model.html"><a href="simple-model.html#formula-specifying-the-relationship-between-the-outcome-variable-and-the-fixed-and-spatial-random-effects"><i class="fa fa-check"></i><b>4.2.4</b> Formula specifying the relationship between the outcome variable and the fixed and spatial random effects</a></li>
-<li class="chapter" data-level="4.2.5" data-path="simple-model.html"><a href="simple-model.html#fit-the-model-on-the-training-set"><i class="fa fa-check"></i><b>4.2.5</b> Fit the model on the training set</a></li>
-<li class="chapter" data-level="4.2.6" data-path="simple-model.html"><a href="simple-model.html#validate-the-model-on-the-validation-set"><i class="fa fa-check"></i><b>4.2.6</b> Validate the model on the validation set</a></li>
+<li class="chapter" data-level="4.1" data-path="simple-model.html"><a href="simple-model.html#loading-the-data"><i class="fa fa-check"></i><b>4.1</b> Loading the Data</a></li>
+<li class="chapter" data-level="4.2" data-path="simple-model.html"><a href="simple-model.html#area-data"><i class="fa fa-check"></i><b>4.2</b> Area Data</a><ul>
+<li class="chapter" data-level="4.2.1" data-path="simple-model.html"><a href="simple-model.html#spatial-dependency-with-area-data"><i class="fa fa-check"></i><b>4.2.1</b> Spatial Dependency with <em>Area Data</em></a></li>
+<li class="chapter" data-level="4.2.2" data-path="simple-model.html"><a href="simple-model.html#store-the-data-for-modeling"><i class="fa fa-check"></i><b>4.2.2</b> Store the Data for Modeling</a></li>
+<li class="chapter" data-level="4.2.3" data-path="simple-model.html"><a href="simple-model.html#split-the-sample-into-80-20-training-and-validation-sets"><i class="fa fa-check"></i><b>4.2.3</b> Split the Sample into 80-20 Training and Validation Sets</a></li>
+<li class="chapter" data-level="4.2.4" data-path="simple-model.html"><a href="simple-model.html#formula-specifying-the-relationship-between-the-outcome-variable-and-the-fixed-and-spatial-random-effects"><i class="fa fa-check"></i><b>4.2.4</b> Formula Specifying the Relationship between the Outcome Variable and the Fixed and Spatial Random Effects</a></li>
+<li class="chapter" data-level="4.2.5" data-path="simple-model.html"><a href="simple-model.html#fit-the-model-on-the-training-set"><i class="fa fa-check"></i><b>4.2.5</b> Fit the Model on the Training Set</a></li>
+<li class="chapter" data-level="4.2.6" data-path="simple-model.html"><a href="simple-model.html#validate-the-model-on-the-validation-set"><i class="fa fa-check"></i><b>4.2.6</b> Validate the Model on the Validation Set</a></li>
 </ul></li>
-<li class="chapter" data-level="4.3" data-path="simple-model.html"><a href="simple-model.html#point-referenced-data"><i class="fa fa-check"></i><b>4.3</b> Point-referenced data</a><ul>
-<li class="chapter" data-level="4.3.1" data-path="simple-model.html"><a href="simple-model.html#spatial-dependency-with-point-referenced-data-data"><i class="fa fa-check"></i><b>4.3.1</b> Spatial dependency with <em>point-referenced data</em> data</a></li>
-<li class="chapter" data-level="4.3.2" data-path="simple-model.html"><a href="simple-model.html#store-the-data-for-modelling-in-a-stack"><i class="fa fa-check"></i><b>4.3.2</b> Store the data for modelling in a stack</a></li>
-<li class="chapter" data-level="4.3.3" data-path="simple-model.html"><a href="simple-model.html#formula-specifying-the-relationship-between-the-outcome-variable-and-the-fixed-and-spatial-random-effects-1"><i class="fa fa-check"></i><b>4.3.3</b> Formula specifying the relationship between the outcome variable and the fixed and spatial random effects</a></li>
-<li class="chapter" data-level="4.3.4" data-path="simple-model.html"><a href="simple-model.html#fit-the-model-on-the-training-set-1"><i class="fa fa-check"></i><b>4.3.4</b> Fit the model on the training set</a></li>
-<li class="chapter" data-level="4.3.5" data-path="simple-model.html"><a href="simple-model.html#validate-the-model-on-the-validation-set-1"><i class="fa fa-check"></i><b>4.3.5</b> Validate the model on the validation set</a></li>
+<li class="chapter" data-level="4.3" data-path="simple-model.html"><a href="simple-model.html#point-referenced-data"><i class="fa fa-check"></i><b>4.3</b> Point-Referenced Data</a><ul>
+<li class="chapter" data-level="4.3.1" data-path="simple-model.html"><a href="simple-model.html#spatial-dependency-with-point-referenced-data"><i class="fa fa-check"></i><b>4.3.1</b> Spatial Dependency with <em>Point-Referenced Data</em></a></li>
+<li class="chapter" data-level="4.3.2" data-path="simple-model.html"><a href="simple-model.html#store-the-data-for-modeling-in-a-stack"><i class="fa fa-check"></i><b>4.3.2</b> Store the Data for Modeling in a Stack</a></li>
+<li class="chapter" data-level="4.3.3" data-path="simple-model.html"><a href="simple-model.html#specifying-the-relationship-between-the-outcome-variable-and-the-fixed-and-spatial-random-effects"><i class="fa fa-check"></i><b>4.3.3</b> Specifying the Relationship between the Outcome Variable and the Fixed and Spatial Random Effects</a></li>
+<li class="chapter" data-level="4.3.4" data-path="simple-model.html"><a href="simple-model.html#fit-the-model-on-the-training-set-1"><i class="fa fa-check"></i><b>4.3.4</b> Fit the Model on the Training Set</a></li>
+<li class="chapter" data-level="4.3.5" data-path="simple-model.html"><a href="simple-model.html#validate-the-model-on-the-validation-set-1"><i class="fa fa-check"></i><b>4.3.5</b> Validate the Model on the Validation Set</a></li>
 </ul></li>
-<li class="chapter" data-level="4.4" data-path="simple-model.html"><a href="simple-model.html#k-fold-cross-validation"><i class="fa fa-check"></i><b>4.4</b> <em>K-fold</em> cross-validation</a></li>
+<li class="chapter" data-level="4.4" data-path="simple-model.html"><a href="simple-model.html#k-fold-cross-validation"><i class="fa fa-check"></i><b>4.4</b> <em>K-fold</em> Cross-Validation</a></li>
 </ul></li>
 <li class="chapter" data-level="5" data-path="stepwise.html"><a href="stepwise.html"><i class="fa fa-check"></i><b>5</b> Stepwise Covariates Selection</a><ul>
-<li class="chapter" data-level="5.1" data-path="stepwise.html"><a href="stepwise.html#step-1-split-the-sample-into-a-602020-training-validation-and-test-sets"><i class="fa fa-check"></i><b>5.1</b> Step 1: Split the sample into a 60/20/20 training, validation and test sets</a></li>
-<li class="chapter" data-level="5.2" data-path="stepwise.html"><a href="stepwise.html#bundle-step-2-to-4-in-a-function"><i class="fa fa-check"></i><b>5.2</b> Bundle step 2 to 4 in a function</a></li>
-<li class="chapter" data-level="5.3" data-path="stepwise.html"><a href="stepwise.html#bundle-step-5-to-7-in-a-loop-ran-in-parallel"><i class="fa fa-check"></i><b>5.3</b> Bundle step 5 to 7 in a loop ran in parallel</a></li>
-<li class="chapter" data-level="5.4" data-path="stepwise.html"><a href="stepwise.html#step-8-inspect-the-results-and-select-specification"><i class="fa fa-check"></i><b>5.4</b> Step 8: Inspect the results and select specification</a></li>
-<li class="chapter" data-level="5.5" data-path="stepwise.html"><a href="stepwise.html#step-9-final-test"><i class="fa fa-check"></i><b>5.5</b> Step 9 Final test</a></li>
+<li class="chapter" data-level="5.1" data-path="stepwise.html"><a href="stepwise.html#step-1-split-the-sample-into-60-20-20-training-validation-and-test-sets"><i class="fa fa-check"></i><b>5.1</b> Step 1: Split the Sample into 60-20-20 Training, Validation, and Test Sets</a></li>
+<li class="chapter" data-level="5.2" data-path="stepwise.html"><a href="stepwise.html#steps-2-to-4-create-a-function"><i class="fa fa-check"></i><b>5.2</b> Steps 2 to 4: Create a Function</a></li>
+<li class="chapter" data-level="5.3" data-path="stepwise.html"><a href="stepwise.html#steps-5-to-7-run-a-parallel-loop"><i class="fa fa-check"></i><b>5.3</b> Steps 5 to 7: Run a Parallel Loop</a></li>
+<li class="chapter" data-level="5.4" data-path="stepwise.html"><a href="stepwise.html#step-8-inspect-the-results-and-select-a-specification"><i class="fa fa-check"></i><b>5.4</b> Step 8: Inspect the Results and Select a Specification</a></li>
+<li class="chapter" data-level="5.5" data-path="stepwise.html"><a href="stepwise.html#step-9-conduct-a-final-test"><i class="fa fa-check"></i><b>5.5</b> Step 9: Conduct a Final Test</a></li>
 </ul></li>
 <li class="chapter" data-level="6" data-path="summary-of-resuls.html"><a href="summary-of-resuls.html"><i class="fa fa-check"></i><b>6</b> Results summary</a><ul>
-<li class="chapter" data-level="6.1" data-path="summary-of-resuls.html"><a href="summary-of-resuls.html#goodness-of-fit-at-the-segmento-level"><i class="fa fa-check"></i><b>6.1</b> Goodness of fit at the <em>segmento</em> level</a></li>
-<li class="chapter" data-level="6.2" data-path="summary-of-resuls.html"><a href="summary-of-resuls.html#segmento-level-map"><i class="fa fa-check"></i><b>6.2</b> <em>Segmento</em> level map</a></li>
-<li class="chapter" data-level="6.3" data-path="summary-of-resuls.html"><a href="summary-of-resuls.html#goodness-of-fit-at-the-municipio-level"><i class="fa fa-check"></i><b>6.3</b> Goodness of fit at the <em>Municipio</em> level</a><ul>
-<li class="chapter" data-level="6.3.1" data-path="summary-of-resuls.html"><a href="summary-of-resuls.html#obtion-1-aggregating-results-at-the-municipio-level-using-all-segmentos"><i class="fa fa-check"></i><b>6.3.1</b> Obtion 1: Aggregating results at the municipio level using all <em>segmentos</em></a></li>
-<li class="chapter" data-level="6.3.2" data-path="summary-of-resuls.html"><a href="summary-of-resuls.html#option-2-aggregating-results-at-the-municipio-level-using-only-segmentos-in-representative-municipios"><i class="fa fa-check"></i><b>6.3.2</b> Option 2: Aggregating results at the municipio level using only <em>segmentos</em> in representative municipios</a></li>
+<li class="chapter" data-level="6.1" data-path="summary-of-resuls.html"><a href="summary-of-resuls.html#goodness-of-fit-at-the-segmento-level"><i class="fa fa-check"></i><b>6.1</b> Goodness of Fit at the Segmento Level</a></li>
+<li class="chapter" data-level="6.2" data-path="summary-of-resuls.html"><a href="summary-of-resuls.html#segmento-level-map"><i class="fa fa-check"></i><b>6.2</b> Segmento-Level Map</a></li>
+<li class="chapter" data-level="6.3" data-path="summary-of-resuls.html"><a href="summary-of-resuls.html#goodness-of-fit-at-the-municipio-level"><i class="fa fa-check"></i><b>6.3</b> Goodness of Fit at the Municipio Level</a><ul>
+<li class="chapter" data-level="6.3.1" data-path="summary-of-resuls.html"><a href="summary-of-resuls.html#option-1-aggregate-the-results-at-the-municipio-level-using-all-segmentos"><i class="fa fa-check"></i><b>6.3.1</b> Option 1: Aggregate the Results at the Municipio Level Using All Segmentos</a></li>
+<li class="chapter" data-level="6.3.2" data-path="summary-of-resuls.html"><a href="summary-of-resuls.html#option-2-aggregate-the-results-at-the-municipio-level-using-segmentos-in-representative-municipios-only"><i class="fa fa-check"></i><b>6.3.2</b> Option 2: Aggregate the Results at the Municipio Level Using Segmentos in Representative Municipios Only</a></li>
 </ul></li>
 </ul></li>
 <li class="chapter" data-level="7" data-path="discussion.html"><a href="discussion.html"><i class="fa fa-check"></i><b>7</b> Discussion</a></li>
 <li class="chapter" data-level="8" data-path="theory.html"><a href="theory.html"><i class="fa fa-check"></i><b>8</b> Appendix 1: Primer on INLA</a><ul>
-<li class="chapter" data-level="8.1" data-path="theory.html"><a href="theory.html#area-data-vs-point-referenced-data"><i class="fa fa-check"></i><b>8.1</b> Area data vs point-referenced data</a><ul>
-<li class="chapter" data-level="8.1.1" data-path="theory.html"><a href="theory.html#bayesian-approach"><i class="fa fa-check"></i><b>8.1.1</b> Bayesian approach</a></li>
+<li class="chapter" data-level="8.1" data-path="theory.html"><a href="theory.html#area-data-versus-point-referenced-data"><i class="fa fa-check"></i><b>8.1</b> Area Data versus Point-Referenced Data</a><ul>
+<li class="chapter" data-level="8.1.1" data-path="theory.html"><a href="theory.html#bayesian-approach"><i class="fa fa-check"></i><b>8.1.1</b> Bayesian Approach</a></li>
 </ul></li>
-<li class="chapter" data-level="8.2" data-path="theory.html"><a href="theory.html#model-formulation"><i class="fa fa-check"></i><b>8.2</b> Model formulation</a><ul>
-<li class="chapter" data-level="8.2.1" data-path="theory.html"><a href="theory.html#a-simple-model-not-accounting-for-spatial-dependence"><i class="fa fa-check"></i><b>8.2.1</b> A simple model not accounting for spatial dependence</a></li>
-<li class="chapter" data-level="8.2.2" data-path="theory.html"><a href="theory.html#a-spatial-model"><i class="fa fa-check"></i><b>8.2.2</b> A spatial model</a></li>
-<li class="chapter" data-level="8.2.3" data-path="theory.html"><a href="theory.html#estimating-the-model-with-aeral-data"><i class="fa fa-check"></i><b>8.2.3</b> Estimating the model with aeral data</a></li>
-<li class="chapter" data-level="8.2.4" data-path="theory.html"><a href="theory.html#estimating-the-model-with-point-referenced-data"><i class="fa fa-check"></i><b>8.2.4</b> Estimating the model with point-referenced data</a></li>
+<li class="chapter" data-level="8.2" data-path="theory.html"><a href="theory.html#model-formulation"><i class="fa fa-check"></i><b>8.2</b> Model Formulation</a><ul>
+<li class="chapter" data-level="8.2.1" data-path="theory.html"><a href="theory.html#a-simple-model-that-does-not-account-for-spatial-dependence"><i class="fa fa-check"></i><b>8.2.1</b> A Simple Model That Does Not Account for Spatial Dependence</a></li>
+<li class="chapter" data-level="8.2.2" data-path="theory.html"><a href="theory.html#a-spatial-model"><i class="fa fa-check"></i><b>8.2.2</b> A Spatial Model</a></li>
+<li class="chapter" data-level="8.2.3" data-path="theory.html"><a href="theory.html#estimating-the-model-with-areal-data"><i class="fa fa-check"></i><b>8.2.3</b> Estimating the Model with Areal Data</a></li>
+<li class="chapter" data-level="8.2.4" data-path="theory.html"><a href="theory.html#estimating-the-model-with-point-referenced-data"><i class="fa fa-check"></i><b>8.2.4</b> Estimating the Model with Point-Referenced Data</a></li>
 </ul></li>
 </ul></li>
 <li class="chapter" data-level="9" data-path="data.html"><a href="data.html"><i class="fa fa-check"></i><b>9</b> Appendix 2: Data Pre-processing</a><ul>
-<li class="chapter" data-level="9.1" data-path="data.html"><a href="data.html#sources"><i class="fa fa-check"></i><b>9.1</b> Data sources</a></li>
-<li class="chapter" data-level="9.2" data-path="data.html"><a href="data.html#loading-the-survey"><i class="fa fa-check"></i><b>9.2</b> Loading the survey</a></li>
-<li class="chapter" data-level="9.3" data-path="data.html"><a href="data.html#loading-the-vectors"><i class="fa fa-check"></i><b>9.3</b> Loading the vectors</a><ul>
-<li class="chapter" data-level="9.3.1" data-path="data.html"><a href="data.html#loading-the-administrative-boundaries"><i class="fa fa-check"></i><b>9.3.1</b> Loading the administrative boundaries</a></li>
-<li class="chapter" data-level="9.3.2" data-path="data.html"><a href="data.html#loading-the-shapefiles-containing-the-fields-used-as-covariates"><i class="fa fa-check"></i><b>9.3.2</b> Loading the shapefiles containing the fields used as covariates</a></li>
-<li class="chapter" data-level="9.3.3" data-path="data.html"><a href="data.html#loading-point-referenced-data-from-tables"><i class="fa fa-check"></i><b>9.3.3</b> Loading point-referenced data from tables</a></li>
+<li class="chapter" data-level="9.1" data-path="data.html"><a href="data.html#sources"><i class="fa fa-check"></i><b>9.1</b> Data Sources</a></li>
+<li class="chapter" data-level="9.2" data-path="data.html"><a href="data.html#loading-the-survey"><i class="fa fa-check"></i><b>9.2</b> Loading the Survey</a></li>
+<li class="chapter" data-level="9.3" data-path="data.html"><a href="data.html#loading-the-vectors"><i class="fa fa-check"></i><b>9.3</b> Loading the Vectors</a><ul>
+<li class="chapter" data-level="9.3.1" data-path="data.html"><a href="data.html#loading-the-administrative-boundaries"><i class="fa fa-check"></i><b>9.3.1</b> Loading the Administrative Boundaries</a></li>
+<li class="chapter" data-level="9.3.2" data-path="data.html"><a href="data.html#loading-the-shapefiles-containing-the-fields-used-as-covariates"><i class="fa fa-check"></i><b>9.3.2</b> Loading the Shapefiles Containing the Fields Used as Covariates</a></li>
+<li class="chapter" data-level="9.3.3" data-path="data.html"><a href="data.html#loading-point-referenced-data-from-tables"><i class="fa fa-check"></i><b>9.3.3</b> Loading Point-Referenced Data from Tables</a></li>
 </ul></li>
-<li class="chapter" data-level="9.4" data-path="data.html"><a href="data.html#loading-the-rasters"><i class="fa fa-check"></i><b>9.4</b> Loading the rasters</a><ul>
-<li class="chapter" data-level="9.4.1" data-path="data.html"><a href="data.html#lights-at-night"><i class="fa fa-check"></i><b>9.4.1</b> Lights at night</a></li>
+<li class="chapter" data-level="9.4" data-path="data.html"><a href="data.html#loading-the-rasters"><i class="fa fa-check"></i><b>9.4</b> Loading the Rasters</a><ul>
+<li class="chapter" data-level="9.4.1" data-path="data.html"><a href="data.html#lights-at-night"><i class="fa fa-check"></i><b>9.4.1</b> Lights at Night</a></li>
 <li class="chapter" data-level="9.4.2" data-path="data.html"><a href="data.html#precipitation"><i class="fa fa-check"></i><b>9.4.2</b> Precipitation</a></li>
-<li class="chapter" data-level="9.4.3" data-path="data.html"><a href="data.html#soil-degradation"><i class="fa fa-check"></i><b>9.4.3</b> Soil degradation</a></li>
-<li class="chapter" data-level="9.4.4" data-path="data.html"><a href="data.html#vegetation-greenness"><i class="fa fa-check"></i><b>9.4.4</b> Vegetation greenness</a></li>
+<li class="chapter" data-level="9.4.3" data-path="data.html"><a href="data.html#soil-degradation"><i class="fa fa-check"></i><b>9.4.3</b> Soil Degradation</a></li>
+<li class="chapter" data-level="9.4.4" data-path="data.html"><a href="data.html#vegetation-greenness"><i class="fa fa-check"></i><b>9.4.4</b> Vegetation Greenness</a></li>
 <li class="chapter" data-level="9.4.5" data-path="data.html"><a href="data.html#temperature"><i class="fa fa-check"></i><b>9.4.5</b> Temperature</a></li>
 <li class="chapter" data-level="9.4.6" data-path="data.html"><a href="data.html#slope"><i class="fa fa-check"></i><b>9.4.6</b> Slope</a></li>
-<li class="chapter" data-level="9.4.7" data-path="data.html"><a href="data.html#other-rasters"><i class="fa fa-check"></i><b>9.4.7</b> Other rasters</a></li>
+<li class="chapter" data-level="9.4.7" data-path="data.html"><a href="data.html#other-rasters"><i class="fa fa-check"></i><b>9.4.7</b> Other Rasters</a></li>
 </ul></li>
-<li class="chapter" data-level="9.5" data-path="data.html"><a href="data.html#rasters-calculation"><i class="fa fa-check"></i><b>9.5</b> Rasters calculation</a><ul>
-<li class="chapter" data-level="9.5.1" data-path="data.html"><a href="data.html#lights-at-night-1"><i class="fa fa-check"></i><b>9.5.1</b> Lights at night</a></li>
+<li class="chapter" data-level="9.5" data-path="data.html"><a href="data.html#rasters-calculation"><i class="fa fa-check"></i><b>9.5</b> Rasters Calculation</a><ul>
+<li class="chapter" data-level="9.5.1" data-path="data.html"><a href="data.html#lights-at-night-1"><i class="fa fa-check"></i><b>9.5.1</b> Lights at Night</a></li>
 <li class="chapter" data-level="9.5.2" data-path="data.html"><a href="data.html#precipitation-1"><i class="fa fa-check"></i><b>9.5.2</b> Precipitation</a></li>
-<li class="chapter" data-level="9.5.3" data-path="data.html"><a href="data.html#vegetation-greenness-1"><i class="fa fa-check"></i><b>9.5.3</b> Vegetation greenness</a></li>
-<li class="chapter" data-level="9.5.4" data-path="data.html"><a href="data.html#soil-degradation-1"><i class="fa fa-check"></i><b>9.5.4</b> Soil degradation</a></li>
+<li class="chapter" data-level="9.5.3" data-path="data.html"><a href="data.html#vegetation-greenness-1"><i class="fa fa-check"></i><b>9.5.3</b> Vegetation Greenness</a></li>
+<li class="chapter" data-level="9.5.4" data-path="data.html"><a href="data.html#soil-degradation-1"><i class="fa fa-check"></i><b>9.5.4</b> Soil Degradation</a></li>
 <li class="chapter" data-level="9.5.5" data-path="data.html"><a href="data.html#temperature-1"><i class="fa fa-check"></i><b>9.5.5</b> Temperature</a></li>
 </ul></li>
-<li class="chapter" data-level="9.6" data-path="data.html"><a href="data.html#distance-calculation"><i class="fa fa-check"></i><b>9.6</b> Distance calculation</a><ul>
-<li class="chapter" data-level="9.6.1" data-path="data.html"><a href="data.html#distance-to-public-services"><i class="fa fa-check"></i><b>9.6.1</b> Distance to public services</a></li>
-<li class="chapter" data-level="9.6.2" data-path="data.html"><a href="data.html#distance-to-businesses"><i class="fa fa-check"></i><b>9.6.2</b> Distance to businesses</a></li>
-<li class="chapter" data-level="9.6.3" data-path="data.html"><a href="data.html#distance-to-natural-features"><i class="fa fa-check"></i><b>9.6.3</b> Distance to natural features</a></li>
-<li class="chapter" data-level="9.6.4" data-path="data.html"><a href="data.html#stack-distance-maps-and-inspect-results"><i class="fa fa-check"></i><b>9.6.4</b> Stack distance maps and inspect results</a></li>
+<li class="chapter" data-level="9.6" data-path="data.html"><a href="data.html#distance-calculation"><i class="fa fa-check"></i><b>9.6</b> Distance Calculation</a><ul>
+<li class="chapter" data-level="9.6.1" data-path="data.html"><a href="data.html#distance-to-public-services"><i class="fa fa-check"></i><b>9.6.1</b> Distance to Public Services</a></li>
+<li class="chapter" data-level="9.6.2" data-path="data.html"><a href="data.html#distance-to-businesses"><i class="fa fa-check"></i><b>9.6.2</b> Distance to Businesses</a></li>
+<li class="chapter" data-level="9.6.3" data-path="data.html"><a href="data.html#distance-to-natural-features"><i class="fa fa-check"></i><b>9.6.3</b> Distance to Natural Features</a></li>
+<li class="chapter" data-level="9.6.4" data-path="data.html"><a href="data.html#stack-the-distance-maps-and-inspect-the-results"><i class="fa fa-check"></i><b>9.6.4</b> Stack the Distance Maps and Inspect the Results</a></li>
 </ul></li>
-<li class="chapter" data-level="9.7" data-path="data.html"><a href="data.html#spatial-statistics-at-segmento-level"><i class="fa fa-check"></i><b>9.7</b> Spatial statistics at <em>segmento</em> level</a><ul>
-<li class="chapter" data-level="9.7.1" data-path="data.html"><a href="data.html#adjusting-the-coordinates-reference-system-for-raster-extaction-to-segmento"><i class="fa fa-check"></i><b>9.7.1</b> Adjusting the Coordinates Reference System for raster extaction to <em>segmento</em></a></li>
+<li class="chapter" data-level="9.7" data-path="data.html"><a href="data.html#spatial-statistics-at-the-segmento-level"><i class="fa fa-check"></i><b>9.7</b> Spatial Statistics at the Segmento Level</a><ul>
+<li class="chapter" data-level="9.7.1" data-path="data.html"><a href="data.html#adjusting-the-crs-for-raster-extraction-to-segmento"><i class="fa fa-check"></i><b>9.7.1</b> Adjusting the CRS for Raster Extraction to Segmento</a></li>
 <li class="chapter" data-level="9.7.2" data-path="data.html"><a href="data.html#rasters"><i class="fa fa-check"></i><b>9.7.2</b> Rasters</a></li>
 <li class="chapter" data-level="9.7.3" data-path="data.html"><a href="data.html#vectors"><i class="fa fa-check"></i><b>9.7.3</b> Vectors</a></li>
-<li class="chapter" data-level="9.7.4" data-path="data.html"><a href="data.html#population-density"><i class="fa fa-check"></i><b>9.7.4</b> Population density</a></li>
+<li class="chapter" data-level="9.7.4" data-path="data.html"><a href="data.html#population-density"><i class="fa fa-check"></i><b>9.7.4</b> Population Density</a></li>
 </ul></li>
-<li class="chapter" data-level="9.8" data-path="data.html"><a href="data.html#merging-the-covariates-with-the-ehpm-data"><i class="fa fa-check"></i><b>9.8</b> Merging the covariates with the EHPM data</a></li>
+<li class="chapter" data-level="9.8" data-path="data.html"><a href="data.html#merging-the-covariates-with-the-ehpm-data"><i class="fa fa-check"></i><b>9.8</b> Merging the Covariates with the EHPM Data</a></li>
 <li class="chapter" data-level="9.9" data-path="data.html"><a href="data.html#summary"><i class="fa fa-check"></i><b>9.9</b> Summary</a></li>
 </ul></li>
 <li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
@@ -251,20 +280,21 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
             <section class="normal" id="section-">
 <div id="theory" class="section level1">
 <h1><span class="header-section-number">Section 8</span> Appendix 1: Primer on INLA</h1>
-<p>This section provides an introduction to high resolution mapping based on Bayesian geostatistical techniques. The aim is to provides an intuitive understanding of the models rather than an in-depth derivation and explanation of the theory underpinning them. This section is largely based on the books by Zuur et al. <span class="citation">(Zuur, Ieno, and Saveliev <a href="#ref-zuur2017beginner">2017</a>)</span> and Blangiardo and Cameletti <span class="citation">(Blangiardo and Cameletti <a href="#ref-blangiardo2015spatial">2015</a>)</span>.</p>
-<div id="area-data-vs-point-referenced-data" class="section level2">
-<h2><span class="header-section-number">8.1</span> Area data vs point-referenced data</h2>
-<p>There are three types of spatial data <span class="citation">(Blangiardo and Cameletti <a href="#ref-blangiardo2015spatial">2015</a>)</span>:</p>
+<p>This section introduces high-resolution mapping based on Bayesian geostatistical techniques to allow for an intuitive understanding of the models—it does not offer an in-depth derivation and explanation of the theory underpinning them. This section is largely based on the books by Zuur et al. <span class="citation">(Zuur, Ieno, and Saveliev <a href="#ref-zuur2017beginner" role="doc-biblioref">2017</a>)</span> and Blangiardo and Cameletti <span class="citation">(Blangiardo and Cameletti <a href="#ref-blangiardo2015spatial" role="doc-biblioref">2015</a>)</span>.</p>
+<div id="area-data-versus-point-referenced-data" class="section level2">
+<h2><span class="header-section-number">8.1</span> Area Data versus Point-Referenced Data</h2>
+<p>There are three types of spatial data <span class="citation">(Blangiardo and Cameletti <a href="#ref-blangiardo2015spatial" role="doc-biblioref">2015</a>)</span>:</p>
 <ul>
-<li><em>Area or lattice data</em>: the outcome variable to be modelled is a “random aggregate value over an aeral unit”<span class="citation">(Blangiardo and Cameletti <a href="#ref-blangiardo2015spatial">2015</a>)</span>. The difference between area and lattice data is that the latter is aggregated over a regular grid while the former is aggregated over a set of irregular polygons such as administrative boudaries. For instance, income aggregated at the <em>segmento</em> level are <em>area</em> data.</li>
-<li><em>Point-referenced (or geostatistical) data</em>: the outcome variable to be modelled is “a random outcome at a specific location” <span class="citation">(Blangiardo and Cameletti <a href="#ref-blangiardo2015spatial">2015</a>)</span>, such as households’ income measured at the household location georeferenced with latitude and longitude coordinates.</li>
-<li><em>Spatial point patterns</em>: the outcome variable to be modelled represents the occurence or not of an event at a given location. While <em>point referenced data</em> are random outcomes at a <em>specific location</em>, the location of the occurence or not are themselve random in <em>spatial point patterns</em>. For instance, road traffic accidents could be modelled as a <em>spatial point patterns</em>.</li>
+<li><em>Area or lattice data</em>: the outcome variable to be modeled is a “random aggregate value over an areal unit”<span class="citation">(Blangiardo and Cameletti <a href="#ref-blangiardo2015spatial" role="doc-biblioref">2015</a>)</span>. The difference between area and lattice data is that the latter is aggregated over a regular grid while the former is aggregated over a set of irregular polygons such as administrative boundaries. For instance, income data aggregated at the segmento level are area data.</li>
+<li><em>Point-referenced (or geostatistical) data</em>: the outcome variable to be modeled is “a random outcome at a specific location” <span class="citation">(Blangiardo and Cameletti <a href="#ref-blangiardo2015spatial" role="doc-biblioref">2015</a>)</span>, such as households’ income measured at the household location georeferenced with latitude and longitude coordinates.</li>
+<li><em>Spatial point patterns</em>: the outcome variable to be modeled represents the occurrence or not of an event at a given location. While point-referenced data are random outcomes at a specific location, the location of the occurrence or not is itself random in spatial point patterns. For instance, road traffic accidents could be modeled as spatial point patterns.</li>
 </ul>
-<p>The EHPM data were collected at the household level. They were then aggregated at the <em>segmento</em> level, they are hence <em>area data</em>. Nevertheless, we will also explore a model assuming they are <em>point-referenced data</em>, using the centroids of the <em>segmentos</em> as the location.</p>
+<p>The EHPM data were collected at the household level but aggregated at the segmento level, so they are area data. Nevertheless, we will also explore a model assuming they are point-referenced data, using the centroids of the segmentos as the location.</p>
 <div id="bayesian-approach" class="section level3">
-<h3><span class="header-section-number">8.1.1</span> Bayesian approach</h3>
-<p>In the frequentist approach, the interest lies in estimating in the probabilty of the data, say income, given the parameters, <span class="math inline">\(P(data | \beta)\)</span>, i.e. one assumes the parameters exist. In a Bayesian approach, the interest lies in estimating the probability of the parameters given the data, <span class="math inline">\(P(\beta | data)\)</span>.</p>
-<p>The Bayes theorem states that: <span class="math display">\[
+<h3><span class="header-section-number">8.1.1</span> Bayesian Approach</h3>
+<p>In the frequentist approach, the interest lies in estimating the probability of the data, such as on income, given the parameters <span class="math inline">\(P(data | \beta)\)</span>, that is, one assumes the parameters exist. In a Bayesian approach, the interest lies in estimating the probability of the parameters given the data, <span class="math inline">\(P(\beta | data)\)</span>.</p>
+<p>The Bayes theorem states that:
+<span class="math display">\[
 \begin{aligned}
 P(A&amp;B)=P(A|B)P(B)
 \end{aligned}
@@ -273,27 +303,30 @@ P(A&amp;B)=P(A|B)P(B)
 \begin{aligned}
 P(A|B)=\frac{P(B|A)P(A)}{P(B)}
 \end{aligned}
-\]</span> Replacing <span class="math inline">\(A\)</span> and <span class="math inline">\(B\)</span> with the quantity of interest, this gives:</p>
+\]</span>
+Replacing <span class="math inline">\(A\)</span> and <span class="math inline">\(B\)</span> with the quantity of interest gives:</p>
 <p><span class="math display">\[
 \begin{aligned}
 P(\beta|data)=\frac{P(data|\beta)P(\beta)}{P(data)}
 \end{aligned}
-\]</span> where <span class="math inline">\(P(\beta|data)\)</span> is the posterior distribution of the parameter <span class="math inline">\(\beta\)</span>, <span class="math inline">\(P(data|\beta)\)</span> is the likelihood function of the data (e.g. a <em>Gamma</em> distribution for income), <span class="math inline">\(P(\beta)\)</span> is the the prior distribution of the <span class="math inline">\(\beta\)</span> parameter.</p>
+\]</span>
+where <span class="math inline">\(P(\beta|data)\)</span> is the posterior distribution of the parameter <span class="math inline">\(\beta\)</span>, <span class="math inline">\(P(data|\beta)\)</span> is the likelihood function of the data (e.g., a gamma distribution for income), <span class="math inline">\(P(\beta)\)</span> is the prior distribution of the <span class="math inline">\(\beta\)</span> parameter.</p>
 <p>This can be expressed as:</p>
 <p><span class="math display">\[
 \begin{aligned}
 P(\beta|data)\propto P(data|\beta)P(\beta)
 \end{aligned}
-\]</span> which reads as the posterior distribution of <span class="math inline">\(\beta\)</span> is proportional to <span class="math inline">\(P(data|\beta)P(\beta)\)</span>.</p>
-<p>There are various strategies for getting <span class="math inline">\(P(data|\beta)P(\beta)\)</span>: simulation with a Monte Carlo or Markov Chain Monte Carlo algorythm, or deterministic approach via Integrated Nested Laplace Approximation (INLA) implemented in the INLA package.</p>
+\]</span>
+which reads as the posterior distribution of <span class="math inline">\(\beta\)</span> is proportional to <span class="math inline">\(P(data|\beta)P(\beta)\)</span>.</p>
+<p>There are various strategies for getting <span class="math inline">\(P(data|\beta)P(\beta)\)</span>, such as a simulation with a Monte Carlo or a Markov Chain Monte Carlo algorithm, or a deterministic approach via Integrated Nested Laplace Approximation (INLA) implemented in the INLA package.</p>
 </div>
 </div>
 <div id="model-formulation" class="section level2">
-<h2><span class="header-section-number">8.2</span> Model formulation</h2>
-<p>The aim is to model the relationship between the <em>outcome variable</em> <span class="math inline">\(y\)</span>, for instance <em>segmento</em> median income, and a set of covariates <span class="math inline">\(\mathbf{X}\)</span>, the bold notation denoting that <span class="math inline">\(\mathbf{X}\)</span> is matrix with each column corresponding to a covariate.</p>
-<div id="a-simple-model-not-accounting-for-spatial-dependence" class="section level3">
-<h3><span class="header-section-number">8.2.1</span> A simple model not accounting for spatial dependence</h3>
-<p>Ignoring for now the spatial dimension, this could be modeled as:</p>
+<h2><span class="header-section-number">8.2</span> Model Formulation</h2>
+<p>This section models the relationship between the outcome variable <span class="math inline">\(y\)</span>, for instance, segmento median income, and a set of covariates <span class="math inline">\(\mathbf{X}\)</span>, with the bold notation denoting that <span class="math inline">\(\mathbf{X}\)</span> is a matrix with each column corresponding to a covariate.</p>
+<div id="a-simple-model-that-does-not-account-for-spatial-dependence" class="section level3">
+<h3><span class="header-section-number">8.2.1</span> A Simple Model That Does Not Account for Spatial Dependence</h3>
+<p>Ignoring, for now, the spatial dimension, the relationship could be modeled as:</p>
 <p><span class="math display">\[
 \begin{aligned}
 \mathbf{y}=\beta_{0}+\mathbf{X}\mathbf{\beta}+\mathbf{\epsilon}
@@ -304,7 +337,7 @@ P(\beta|data)\propto P(data|\beta)P(\beta)
 \mathbf{\epsilon}\sim N(0,\mathbf\Omega)
 \end{aligned}
 \]</span></p>
-<p>where <span class="math inline">\(\mathbf{y}\)</span> is a income vector of size <span class="math inline">\(n\)</span> for the <span class="math inline">\(n\)</span> <em>segmentos</em>, with each element <span class="math inline">\(y_{i}\)</span> of <span class="math inline">\(i=1, ... ,n\)</span> is the median income level in <em>segmemto</em> <span class="math inline">\(i\)</span>, <span class="math inline">\(\mathbf{X}\)</span> is the matrix of covariates with <span class="math inline">\(k\)</span> columns for the <span class="math inline">\(k\)</span> covariates and <span class="math inline">\(n\)</span> rows for the <span class="math inline">\(n\)</span> <em>segmentos</em>, <span class="math inline">\(\mathbf{\beta}\)</span> is the vector of <span class="math inline">\(k\)</span> parameters indicating the effect of each covariate on <span class="math inline">\(y\)</span>, <span class="math inline">\(\mathbf{\epsilon}\)</span> is the vector of error term of size <span class="math inline">\(n\)</span>, distributed normally with mean <span class="math inline">\(0\)</span> and variance-covariance defined by the matrix <span class="math inline">\(\mathbf{\Omega}\)</span>:</p>
+<p>where <span class="math inline">\(\mathbf{y}\)</span> is an income vector of size <span class="math inline">\(n\)</span> for the <span class="math inline">\(n\)</span> segmentos. With each element <span class="math inline">\(y_{i}\)</span> of <span class="math inline">\(i=1, ... ,n\)</span> is the median income level in segmemto <span class="math inline">\(i\)</span>, <span class="math inline">\(\mathbf{X}\)</span> is the matrix of covariates with <span class="math inline">\(k\)</span> columns for the <span class="math inline">\(k\)</span> covariates and <span class="math inline">\(n\)</span> rows for the <span class="math inline">\(n\)</span> segmentos, <span class="math inline">\(\mathbf{\beta}\)</span> is the vector of <span class="math inline">\(k\)</span> parameters indicating the effect of each covariate on <span class="math inline">\(y\)</span>, and <span class="math inline">\(\mathbf{\epsilon}\)</span> is the vector of error term of size <span class="math inline">\(n\)</span>, distributed normally with mean <span class="math inline">\(0\)</span>, and variance-covariance defined by the matrix <span class="math inline">\(\mathbf{\Omega}\)</span>.</p>
 <p><span class="math display">\[
 \begin{aligned}
 \mathbf\Omega = \left[\begin{array}
@@ -316,29 +349,29 @@ P(\beta|data)\propto P(data|\beta)P(\beta)
                        \end{array}\right]=\sigma^2\mathbf{I}
 \end{aligned}
 \]</span></p>
-<p>with each off-diagonal element of <span class="math inline">\(\mathbf\Omega\)</span> representing the covariance of <span class="math inline">\(\epsilon_{i}\)</span> and <span class="math inline">\(\epsilon_{j}\)</span>, here set to <span class="math inline">\(0\)</span>, and <span class="math inline">\(\sigma^2\)</span> is the variance, which can hence be more consisely written as <span class="math inline">\(\sigma^2\mathbf{I}\)</span>, where <span class="math inline">\(\mathbf{I}\)</span> is an identity matrix where the diagonal elements are <span class="math inline">\(1\)</span> and the off-diagonal elements are <span class="math inline">\(0\)</span>.</p>
-<p>The strong assumption of this model is that the term <span class="math inline">\(\epsilon_{i}\)</span> is idependently and identically distributed, often abreviated as <em>iid</em> distributed. Let us unpack this expression.</p>
-<p><em>Independence.</em> The independence assumption implies that <span class="math inline">\(\epsilon_{i}\)</span> and <span class="math inline">\(\epsilon_{j}\)</span> for any two pairs of <em>segmento</em> <span class="math inline">\(i\)</span> and <span class="math inline">\(j\)</span> will be independent, even if <span class="math inline">\(i\)</span> and <span class="math inline">\(j\)</span> are neighbouring <em>segmentos</em>. This is represented by the covariance between <span class="math inline">\(\epsilon_{i}\)</span> and <span class="math inline">\(\epsilon_{j}\)</span> for <span class="math inline">\(i\neq j\)</span> being set to zero in <span class="math inline">\(\Omega\)</span>.</p>
-<p>We can expect that it does not hold in the case of average income per <em>segmento</em>. For instance, let us imagine that a large company is recruiting its worksforce in <em>segmentos</em> <span class="math inline">\(i\)</span> and <span class="math inline">\(j\)</span> and that no data is avaible in <span class="math inline">\(\mathbf{X}\)</span> to take this into account. Hence, <span class="math inline">\(\epsilon_{i}\)</span> and <span class="math inline">\(\epsilon_{j}\)</span> will be highly correlated, violating the independence assumption.</p>
-<p><em>Identical distribution.</em> The are no symbol <span class="math inline">\(i\)</span> in the normal distribution <span class="math inline">\(N(\mu,\sigma^2)\)</span>, i.e. <span class="math inline">\(\epsilon_{i}\)</span> of all <em>segmento</em> are assumed to have a mean <span class="math inline">\(\mu\)</span> and a variance <span class="math inline">\(\sigma^2\)</span>. However, both the mean and the variance might vary across locations. For instance, one can expected that in an areas where most of the workforce is employed in agriculture, weather shocks might implies larger deviation from model prediction than in areas where most of the workforce is employed in the service sector, leading to different variance. Similarly, the model might systematically over- or under-predict in some areas, leading to <span class="math inline">\(\epsilon_{i}\)</span> with <span class="math inline">\(\mu\)</span> higher or under zero.</p>
-<p>The violation of theses assumptions lead to incorrect estimate of the precison of the <span class="math inline">\(\mathbf{\beta}\)</span> parameters.</p>
-<p>Furthermore, modelling explicilty the spatial dependence increase the predictive performance of the model; not taking into account the location implies throwing away a imporant piece of information.</p>
+<p>Each off-diagonal element of <span class="math inline">\(\mathbf\Omega\)</span> represents the covariance of <span class="math inline">\(\epsilon_{i}\)</span> and <span class="math inline">\(\epsilon_{j}\)</span>, here set to <span class="math inline">\(0\)</span>. The variance is <span class="math inline">\(\sigma^2\)</span>, which can be more concisely written as <span class="math inline">\(\sigma^2\mathbf{I}\)</span>, where <span class="math inline">\(\mathbf{I}\)</span> is an identity matrix where the diagonal elements are <span class="math inline">\(1\)</span> and the off-diagonal elements are <span class="math inline">\(0\)</span>.</p>
+<p>The strong assumption of this model is that the term <span class="math inline">\(\epsilon_{i}\)</span> is independently and identically distributed, often abbreviated as <em>iid</em>. Let us unpack this expression.</p>
+<p><em>Independence.</em> The independence assumption implies that <span class="math inline">\(\epsilon_{i}\)</span> and <span class="math inline">\(\epsilon_{j}\)</span> for any two pairs of segmento <span class="math inline">\(i\)</span> and <span class="math inline">\(j\)</span> will be independent, even if <span class="math inline">\(i\)</span> and <span class="math inline">\(j\)</span> are neighboring segmentos. This is represented by the covariance between <span class="math inline">\(\epsilon_{i}\)</span> and <span class="math inline">\(\epsilon_{j}\)</span> for <span class="math inline">\(i\neq j\)</span> being set to zero in <span class="math inline">\(\Omega\)</span>.</p>
+<p>We can expect that it does not hold in the case of average income per segmento. For instance, imagine that a large company is recruiting its workforce in segmentos <span class="math inline">\(i\)</span> and <span class="math inline">\(j\)</span> and no data is available in <span class="math inline">\(\mathbf{X}\)</span> to take this into account. Therefore, <span class="math inline">\(\epsilon_{i}\)</span> and <span class="math inline">\(\epsilon_{j}\)</span> will be highly correlated, violating the independence assumption.</p>
+<p><em>Identical distribution.</em> There is no symbol <span class="math inline">\(i\)</span> in the normal distribution <span class="math inline">\(N(\mu,\sigma^2)\)</span>, meaning that <span class="math inline">\(\epsilon_{i}\)</span> of all segmentos are assumed to have a mean <span class="math inline">\(\mu\)</span> and a variance <span class="math inline">\(\sigma^2\)</span>. However, both the mean and the variance might vary across locations. For instance, one can expect that in areas where most of the workforce is employed in agriculture, weather shocks might imply a larger deviation from model predictions than in areas where most of the workforce is employed in the service sector, leading to different variances. Similarly, the model might systematically overpredict or underpredict in some areas, leading to <span class="math inline">\(\epsilon_{i}\)</span> with <span class="math inline">\(\mu\)</span> higher or under zero.</p>
+<p>The violation of these assumptions leads to incorrect estimation of the precision of the <span class="math inline">\(\mathbf{\beta}\)</span> parameters.</p>
+<p>Furthermore, explicitly modeling the spatial dependence increases the predictive performance of the model; not taking the location into account implies throwing away an important piece of information.</p>
 </div>
 <div id="a-spatial-model" class="section level3">
-<h3><span class="header-section-number">8.2.2</span> A spatial model</h3>
-<p>In order to model explicitly the spatial dependence, an additional term is added to equation:</p>
+<h3><span class="header-section-number">8.2.2</span> A Spatial Model</h3>
+<p>To explicitly model the spatial dependence, an additional term is added to the equation.</p>
 <p><span class="math display">\[
 \begin{aligned}
-\mathbf{y}=\beta_{0}+\mathbf{X}\mathbf{\beta}+\mathbf{\epsilon}+\mathbf{\upsilon}
+\mathbf{y}=\beta_{0}+\mathbf{X}\mathbf{\beta}+\mathbf{\epsilon}+\mathbf{\upsilon},
 \end{aligned}
 \]</span></p>
-<p>where <span class="math inline">\(\mathbf{\epsilon}\)</span> is distributed according to equation presented in the previous sub-section and <span class="math inline">\(\mathbf{\upsilon}\)</span> is a spatially correlated random effect distributed according:</p>
+<p>where <span class="math inline">\(\mathbf{\epsilon}\)</span> is distributed according to the equation presented in the previous subsection and <span class="math inline">\(\mathbf{\upsilon}\)</span> is a spatially correlated random effect distributed as follows:</p>
 <p><span class="math display">\[
 \begin{aligned}
 \mathbf{\upsilon}\sim N(0,\mathbf\Sigma)
 \end{aligned}
 \]</span></p>
-<p>where <span class="math inline">\(\Sigma\)</span> is non-diagonal matrix given by:</p>
+<p><span class="math inline">\(\Sigma\)</span> is a non-diagonal matrix</p>
 <p><span class="math display">\[
 \begin{aligned}
 \mathbf\Sigma = \left[\begin{array}
@@ -350,97 +383,96 @@ P(\beta|data)\propto P(data|\beta)P(\beta)
                        \end{array}\right]
 \end{aligned}
 \]</span></p>
-<p>where <span class="math inline">\(\sigma_{u}^2\)</span> is the variance of the <span class="math inline">\(\upsilon\)</span> and the <span class="math inline">\(\phi_{i,j}=corr(\upsilon_{i},\upsilon_{j})\neq0\)</span> is the correlation between the spatial random effect at location <span class="math inline">\(i\)</span> and <span class="math inline">\(j\)</span>.</p>
-<p>The challenge now is to estimate the <span class="math inline">\(\phi_{i,j}\)</span> parameters. In the present case, the matrix <span class="math inline">\(\mathbf\Sigma\)</span> has a dimension of <span class="math inline">\(1664*1664\)</span>, i.e 2’768’896 parameters to estimates.</p>
+<p>with <span class="math inline">\(\sigma_{u}^2\)</span> as the variance of the <span class="math inline">\(\upsilon\)</span> and <span class="math inline">\(\phi_{i,j}=corr(\upsilon_{i},\upsilon_{j})\neq0\)</span> is the correlation between the spatial random effect at locations <span class="math inline">\(i\)</span> and <span class="math inline">\(j\)</span>.</p>
+<p>The challenge now is to estimate the <span class="math inline">\(\phi_{i,j}\)</span> parameters. In the present case, the matrix <span class="math inline">\(\mathbf\Sigma\)</span> has a dimension of <span class="math inline">\(1664*1664\)</span>, that is, 2,768,896 parameters to estimate.</p>
 </div>
-<div id="estimating-the-model-with-aeral-data" class="section level3">
-<h3><span class="header-section-number">8.2.3</span> Estimating the model with aeral data</h3>
-<p>When working with aearal data, quantiyfying proximity with an euclidean distance is not adequate. First, one would need to figure out which point of the area should be considered when measuring the distance. One option could be to take some measure of the centre of each <em>segmentos</em>, however larger <em>segmentos</em> would then appear more remote than smaller one. The prefered approach with aeral data is hence slightly different: proximity is defined in terms of which <em>segmentos</em> do share a border.</p>
-<p>For sack of simplicity, let us assume for the moment that the link function is a simple identity function such that <span class="math inline">\(g(\mu(s_{i}))=\mu(s_{i})\)</span>. <span class="math inline">\(\mu(s_{i})\)</span> can hence be expressed as:</p>
+<div id="estimating-the-model-with-areal-data" class="section level3">
+<h3><span class="header-section-number">8.2.3</span> Estimating the Model with Areal Data</h3>
+<p>When working with areal data, quantifying proximity with a Euclidean distance is not adequate. First, one would need to figure out which point of the area should be considered when measuring the distance. One option could be to take some measure of the center of each segmento; however, larger segmentos would then appear more remote than smaller ones. The preferred approach with areal data is hence slightly different: proximity is defined in terms of which segmentos share a border.</p>
+<p>For simplicity’s sake, let us assume for the moment that the link function is a simple identity function, such that <span class="math inline">\(g(\mu(s_{i}))=\mu(s_{i})\)</span>. Therefore, <span class="math inline">\(\mu(s_{i})\)</span> can be expressed as</p>
 <p><span class="math display">\[
 \begin{aligned}
-\mu(s_{i})=\eta_{i}=\mathbf{X(s_{i})}\mathbf{\beta}+\upsilon_{i}
+\mu(s_{i})=\eta_{i}=\mathbf{X(s_{i})}\mathbf{\beta}+\upsilon_{i}.
 \end{aligned}
 \]</span></p>
-<p>A conditional autoregressive model (CAR) correlation function is used to model the spatial random effect <span class="math inline">\(\upsilon_{i}\)</span> (when dealing with point reference data, a Matern correlation and its SDPE expression is used instead, see next sub-section).</p>
-<p>The spatial dependency is assumed to be Markovian in nature, i.e. the spatial correlation can be summarized by the spatial correlation between direct neighbours.</p>
-<p>The distribution of each <span class="math inline">\(\upsilon_{i}\)</span> conditional on all other <span class="math inline">\(\upsilon\)</span> is expressed as:</p>
+<p>A conditional autoregressive model (CAR) correlation function is used to model the spatial random effect <span class="math inline">\(\upsilon_{i}\)</span> (when dealing with point-referenced data, a Matern correlation and its SDPE expression are used instead, see the next subsection).</p>
+<p>The spatial dependency is assumed to be Markovian in nature, that is, the spatial correlation can be summarized by the spatial correlation between direct neighbors.</p>
+<p>The distribution of each <span class="math inline">\(\upsilon_{i}\)</span> conditional on all other <span class="math inline">\(\upsilon\)</span> is expressed as</p>
 <p><span class="math display">\[
 \begin{aligned}
-\upsilon_{i}|\upsilon_{-i} \sim N(\sum_{j\neq i}^{N}c_{i,j}\upsilon_{j}, \sigma_{i}^{2}) 
+\upsilon_{i}|\upsilon_{-i} \sim N(\sum_{j\neq i}^{N}c_{i,j}\upsilon_{j}, \sigma_{i}^{2}),
 \end{aligned}
 \]</span></p>
-<p>where <span class="math inline">\({-i}\)</span> means all except <span class="math inline">\(i\)</span>. In the simplest model, called the intrinsic CAR, <span class="math inline">\(c_{i,j}\)</span> is <span class="math inline">\(1\)</span> if <span class="math inline">\(j\)</span> is neigbour of <span class="math inline">\(i\)</span> and <span class="math inline">\(0\)</span> otherwise. The conditional mean of each <span class="math inline">\(\upsilon_{i}\)</span> is hence an average of its direct neighbour.</p>
-<p>The joint distribution of all <span class="math inline">\(\upsilon_{i}\)</span> is also Gaussian and written as:</p>
+<p>where <span class="math inline">\({-i}\)</span> means all except <span class="math inline">\(i\)</span>. In the simplest model, called the intrinsic CAR, <span class="math inline">\(c_{i,j}\)</span> is <span class="math inline">\(1\)</span> if <span class="math inline">\(j\)</span> is a neighbor of <span class="math inline">\(i\)</span> and <span class="math inline">\(0\)</span> otherwise. The conditional mean of each <span class="math inline">\(\upsilon_{i}\)</span> is hence an average of its direct neighbor.</p>
+<p>The joint distribution of all <span class="math inline">\(\upsilon_{i}\)</span> is also Gaussian and written as</p>
 <p><span class="math display">\[
 \begin{aligned}
-\mathbf{\upsilon} \sim N(0, (\mathbf{I-C})^{-1}\mathbf{M}) 
+\mathbf{\upsilon} \sim N(0, (\mathbf{I-C})^{-1}\mathbf{M}),
 \end{aligned}
 \]</span></p>
-<p>where <span class="math inline">\(\mathbf{I}\)</span> is a matrix of <span class="math inline">\(1\)</span> and <span class="math inline">\(0\)</span>, <span class="math inline">\(\mathbf{C}\)</span> contains the <span class="math inline">\(c_{i,j}\)</span> and <span class="math inline">\(\mathbf{M}\)</span> is the covariance matrix. Various CAR model specify various function for <span class="math inline">\(\mathbf{C}\)</span> and <span class="math inline">\(\mathbf{M}\)</span>.</p>
-<p>The homogeneous CAR model set:</p>
+<p>where <span class="math inline">\(\mathbf{I}\)</span> is a matrix of <span class="math inline">\(1\)</span> and <span class="math inline">\(0\)</span>, <span class="math inline">\(\mathbf{C}\)</span> contains the <span class="math inline">\(c_{i,j}\)</span>, and <span class="math inline">\(\mathbf{M}\)</span> is the covariance matrix. Various CAR models specify various function for <span class="math inline">\(\mathbf{C}\)</span> and <span class="math inline">\(\mathbf{M}\)</span>.</p>
+<p>The homogeneous CAR model set is</p>
 <p><span class="math display">\[
 \begin{aligned}
-\mathbf{C}=\phi\mathbf{A} \space \space \space \space \space \mathbf{M}=\mathbf{I}\sigma^{2}_{CAR}
+\mathbf{C}=\phi\mathbf{A} \space \space \space \space \space \mathbf{M}=\mathbf{I}\sigma^{2}_{CAR},
 \end{aligned}
 \]</span></p>
-<p>where <span class="math inline">\(\mathbf{A}\)</span> is <span class="math inline">\(1\)</span> if area are neighbour and <span class="math inline">\(0\)</span> otherwise and <span class="math inline">\(\phi\)</span> needs to be estimated: larger it is, more corellated are the random effects. The instric car model set <span class="math inline">\(\phi\)</span> to 1.</p>
-<p>One of the issues of CAR models is to lead to overfitting, i.e. model perform well on the training set of the data but poorly when doing out of sample prediction on the test set for validation purposes.</p>
-<p>A solution is to smooth the pattern of the spatial random effects. With a lower <span class="math inline">\(\sigma^{2}_{CAR}\)</span>, the <span class="math inline">\(\upsilon\)</span> will vary less from neighbour to neigbour, leading to less overfit. In order to push the <span class="math inline">\(\sigma^{2}_{CAR}\)</span> to be lower, one can work on the priors. The standard way of doing this is by using penalized complexity priors whereby one specify the probability that <span class="math inline">\(\sigma^{2}_{CAR}\)</span> will be larger than a given number. To further limit the risk of overfitting. The standard way is to decompose the spatial random effects into one part which is spatially correlated and one part which is pure noise. This is called the modified Besag-York-Mollie <span class="citation">(Simpson et al. <a href="#ref-simpson2017penalising">2017</a>)</span>, which we will be using in the next section.</p>
+<p>where <span class="math inline">\(\mathbf{A}\)</span> is <span class="math inline">\(1\)</span> if the areas are neighboring and <span class="math inline">\(0\)</span> otherwise, and <span class="math inline">\(\phi\)</span> needs to be estimated: the larger it is, the more the random effects are correlated. The intrinsic CAR models set <span class="math inline">\(\phi\)</span> to 1.</p>
+<p>One of the issues with CAR models is that they lead to overfitting, that is, models perform well on the training data set but poorly on out-of-sample predictions on the test set for validation purposes.</p>
+<p>A solution is to smooth the pattern of the spatial random effects. With a lower <span class="math inline">\(\sigma^{2}_{CAR}\)</span>, the <span class="math inline">\(\upsilon\)</span> will vary less from neighbor to neighbor, leading to less overfit. To push the <span class="math inline">\(\sigma^{2}_{CAR}\)</span> lower, it is possible to work on the priors. The standard way of doing this is by using penalized complexity priors whereby one specifies the probability that <span class="math inline">\(\sigma^{2}_{CAR}\)</span> will be larger than a given number. To further limit the risk of overfitting, decompose the spatial random effects into one part that is spatially correlated and another that is pure noise. This is called the modified Besag-York-Mollie <span class="citation">(Simpson et al. <a href="#ref-simpson2017penalising" role="doc-biblioref">2017</a>)</span>, which we will be using in the next section.</p>
 </div>
 <div id="estimating-the-model-with-point-referenced-data" class="section level3">
-<h3><span class="header-section-number">8.2.4</span> Estimating the model with point-referenced data</h3>
-<p>Let us now assume that the <em>segmentos</em> median income are point referenced data.</p>
-<p>We now reconsider <span class="math inline">\(\mathbf{y}\)</span> as a random variable distributed at <span class="math inline">\(n\)</span> locations <span class="math inline">\(s_{1}, ...,s_{n}\)</span>. The income data can be considered as a sample of <span class="math inline">\(y(s_{1}), ..., y(s_{n})\)</span> from the random process <span class="math inline">\(\mathbf{y(s)}\)</span>.</p>
-<p>Assuming that the <span class="math inline">\(y(s_{i})\)</span> are normally distributed, we have:</p>
+<h3><span class="header-section-number">8.2.4</span> Estimating the Model with Point-Referenced Data</h3>
+<p>We now assume that the segmentos’ median incomes are point-referenced data.</p>
+<p>We reconsider <span class="math inline">\(\mathbf{y}\)</span> as a random variable distributed at <span class="math inline">\(n\)</span> locations <span class="math inline">\(s_{1}, ...,s_{n}\)</span>. The income data can be considered as a sample of <span class="math inline">\(y(s_{1}), ..., y(s_{n})\)</span> from the random process <span class="math inline">\(\mathbf{y(s)}\)</span>.</p>
+<p>Assuming that the <span class="math inline">\(y(s_{i})\)</span> are normally distributed, we have</p>
 <p><span class="math display">\[
 \begin{aligned}
-y(s_{i})\sim N(\mu(s_{i}),\sigma^2)
+y(s_{i})\sim N(\mu(s_{i}),\sigma^2),
 \end{aligned}
 \]</span></p>
-<p>where <span class="math inline">\(\mu(s_{i})\)</span> is expressed as a function of a structured additive predictor <span class="math inline">\(\eta_{i}\)</span>, such that <span class="math inline">\(g(\mu(s_{i}))=\eta_{i}\)</span>. For sack of simplicity, let us assume for the moment that the link function is a simple identity function such that <span class="math inline">\(g(\mu(s_{i}))=\mu(s_{i})\)</span>. <span class="math inline">\(\mu(s_{i})\)</span> can hence be expressed as:</p>
+<p>where <span class="math inline">\(\mu(s_{i})\)</span> is expressed as a function of a structured additive predictor <span class="math inline">\(\eta_{i}\)</span>, such that <span class="math inline">\(g(\mu(s_{i}))=\eta_{i}\)</span>. For the sake of simplicity, let us assume for the moment that the link function is a simple identity function such that <span class="math inline">\(g(\mu(s_{i}))=\mu(s_{i})\)</span>. <span class="math inline">\(\mu(s_{i})\)</span> can be expressed as</p>
 <p><span class="math display">\[
 \begin{aligned}
-\mu(s_{i})=\eta_{i}=\mathbf{X(s_{i})}\mathbf{\beta}+\upsilon_{i}+\epsilon_{i}
+\mu(s_{i})=\eta_{i}=\mathbf{X(s_{i})}\mathbf{\beta}+\upsilon_{i}+\epsilon_{i}.
 \end{aligned}
 \]</span></p>
-<p>Assuming the that <span class="math inline">\(\upsilon_{i}\)</span> is normally distributed, it makes it a Gaussian Field:</p>
+<p>Assuming that the <span class="math inline">\(\upsilon_{i}\)</span> is normally distributed, it makes it a Gaussian field (<span class="math inline">\(GF\)</span>):</p>
 <p><span class="math display">\[
 \begin{aligned}
-\upsilon_{i} \sim GF(\mathbf{0},\mathbf{\Sigma})
+\upsilon_{i} \sim GF(\mathbf{0},\mathbf{\Sigma}).
 \end{aligned}
 \]</span></p>
-<p>where <span class="math inline">\(GF\)</span> stands for Gaussian fields.</p>
-<p>Assuming that the covariance is Markovian in nature, i.e. only the spatial correlation can be summarized by the spatial correlation between direct neighbours, then the <span class="math inline">\(\upsilon_{i}\)</span> is distributed acording to a Gaussian Markov Random Field (GMRF):</p>
+<p>Assuming that the covariance is Markovian, meaning that only the spatial correlation can be summarized by the spatial correlation between direct neighbors, then the <span class="math inline">\(\upsilon_{i}\)</span> is distributed according to a Gaussian Markov random field (GMRF).</p>
 <p><span class="math display">\[
 \begin{aligned}
-\upsilon_{i} \sim GRMF(\mathbf{0},\mathbf{\Sigma})
+\upsilon_{i} \sim GRMF(\mathbf{0},\mathbf{\Sigma}).
 \end{aligned}
 \]</span></p>
-<p>As <span class="math inline">\(\mathbf{\Sigma}\)</span> can be large (a matrix with more than 2 millions element in case of the <em>segmentos</em>), a determininistic structure is imposed on it in order to speed up the estimation,</p>
-<p>When working with point referenced data, the variance-covariance <span class="math inline">\(\mathbf{\Sigma}\)</span> is expressed in terms of the Matern correlation function :</p>
+<p>As <span class="math inline">\(\mathbf{\Sigma}\)</span> can be large (a matrix with more than 2 million elements in the case of the segmentos), a deterministic structure is imposed on it to speed the estimation.</p>
+<p>When working with point-referenced data, the variance-covariance <span class="math inline">\(\mathbf{\Sigma}\)</span> is expressed in terms of the Matern correlation function.</p>
 <p><span class="math display">\[
 \begin{aligned}
-\mathbf{\Sigma}=\sigma_{\upsilon}^2 cor_{Matern}(\upsilon(s_{i}),\upsilon(s_{j}))
+\mathbf{\Sigma}=\sigma_{\upsilon}^2 cor_{Matern}(\upsilon(s_{i}),\upsilon(s_{j})).
 \end{aligned}
 \]</span></p>
 <p>The advantage of the Matern correlation function is that only a few parameters need to be estimated.</p>
-<p>In order to further simplifiy the computation, the Matern correaltion can be re-expressed with a Stochastic Partial Differencial Equation (SPDE). Once the SPDE equation solved, one can use the SPDE parameters to solve the Matern correlation parameters.</p>
-<p>In order to solve the SPDE, a spatial mesh is created on the point reference data. For each node of the mesh, we get a value <span class="math inline">\(w_{k}\)</span> via the finite element approach. The <span class="math inline">\(w_{k}\)</span> also form a GMRF. Once we have the <span class="math inline">\(w_{k}\)</span>, we can calculate the <span class="math inline">\(\upsilon_{i}\)</span> as a weighted sum of <span class="math inline">\(w_{k}\)</span> time <span class="math inline">\(a_{i,k}\)</span>s, where <span class="math inline">\(a_{i,k}\)</span> are the distance of <span class="math inline">\(s{i}\)</span> to node <span class="math inline">\(k\)</span>. This allows us to obtain the posterior distribution of the <span class="math inline">\(\upsilon_{i}\)</span>s.</p>
+<p>To further simplify the computation, the Matern correlation can be re-expressed with an SPDE. Once the SPDE equation is solved, the SPDE parameters can be used to solve the Matern correlation parameters.</p>
+<p>To solve the SPDE, a spatial mesh is created on the point-referenced data. For each node of the mesh, we get a value <span class="math inline">\(w_{k}\)</span> via the finite element approach. The <span class="math inline">\(w_{k}\)</span> also form a GMRF. Once we have the <span class="math inline">\(w_{k}\)</span>, we can calculate the <span class="math inline">\(\upsilon_{i}\)</span> as a weighted sum of <span class="math inline">\(w_{k}\)</span> time <span class="math inline">\(a_{i,k}\)</span>s, where <span class="math inline">\(a_{i,k}\)</span> is the distance of <span class="math inline">\(s{i}\)</span> to node <span class="math inline">\(k\)</span>. This allows us to obtain the posterior distribution of the <span class="math inline">\(\upsilon_{i}\)</span>s.</p>
 
 </div>
 </div>
 </div>
 <h3>References</h3>
 <div id="refs" class="references">
-<div id="ref-zuur2017beginner">
-<p>Zuur, Alain F, Elena N Ieno, and Anatoly A Saveliev. 2017. <em>Beginner’s Guide to Spatial, Temporal, and Spatial-Temporal Ecological Data Analysis with R-Inla</em>.</p>
-</div>
 <div id="ref-blangiardo2015spatial">
 <p>Blangiardo, Marta, and Michela Cameletti. 2015. <em>Spatial and Spatio-Temporal Bayesian Models with R-Inla</em>. John Wiley &amp; Sons.</p>
 </div>
 <div id="ref-simpson2017penalising">
-<p>Simpson, Daniel, Håvard Rue, Andrea Riebler, Thiago G Martins, Sigrunn H Sørbye, and others. 2017. “Penalising Model Component Complexity: A Principled, Practical Approach to Constructing Priors.” <em>Statistical Science</em> 32 (1). Institute of Mathematical Statistics: 1–28.</p>
+<p>Simpson, Daniel, Håvard Rue, Andrea Riebler, Thiago G Martins, Sigrunn H Sørbye, and others. 2017. “Penalising Model Component Complexity: A Principled, Practical Approach to Constructing Priors.” <em>Statistical Science</em> 32 (1): 1–28.</p>
+</div>
+<div id="ref-zuur2017beginner">
+<p>Zuur, Alain F, Elena N Ieno, and Anatoly A Saveliev. 2017. <em>Beginner’s Guide to Spatial, Temporal, and Spatial-Temporal Ecological Data Analysis with R-Inla</em>.</p>
 </div>
 </div>
             </section>
@@ -454,11 +486,13 @@ y(s_{i})\sim N(\mu(s_{i}),\sigma^2)
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
 <script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
 <script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
 <script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
 <script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
 <script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
 <script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
 <script>
 gitbook.require(["gitbook"], function(gitbook) {
 gitbook.start({
@@ -466,12 +500,11 @@ gitbook.start({
 "github": false,
 "facebook": true,
 "twitter": true,
-"google": false,
 "linkedin": false,
 "weibo": false,
 "instapaper": false,
 "vk": false,
-"all": ["facebook", "google", "twitter", "linkedin", "weibo", "instapaper"]
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
 },
 "fontsettings": {
 "theme": "white",
@@ -483,6 +516,10 @@ gitbook.start({
 "text": null
 },
 "history": {
+"link": null,
+"text": null
+},
+"view": {
 "link": null,
 "text": null
 },
@@ -499,10 +536,11 @@ gitbook.start({
   (function () {
     var script = document.createElement("script");
     script.type = "text/javascript";
-    var src = "";
+    var src = "true";
     if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
-    if (location.protocol !== "file:" && /^https?:/.test(src))
-      src = src.replace(/^https?:/, '');
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
     script.src = src;
     document.getElementsByTagName("head")[0].appendChild(script);
   })();

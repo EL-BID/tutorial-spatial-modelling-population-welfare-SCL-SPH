@@ -1,15 +1,14 @@
 <!DOCTYPE html>
-<html >
-
+<html lang="" xml:lang="">
 <head>
 
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>Section 7 Discussion | High-resolution spatial modelling of population welfare in El Salvador, a coding tutorial</title>
-  <meta name="description" content="This is report provides a tutorial to conduct proof-of-concept high-resolution maps of poverty, average income and literacy. The emphasis is put on providing replicable code exemples.">
-  <meta name="generator" content="bookdown  and GitBook 2.6.7">
+  <meta name="description" content="This is report provides a tutorial to conduct proof-of-concept high-resolution maps of poverty, average income and literacy. The emphasis is put on providing replicable code exemples." />
+  <meta name="generator" content="bookdown 0.19 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="Section 7 Discussion | High-resolution spatial modelling of population welfare in El Salvador, a coding tutorial />
+  <meta property="og:title" content="Section 7 Discussion | High-resolution spatial modelling of population welfare in El Salvador, a coding tutorial" />
   <meta property="og:type" content="book" />
   
   
@@ -17,23 +16,23 @@
   
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="Section 7 Discussion | High-resolution spatial modelling of population welfare in El Salvador, a coding tutorial />
+  <meta name="twitter:title" content="Section 7 Discussion | High-resolution spatial modelling of population welfare in El Salvador, a coding tutorial" />
   
   <meta name="twitter:description" content="This is report provides a tutorial to conduct proof-of-concept high-resolution maps of poverty, average income and literacy. The emphasis is put on providing replicable code exemples." />
   
 
-<meta name="author" content="Xavier Vollenweider, Claudio Bosco, Roberto Sánchez A, Luis Tejerina">
+<meta name="author" content="Xavier Vollenweider, Claudio Bosco, Roberto Sánchez A, Luis Tejerina" />
 
 
-<meta name="date" content="2021-03-25">
+<meta name="date" content="2021-05-20" />
 
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   
   
-<link rel="prev" href="summary-of-resuls.html">
-<link rel="next" href="theory.html">
+<link rel="prev" href="summary-of-resuls.html"/>
+<link rel="next" href="theory.html"/>
 <script src="libs/jquery-2.2.3/jquery.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
@@ -41,6 +40,7 @@
 <link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
 
 
 
@@ -48,63 +48,92 @@
 
 
 
-<script src="libs/htmlwidgets-1.3/htmlwidgets.js"></script>
+
+
+<script src="libs/htmlwidgets-1.5.1/htmlwidgets.js"></script>
 <link href="libs/leaflet-1.3.1/leaflet.css" rel="stylesheet" />
 <script src="libs/leaflet-1.3.1/leaflet.js"></script>
 <link href="libs/leafletfix-1.0.0/leafletfix.css" rel="stylesheet" />
 <script src="libs/Proj4Leaflet-1.0.1/proj4-compressed.js"></script>
 <script src="libs/Proj4Leaflet-1.0.1/proj4leaflet.js"></script>
 <link href="libs/rstudio_leaflet-1.3.1/rstudio_leaflet.css" rel="stylesheet" />
-<script src="libs/leaflet-binding-2.0.2/leaflet.js"></script>
-<script src="libs/leaflet-providers-1.1.17/leaflet-providers.js"></script>
-<script src="libs/leaflet-providers-plugin-2.0.2/leaflet-providers-plugin.js"></script>
-<script src="libs/plotly-binding-4.8.0/plotly.js"></script>
+<script src="libs/leaflet-binding-2.0.3/leaflet.js"></script>
+<script src="libs/leaflet-providers-1.9.0/leaflet-providers_1.9.0.js"></script>
+<script src="libs/leaflet-providers-plugin-2.0.3/leaflet-providers-plugin.js"></script>
+<script src="libs/plotly-binding-4.9.2.1/plotly.js"></script>
 <script src="libs/typedarray-0.1/typedarray.min.js"></script>
-<link href="libs/crosstalk-1.0.0/css/crosstalk.css" rel="stylesheet" />
-<script src="libs/crosstalk-1.0.0/js/crosstalk.min.js"></script>
-<link href="libs/plotly-htmlwidgets-css-1.39.2/plotly-htmlwidgets.css" rel="stylesheet" />
-<script src="libs/plotly-main-1.39.2/plotly-latest.min.js"></script>
+<link href="libs/crosstalk-1.1.0.1/css/crosstalk.css" rel="stylesheet" />
+<script src="libs/crosstalk-1.1.0.1/js/crosstalk.min.js"></script>
+<link href="libs/plotly-htmlwidgets-css-1.52.2/plotly-htmlwidgets.css" rel="stylesheet" />
+<script src="libs/plotly-main-1.52.2/plotly-latest.min.js"></script>
 <link href="libs/lfx-pulse-icon-0.1.0/lfx-pulse-icon-prod.css" rel="stylesheet" />
 <script src="libs/lfx-pulse-icon-0.1.0/lfx-pulse-icon-prod.js"></script>
 <script src="libs/lfx-pulse-icon-0.1.0/lfx-pulse-icon-bindings.js"></script>
 
 
 <style type="text/css">
-div.sourceCode { overflow-x: auto; }
-table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
-  margin: 0; padding: 0; vertical-align: baseline; border: none; }
-table.sourceCode { width: 100%; line-height: 100%; }
-td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
-td.sourceCode { padding-left: 5px; }
-code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
-code > span.dt { color: #902000; } /* DataType */
-code > span.dv { color: #40a070; } /* DecVal */
-code > span.bn { color: #40a070; } /* BaseN */
-code > span.fl { color: #40a070; } /* Float */
-code > span.ch { color: #4070a0; } /* Char */
-code > span.st { color: #4070a0; } /* String */
-code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
-code > span.ot { color: #007020; } /* Other */
-code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
-code > span.fu { color: #06287e; } /* Function */
-code > span.er { color: #ff0000; font-weight: bold; } /* Error */
-code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
-code > span.cn { color: #880000; } /* Constant */
-code > span.sc { color: #4070a0; } /* SpecialChar */
-code > span.vs { color: #4070a0; } /* VerbatimString */
-code > span.ss { color: #bb6688; } /* SpecialString */
-code > span.im { } /* Import */
-code > span.va { color: #19177c; } /* Variable */
-code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
-code > span.op { color: #666666; } /* Operator */
-code > span.bu { } /* BuiltIn */
-code > span.ex { } /* Extension */
-code > span.pp { color: #bc7a00; } /* Preprocessor */
-code > span.at { color: #7d9029; } /* Attribute */
-code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
-code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
-code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
-code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code.sourceCode > span { display: inline-block; line-height: 1.25; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
 </style>
 
 <link rel="stylesheet" href="style.css" type="text/css" />
@@ -125,107 +154,107 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li class="divider"></li>
 <li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Introduction</a></li>
 <li class="chapter" data-level="2" data-path="overview.html"><a href="overview.html"><i class="fa fa-check"></i><b>2</b> Overview</a><ul>
-<li class="chapter" data-level="2.1" data-path="overview.html"><a href="overview.html#first-look-at-the-data"><i class="fa fa-check"></i><b>2.1</b> First look at the data</a></li>
+<li class="chapter" data-level="2.1" data-path="overview.html"><a href="overview.html#the-first-look-at-the-data"><i class="fa fa-check"></i><b>2.1</b> The First Look at the Data</a></li>
 </ul></li>
 <li class="chapter" data-level="3" data-path="explo.html"><a href="explo.html"><i class="fa fa-check"></i><b>3</b> Data exploration and preselection of covariates</a><ul>
-<li class="chapter" data-level="3.1" data-path="explo.html"><a href="explo.html#outcome-variabes-distribution-and-outliers"><i class="fa fa-check"></i><b>3.1</b> Outcome variabes: distribution and outliers</a><ul>
+<li class="chapter" data-level="3.1" data-path="explo.html"><a href="explo.html#outcome-variables-distribution-and-outliers"><i class="fa fa-check"></i><b>3.1</b> Outcome Variables: Distribution and Outliers</a><ul>
 <li class="chapter" data-level="3.1.1" data-path="explo.html"><a href="explo.html#income"><i class="fa fa-check"></i><b>3.1.1</b> Income</a></li>
 <li class="chapter" data-level="3.1.2" data-path="explo.html"><a href="explo.html#literacy"><i class="fa fa-check"></i><b>3.1.2</b> Literacy</a></li>
 <li class="chapter" data-level="3.1.3" data-path="explo.html"><a href="explo.html#moderate-poverty"><i class="fa fa-check"></i><b>3.1.3</b> Moderate Poverty</a></li>
 </ul></li>
-<li class="chapter" data-level="3.2" data-path="explo.html"><a href="explo.html#unsupervised-dimension-reduction-based-on-distance-correlation"><i class="fa fa-check"></i><b>3.2</b> Unsupervised dimension reduction based on distance correlation</a><ul>
-<li class="chapter" data-level="3.2.1" data-path="explo.html"><a href="explo.html#obtaining-a-dataframe-with-standardized-covariates"><i class="fa fa-check"></i><b>3.2.1</b> Obtaining a dataframe with standardized covariates</a></li>
-<li class="chapter" data-level="3.2.2" data-path="explo.html"><a href="explo.html#dimension-reduction-based-on-distance-correlation"><i class="fa fa-check"></i><b>3.2.2</b> Dimension reduction based on distance correlation</a></li>
+<li class="chapter" data-level="3.2" data-path="explo.html"><a href="explo.html#unsupervised-dimension-reduction-based-on-distance-correlation"><i class="fa fa-check"></i><b>3.2</b> Unsupervised Dimension Reduction Based on Distance Correlation</a><ul>
+<li class="chapter" data-level="3.2.1" data-path="explo.html"><a href="explo.html#obtaining-a-data-frame-with-standardized-covariates"><i class="fa fa-check"></i><b>3.2.1</b> Obtaining a Data Frame with Standardized Covariates</a></li>
+<li class="chapter" data-level="3.2.2" data-path="explo.html"><a href="explo.html#dimension-reduction-based-on-distance-correlation"><i class="fa fa-check"></i><b>3.2.2</b> Dimension Reduction Based on Distance Correlation</a></li>
 </ul></li>
-<li class="chapter" data-level="3.3" data-path="explo.html"><a href="explo.html#correlations-between-predictors-and-the-outcome-variables"><i class="fa fa-check"></i><b>3.3</b> Correlations between predictors and the outcome variables</a><ul>
-<li class="chapter" data-level="3.3.1" data-path="explo.html"><a href="explo.html#correlation-with-income"><i class="fa fa-check"></i><b>3.3.1</b> Correlation with income</a></li>
-<li class="chapter" data-level="3.3.2" data-path="explo.html"><a href="explo.html#correlation-with-literacy"><i class="fa fa-check"></i><b>3.3.2</b> Correlation with literacy</a></li>
-<li class="chapter" data-level="3.3.3" data-path="explo.html"><a href="explo.html#correlation-with-poverty"><i class="fa fa-check"></i><b>3.3.3</b> Correlation with poverty</a></li>
+<li class="chapter" data-level="3.3" data-path="explo.html"><a href="explo.html#correlations-between-the-predictors-and-the-outcome-variables"><i class="fa fa-check"></i><b>3.3</b> Correlations between the Predictors and the Outcome Variables</a><ul>
+<li class="chapter" data-level="3.3.1" data-path="explo.html"><a href="explo.html#correlation-with-income"><i class="fa fa-check"></i><b>3.3.1</b> Correlation with Income</a></li>
+<li class="chapter" data-level="3.3.2" data-path="explo.html"><a href="explo.html#correlation-with-literacy"><i class="fa fa-check"></i><b>3.3.2</b> Correlation with Literacy</a></li>
+<li class="chapter" data-level="3.3.3" data-path="explo.html"><a href="explo.html#correlation-with-poverty"><i class="fa fa-check"></i><b>3.3.3</b> Correlation with Poverty</a></li>
 </ul></li>
 </ul></li>
 <li class="chapter" data-level="4" data-path="simple-model.html"><a href="simple-model.html"><i class="fa fa-check"></i><b>4</b> Fitting a simple model</a><ul>
-<li class="chapter" data-level="4.1" data-path="simple-model.html"><a href="simple-model.html#loading-the-data"><i class="fa fa-check"></i><b>4.1</b> Loading the data</a></li>
-<li class="chapter" data-level="4.2" data-path="simple-model.html"><a href="simple-model.html#area-data"><i class="fa fa-check"></i><b>4.2</b> Area data</a><ul>
-<li class="chapter" data-level="4.2.1" data-path="simple-model.html"><a href="simple-model.html#spatial-dependency-with-area-data-data"><i class="fa fa-check"></i><b>4.2.1</b> Spatial dependency with <em>area data</em> data</a></li>
-<li class="chapter" data-level="4.2.2" data-path="simple-model.html"><a href="simple-model.html#store-the-data-for-modelling"><i class="fa fa-check"></i><b>4.2.2</b> Store the data for modelling</a></li>
-<li class="chapter" data-level="4.2.3" data-path="simple-model.html"><a href="simple-model.html#split-the-sample-into-a-8020-training-and-validation-sets"><i class="fa fa-check"></i><b>4.2.3</b> Split the sample into a 80/20 training and validation sets</a></li>
-<li class="chapter" data-level="4.2.4" data-path="simple-model.html"><a href="simple-model.html#formula-specifying-the-relationship-between-the-outcome-variable-and-the-fixed-and-spatial-random-effects"><i class="fa fa-check"></i><b>4.2.4</b> Formula specifying the relationship between the outcome variable and the fixed and spatial random effects</a></li>
-<li class="chapter" data-level="4.2.5" data-path="simple-model.html"><a href="simple-model.html#fit-the-model-on-the-training-set"><i class="fa fa-check"></i><b>4.2.5</b> Fit the model on the training set</a></li>
-<li class="chapter" data-level="4.2.6" data-path="simple-model.html"><a href="simple-model.html#validate-the-model-on-the-validation-set"><i class="fa fa-check"></i><b>4.2.6</b> Validate the model on the validation set</a></li>
+<li class="chapter" data-level="4.1" data-path="simple-model.html"><a href="simple-model.html#loading-the-data"><i class="fa fa-check"></i><b>4.1</b> Loading the Data</a></li>
+<li class="chapter" data-level="4.2" data-path="simple-model.html"><a href="simple-model.html#area-data"><i class="fa fa-check"></i><b>4.2</b> Area Data</a><ul>
+<li class="chapter" data-level="4.2.1" data-path="simple-model.html"><a href="simple-model.html#spatial-dependency-with-area-data"><i class="fa fa-check"></i><b>4.2.1</b> Spatial Dependency with <em>Area Data</em></a></li>
+<li class="chapter" data-level="4.2.2" data-path="simple-model.html"><a href="simple-model.html#store-the-data-for-modeling"><i class="fa fa-check"></i><b>4.2.2</b> Store the Data for Modeling</a></li>
+<li class="chapter" data-level="4.2.3" data-path="simple-model.html"><a href="simple-model.html#split-the-sample-into-80-20-training-and-validation-sets"><i class="fa fa-check"></i><b>4.2.3</b> Split the Sample into 80-20 Training and Validation Sets</a></li>
+<li class="chapter" data-level="4.2.4" data-path="simple-model.html"><a href="simple-model.html#formula-specifying-the-relationship-between-the-outcome-variable-and-the-fixed-and-spatial-random-effects"><i class="fa fa-check"></i><b>4.2.4</b> Formula Specifying the Relationship between the Outcome Variable and the Fixed and Spatial Random Effects</a></li>
+<li class="chapter" data-level="4.2.5" data-path="simple-model.html"><a href="simple-model.html#fit-the-model-on-the-training-set"><i class="fa fa-check"></i><b>4.2.5</b> Fit the Model on the Training Set</a></li>
+<li class="chapter" data-level="4.2.6" data-path="simple-model.html"><a href="simple-model.html#validate-the-model-on-the-validation-set"><i class="fa fa-check"></i><b>4.2.6</b> Validate the Model on the Validation Set</a></li>
 </ul></li>
-<li class="chapter" data-level="4.3" data-path="simple-model.html"><a href="simple-model.html#point-referenced-data"><i class="fa fa-check"></i><b>4.3</b> Point-referenced data</a><ul>
-<li class="chapter" data-level="4.3.1" data-path="simple-model.html"><a href="simple-model.html#spatial-dependency-with-point-referenced-data-data"><i class="fa fa-check"></i><b>4.3.1</b> Spatial dependency with <em>point-referenced data</em> data</a></li>
-<li class="chapter" data-level="4.3.2" data-path="simple-model.html"><a href="simple-model.html#store-the-data-for-modelling-in-a-stack"><i class="fa fa-check"></i><b>4.3.2</b> Store the data for modelling in a stack</a></li>
-<li class="chapter" data-level="4.3.3" data-path="simple-model.html"><a href="simple-model.html#formula-specifying-the-relationship-between-the-outcome-variable-and-the-fixed-and-spatial-random-effects-1"><i class="fa fa-check"></i><b>4.3.3</b> Formula specifying the relationship between the outcome variable and the fixed and spatial random effects</a></li>
-<li class="chapter" data-level="4.3.4" data-path="simple-model.html"><a href="simple-model.html#fit-the-model-on-the-training-set-1"><i class="fa fa-check"></i><b>4.3.4</b> Fit the model on the training set</a></li>
-<li class="chapter" data-level="4.3.5" data-path="simple-model.html"><a href="simple-model.html#validate-the-model-on-the-validation-set-1"><i class="fa fa-check"></i><b>4.3.5</b> Validate the model on the validation set</a></li>
+<li class="chapter" data-level="4.3" data-path="simple-model.html"><a href="simple-model.html#point-referenced-data"><i class="fa fa-check"></i><b>4.3</b> Point-Referenced Data</a><ul>
+<li class="chapter" data-level="4.3.1" data-path="simple-model.html"><a href="simple-model.html#spatial-dependency-with-point-referenced-data"><i class="fa fa-check"></i><b>4.3.1</b> Spatial Dependency with <em>Point-Referenced Data</em></a></li>
+<li class="chapter" data-level="4.3.2" data-path="simple-model.html"><a href="simple-model.html#store-the-data-for-modeling-in-a-stack"><i class="fa fa-check"></i><b>4.3.2</b> Store the Data for Modeling in a Stack</a></li>
+<li class="chapter" data-level="4.3.3" data-path="simple-model.html"><a href="simple-model.html#specifying-the-relationship-between-the-outcome-variable-and-the-fixed-and-spatial-random-effects"><i class="fa fa-check"></i><b>4.3.3</b> Specifying the Relationship between the Outcome Variable and the Fixed and Spatial Random Effects</a></li>
+<li class="chapter" data-level="4.3.4" data-path="simple-model.html"><a href="simple-model.html#fit-the-model-on-the-training-set-1"><i class="fa fa-check"></i><b>4.3.4</b> Fit the Model on the Training Set</a></li>
+<li class="chapter" data-level="4.3.5" data-path="simple-model.html"><a href="simple-model.html#validate-the-model-on-the-validation-set-1"><i class="fa fa-check"></i><b>4.3.5</b> Validate the Model on the Validation Set</a></li>
 </ul></li>
-<li class="chapter" data-level="4.4" data-path="simple-model.html"><a href="simple-model.html#k-fold-cross-validation"><i class="fa fa-check"></i><b>4.4</b> <em>K-fold</em> cross-validation</a></li>
+<li class="chapter" data-level="4.4" data-path="simple-model.html"><a href="simple-model.html#k-fold-cross-validation"><i class="fa fa-check"></i><b>4.4</b> <em>K-fold</em> Cross-Validation</a></li>
 </ul></li>
 <li class="chapter" data-level="5" data-path="stepwise.html"><a href="stepwise.html"><i class="fa fa-check"></i><b>5</b> Stepwise Covariates Selection</a><ul>
-<li class="chapter" data-level="5.1" data-path="stepwise.html"><a href="stepwise.html#step-1-split-the-sample-into-a-602020-training-validation-and-test-sets"><i class="fa fa-check"></i><b>5.1</b> Step 1: Split the sample into a 60/20/20 training, validation and test sets</a></li>
-<li class="chapter" data-level="5.2" data-path="stepwise.html"><a href="stepwise.html#bundle-step-2-to-4-in-a-function"><i class="fa fa-check"></i><b>5.2</b> Bundle step 2 to 4 in a function</a></li>
-<li class="chapter" data-level="5.3" data-path="stepwise.html"><a href="stepwise.html#bundle-step-5-to-7-in-a-loop-ran-in-parallel"><i class="fa fa-check"></i><b>5.3</b> Bundle step 5 to 7 in a loop ran in parallel</a></li>
-<li class="chapter" data-level="5.4" data-path="stepwise.html"><a href="stepwise.html#step-8-inspect-the-results-and-select-specification"><i class="fa fa-check"></i><b>5.4</b> Step 8: Inspect the results and select specification</a></li>
-<li class="chapter" data-level="5.5" data-path="stepwise.html"><a href="stepwise.html#step-9-final-test"><i class="fa fa-check"></i><b>5.5</b> Step 9 Final test</a></li>
+<li class="chapter" data-level="5.1" data-path="stepwise.html"><a href="stepwise.html#step-1-split-the-sample-into-60-20-20-training-validation-and-test-sets"><i class="fa fa-check"></i><b>5.1</b> Step 1: Split the Sample into 60-20-20 Training, Validation, and Test Sets</a></li>
+<li class="chapter" data-level="5.2" data-path="stepwise.html"><a href="stepwise.html#steps-2-to-4-create-a-function"><i class="fa fa-check"></i><b>5.2</b> Steps 2 to 4: Create a Function</a></li>
+<li class="chapter" data-level="5.3" data-path="stepwise.html"><a href="stepwise.html#steps-5-to-7-run-a-parallel-loop"><i class="fa fa-check"></i><b>5.3</b> Steps 5 to 7: Run a Parallel Loop</a></li>
+<li class="chapter" data-level="5.4" data-path="stepwise.html"><a href="stepwise.html#step-8-inspect-the-results-and-select-a-specification"><i class="fa fa-check"></i><b>5.4</b> Step 8: Inspect the Results and Select a Specification</a></li>
+<li class="chapter" data-level="5.5" data-path="stepwise.html"><a href="stepwise.html#step-9-conduct-a-final-test"><i class="fa fa-check"></i><b>5.5</b> Step 9: Conduct a Final Test</a></li>
 </ul></li>
 <li class="chapter" data-level="6" data-path="summary-of-resuls.html"><a href="summary-of-resuls.html"><i class="fa fa-check"></i><b>6</b> Results summary</a><ul>
-<li class="chapter" data-level="6.1" data-path="summary-of-resuls.html"><a href="summary-of-resuls.html#goodness-of-fit-at-the-segmento-level"><i class="fa fa-check"></i><b>6.1</b> Goodness of fit at the <em>segmento</em> level</a></li>
-<li class="chapter" data-level="6.2" data-path="summary-of-resuls.html"><a href="summary-of-resuls.html#segmento-level-map"><i class="fa fa-check"></i><b>6.2</b> <em>Segmento</em> level map</a></li>
-<li class="chapter" data-level="6.3" data-path="summary-of-resuls.html"><a href="summary-of-resuls.html#goodness-of-fit-at-the-municipio-level"><i class="fa fa-check"></i><b>6.3</b> Goodness of fit at the <em>Municipio</em> level</a><ul>
-<li class="chapter" data-level="6.3.1" data-path="summary-of-resuls.html"><a href="summary-of-resuls.html#obtion-1-aggregating-results-at-the-municipio-level-using-all-segmentos"><i class="fa fa-check"></i><b>6.3.1</b> Obtion 1: Aggregating results at the municipio level using all <em>segmentos</em></a></li>
-<li class="chapter" data-level="6.3.2" data-path="summary-of-resuls.html"><a href="summary-of-resuls.html#option-2-aggregating-results-at-the-municipio-level-using-only-segmentos-in-representative-municipios"><i class="fa fa-check"></i><b>6.3.2</b> Option 2: Aggregating results at the municipio level using only <em>segmentos</em> in representative municipios</a></li>
+<li class="chapter" data-level="6.1" data-path="summary-of-resuls.html"><a href="summary-of-resuls.html#goodness-of-fit-at-the-segmento-level"><i class="fa fa-check"></i><b>6.1</b> Goodness of Fit at the Segmento Level</a></li>
+<li class="chapter" data-level="6.2" data-path="summary-of-resuls.html"><a href="summary-of-resuls.html#segmento-level-map"><i class="fa fa-check"></i><b>6.2</b> Segmento-Level Map</a></li>
+<li class="chapter" data-level="6.3" data-path="summary-of-resuls.html"><a href="summary-of-resuls.html#goodness-of-fit-at-the-municipio-level"><i class="fa fa-check"></i><b>6.3</b> Goodness of Fit at the Municipio Level</a><ul>
+<li class="chapter" data-level="6.3.1" data-path="summary-of-resuls.html"><a href="summary-of-resuls.html#option-1-aggregate-the-results-at-the-municipio-level-using-all-segmentos"><i class="fa fa-check"></i><b>6.3.1</b> Option 1: Aggregate the Results at the Municipio Level Using All Segmentos</a></li>
+<li class="chapter" data-level="6.3.2" data-path="summary-of-resuls.html"><a href="summary-of-resuls.html#option-2-aggregate-the-results-at-the-municipio-level-using-segmentos-in-representative-municipios-only"><i class="fa fa-check"></i><b>6.3.2</b> Option 2: Aggregate the Results at the Municipio Level Using Segmentos in Representative Municipios Only</a></li>
 </ul></li>
 </ul></li>
 <li class="chapter" data-level="7" data-path="discussion.html"><a href="discussion.html"><i class="fa fa-check"></i><b>7</b> Discussion</a></li>
 <li class="chapter" data-level="8" data-path="theory.html"><a href="theory.html"><i class="fa fa-check"></i><b>8</b> Appendix 1: Primer on INLA</a><ul>
-<li class="chapter" data-level="8.1" data-path="theory.html"><a href="theory.html#area-data-vs-point-referenced-data"><i class="fa fa-check"></i><b>8.1</b> Area data vs point-referenced data</a><ul>
-<li class="chapter" data-level="8.1.1" data-path="theory.html"><a href="theory.html#bayesian-approach"><i class="fa fa-check"></i><b>8.1.1</b> Bayesian approach</a></li>
+<li class="chapter" data-level="8.1" data-path="theory.html"><a href="theory.html#area-data-versus-point-referenced-data"><i class="fa fa-check"></i><b>8.1</b> Area Data versus Point-Referenced Data</a><ul>
+<li class="chapter" data-level="8.1.1" data-path="theory.html"><a href="theory.html#bayesian-approach"><i class="fa fa-check"></i><b>8.1.1</b> Bayesian Approach</a></li>
 </ul></li>
-<li class="chapter" data-level="8.2" data-path="theory.html"><a href="theory.html#model-formulation"><i class="fa fa-check"></i><b>8.2</b> Model formulation</a><ul>
-<li class="chapter" data-level="8.2.1" data-path="theory.html"><a href="theory.html#a-simple-model-not-accounting-for-spatial-dependence"><i class="fa fa-check"></i><b>8.2.1</b> A simple model not accounting for spatial dependence</a></li>
-<li class="chapter" data-level="8.2.2" data-path="theory.html"><a href="theory.html#a-spatial-model"><i class="fa fa-check"></i><b>8.2.2</b> A spatial model</a></li>
-<li class="chapter" data-level="8.2.3" data-path="theory.html"><a href="theory.html#estimating-the-model-with-aeral-data"><i class="fa fa-check"></i><b>8.2.3</b> Estimating the model with aeral data</a></li>
-<li class="chapter" data-level="8.2.4" data-path="theory.html"><a href="theory.html#estimating-the-model-with-point-referenced-data"><i class="fa fa-check"></i><b>8.2.4</b> Estimating the model with point-referenced data</a></li>
+<li class="chapter" data-level="8.2" data-path="theory.html"><a href="theory.html#model-formulation"><i class="fa fa-check"></i><b>8.2</b> Model Formulation</a><ul>
+<li class="chapter" data-level="8.2.1" data-path="theory.html"><a href="theory.html#a-simple-model-that-does-not-account-for-spatial-dependence"><i class="fa fa-check"></i><b>8.2.1</b> A Simple Model That Does Not Account for Spatial Dependence</a></li>
+<li class="chapter" data-level="8.2.2" data-path="theory.html"><a href="theory.html#a-spatial-model"><i class="fa fa-check"></i><b>8.2.2</b> A Spatial Model</a></li>
+<li class="chapter" data-level="8.2.3" data-path="theory.html"><a href="theory.html#estimating-the-model-with-areal-data"><i class="fa fa-check"></i><b>8.2.3</b> Estimating the Model with Areal Data</a></li>
+<li class="chapter" data-level="8.2.4" data-path="theory.html"><a href="theory.html#estimating-the-model-with-point-referenced-data"><i class="fa fa-check"></i><b>8.2.4</b> Estimating the Model with Point-Referenced Data</a></li>
 </ul></li>
 </ul></li>
 <li class="chapter" data-level="9" data-path="data.html"><a href="data.html"><i class="fa fa-check"></i><b>9</b> Appendix 2: Data Pre-processing</a><ul>
-<li class="chapter" data-level="9.1" data-path="data.html"><a href="data.html#sources"><i class="fa fa-check"></i><b>9.1</b> Data sources</a></li>
-<li class="chapter" data-level="9.2" data-path="data.html"><a href="data.html#loading-the-survey"><i class="fa fa-check"></i><b>9.2</b> Loading the survey</a></li>
-<li class="chapter" data-level="9.3" data-path="data.html"><a href="data.html#loading-the-vectors"><i class="fa fa-check"></i><b>9.3</b> Loading the vectors</a><ul>
-<li class="chapter" data-level="9.3.1" data-path="data.html"><a href="data.html#loading-the-administrative-boundaries"><i class="fa fa-check"></i><b>9.3.1</b> Loading the administrative boundaries</a></li>
-<li class="chapter" data-level="9.3.2" data-path="data.html"><a href="data.html#loading-the-shapefiles-containing-the-fields-used-as-covariates"><i class="fa fa-check"></i><b>9.3.2</b> Loading the shapefiles containing the fields used as covariates</a></li>
-<li class="chapter" data-level="9.3.3" data-path="data.html"><a href="data.html#loading-point-referenced-data-from-tables"><i class="fa fa-check"></i><b>9.3.3</b> Loading point-referenced data from tables</a></li>
+<li class="chapter" data-level="9.1" data-path="data.html"><a href="data.html#sources"><i class="fa fa-check"></i><b>9.1</b> Data Sources</a></li>
+<li class="chapter" data-level="9.2" data-path="data.html"><a href="data.html#loading-the-survey"><i class="fa fa-check"></i><b>9.2</b> Loading the Survey</a></li>
+<li class="chapter" data-level="9.3" data-path="data.html"><a href="data.html#loading-the-vectors"><i class="fa fa-check"></i><b>9.3</b> Loading the Vectors</a><ul>
+<li class="chapter" data-level="9.3.1" data-path="data.html"><a href="data.html#loading-the-administrative-boundaries"><i class="fa fa-check"></i><b>9.3.1</b> Loading the Administrative Boundaries</a></li>
+<li class="chapter" data-level="9.3.2" data-path="data.html"><a href="data.html#loading-the-shapefiles-containing-the-fields-used-as-covariates"><i class="fa fa-check"></i><b>9.3.2</b> Loading the Shapefiles Containing the Fields Used as Covariates</a></li>
+<li class="chapter" data-level="9.3.3" data-path="data.html"><a href="data.html#loading-point-referenced-data-from-tables"><i class="fa fa-check"></i><b>9.3.3</b> Loading Point-Referenced Data from Tables</a></li>
 </ul></li>
-<li class="chapter" data-level="9.4" data-path="data.html"><a href="data.html#loading-the-rasters"><i class="fa fa-check"></i><b>9.4</b> Loading the rasters</a><ul>
-<li class="chapter" data-level="9.4.1" data-path="data.html"><a href="data.html#lights-at-night"><i class="fa fa-check"></i><b>9.4.1</b> Lights at night</a></li>
+<li class="chapter" data-level="9.4" data-path="data.html"><a href="data.html#loading-the-rasters"><i class="fa fa-check"></i><b>9.4</b> Loading the Rasters</a><ul>
+<li class="chapter" data-level="9.4.1" data-path="data.html"><a href="data.html#lights-at-night"><i class="fa fa-check"></i><b>9.4.1</b> Lights at Night</a></li>
 <li class="chapter" data-level="9.4.2" data-path="data.html"><a href="data.html#precipitation"><i class="fa fa-check"></i><b>9.4.2</b> Precipitation</a></li>
-<li class="chapter" data-level="9.4.3" data-path="data.html"><a href="data.html#soil-degradation"><i class="fa fa-check"></i><b>9.4.3</b> Soil degradation</a></li>
-<li class="chapter" data-level="9.4.4" data-path="data.html"><a href="data.html#vegetation-greenness"><i class="fa fa-check"></i><b>9.4.4</b> Vegetation greenness</a></li>
+<li class="chapter" data-level="9.4.3" data-path="data.html"><a href="data.html#soil-degradation"><i class="fa fa-check"></i><b>9.4.3</b> Soil Degradation</a></li>
+<li class="chapter" data-level="9.4.4" data-path="data.html"><a href="data.html#vegetation-greenness"><i class="fa fa-check"></i><b>9.4.4</b> Vegetation Greenness</a></li>
 <li class="chapter" data-level="9.4.5" data-path="data.html"><a href="data.html#temperature"><i class="fa fa-check"></i><b>9.4.5</b> Temperature</a></li>
 <li class="chapter" data-level="9.4.6" data-path="data.html"><a href="data.html#slope"><i class="fa fa-check"></i><b>9.4.6</b> Slope</a></li>
-<li class="chapter" data-level="9.4.7" data-path="data.html"><a href="data.html#other-rasters"><i class="fa fa-check"></i><b>9.4.7</b> Other rasters</a></li>
+<li class="chapter" data-level="9.4.7" data-path="data.html"><a href="data.html#other-rasters"><i class="fa fa-check"></i><b>9.4.7</b> Other Rasters</a></li>
 </ul></li>
-<li class="chapter" data-level="9.5" data-path="data.html"><a href="data.html#rasters-calculation"><i class="fa fa-check"></i><b>9.5</b> Rasters calculation</a><ul>
-<li class="chapter" data-level="9.5.1" data-path="data.html"><a href="data.html#lights-at-night-1"><i class="fa fa-check"></i><b>9.5.1</b> Lights at night</a></li>
+<li class="chapter" data-level="9.5" data-path="data.html"><a href="data.html#rasters-calculation"><i class="fa fa-check"></i><b>9.5</b> Rasters Calculation</a><ul>
+<li class="chapter" data-level="9.5.1" data-path="data.html"><a href="data.html#lights-at-night-1"><i class="fa fa-check"></i><b>9.5.1</b> Lights at Night</a></li>
 <li class="chapter" data-level="9.5.2" data-path="data.html"><a href="data.html#precipitation-1"><i class="fa fa-check"></i><b>9.5.2</b> Precipitation</a></li>
-<li class="chapter" data-level="9.5.3" data-path="data.html"><a href="data.html#vegetation-greenness-1"><i class="fa fa-check"></i><b>9.5.3</b> Vegetation greenness</a></li>
-<li class="chapter" data-level="9.5.4" data-path="data.html"><a href="data.html#soil-degradation-1"><i class="fa fa-check"></i><b>9.5.4</b> Soil degradation</a></li>
+<li class="chapter" data-level="9.5.3" data-path="data.html"><a href="data.html#vegetation-greenness-1"><i class="fa fa-check"></i><b>9.5.3</b> Vegetation Greenness</a></li>
+<li class="chapter" data-level="9.5.4" data-path="data.html"><a href="data.html#soil-degradation-1"><i class="fa fa-check"></i><b>9.5.4</b> Soil Degradation</a></li>
 <li class="chapter" data-level="9.5.5" data-path="data.html"><a href="data.html#temperature-1"><i class="fa fa-check"></i><b>9.5.5</b> Temperature</a></li>
 </ul></li>
-<li class="chapter" data-level="9.6" data-path="data.html"><a href="data.html#distance-calculation"><i class="fa fa-check"></i><b>9.6</b> Distance calculation</a><ul>
-<li class="chapter" data-level="9.6.1" data-path="data.html"><a href="data.html#distance-to-public-services"><i class="fa fa-check"></i><b>9.6.1</b> Distance to public services</a></li>
-<li class="chapter" data-level="9.6.2" data-path="data.html"><a href="data.html#distance-to-businesses"><i class="fa fa-check"></i><b>9.6.2</b> Distance to businesses</a></li>
-<li class="chapter" data-level="9.6.3" data-path="data.html"><a href="data.html#distance-to-natural-features"><i class="fa fa-check"></i><b>9.6.3</b> Distance to natural features</a></li>
-<li class="chapter" data-level="9.6.4" data-path="data.html"><a href="data.html#stack-distance-maps-and-inspect-results"><i class="fa fa-check"></i><b>9.6.4</b> Stack distance maps and inspect results</a></li>
+<li class="chapter" data-level="9.6" data-path="data.html"><a href="data.html#distance-calculation"><i class="fa fa-check"></i><b>9.6</b> Distance Calculation</a><ul>
+<li class="chapter" data-level="9.6.1" data-path="data.html"><a href="data.html#distance-to-public-services"><i class="fa fa-check"></i><b>9.6.1</b> Distance to Public Services</a></li>
+<li class="chapter" data-level="9.6.2" data-path="data.html"><a href="data.html#distance-to-businesses"><i class="fa fa-check"></i><b>9.6.2</b> Distance to Businesses</a></li>
+<li class="chapter" data-level="9.6.3" data-path="data.html"><a href="data.html#distance-to-natural-features"><i class="fa fa-check"></i><b>9.6.3</b> Distance to Natural Features</a></li>
+<li class="chapter" data-level="9.6.4" data-path="data.html"><a href="data.html#stack-the-distance-maps-and-inspect-the-results"><i class="fa fa-check"></i><b>9.6.4</b> Stack the Distance Maps and Inspect the Results</a></li>
 </ul></li>
-<li class="chapter" data-level="9.7" data-path="data.html"><a href="data.html#spatial-statistics-at-segmento-level"><i class="fa fa-check"></i><b>9.7</b> Spatial statistics at <em>segmento</em> level</a><ul>
-<li class="chapter" data-level="9.7.1" data-path="data.html"><a href="data.html#adjusting-the-coordinates-reference-system-for-raster-extaction-to-segmento"><i class="fa fa-check"></i><b>9.7.1</b> Adjusting the Coordinates Reference System for raster extaction to <em>segmento</em></a></li>
+<li class="chapter" data-level="9.7" data-path="data.html"><a href="data.html#spatial-statistics-at-the-segmento-level"><i class="fa fa-check"></i><b>9.7</b> Spatial Statistics at the Segmento Level</a><ul>
+<li class="chapter" data-level="9.7.1" data-path="data.html"><a href="data.html#adjusting-the-crs-for-raster-extraction-to-segmento"><i class="fa fa-check"></i><b>9.7.1</b> Adjusting the CRS for Raster Extraction to Segmento</a></li>
 <li class="chapter" data-level="9.7.2" data-path="data.html"><a href="data.html#rasters"><i class="fa fa-check"></i><b>9.7.2</b> Rasters</a></li>
 <li class="chapter" data-level="9.7.3" data-path="data.html"><a href="data.html#vectors"><i class="fa fa-check"></i><b>9.7.3</b> Vectors</a></li>
-<li class="chapter" data-level="9.7.4" data-path="data.html"><a href="data.html#population-density"><i class="fa fa-check"></i><b>9.7.4</b> Population density</a></li>
+<li class="chapter" data-level="9.7.4" data-path="data.html"><a href="data.html#population-density"><i class="fa fa-check"></i><b>9.7.4</b> Population Density</a></li>
 </ul></li>
-<li class="chapter" data-level="9.8" data-path="data.html"><a href="data.html#merging-the-covariates-with-the-ehpm-data"><i class="fa fa-check"></i><b>9.8</b> Merging the covariates with the EHPM data</a></li>
+<li class="chapter" data-level="9.8" data-path="data.html"><a href="data.html#merging-the-covariates-with-the-ehpm-data"><i class="fa fa-check"></i><b>9.8</b> Merging the Covariates with the EHPM Data</a></li>
 <li class="chapter" data-level="9.9" data-path="data.html"><a href="data.html#summary"><i class="fa fa-check"></i><b>9.9</b> Summary</a></li>
 </ul></li>
 <li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
@@ -251,23 +280,23 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
             <section class="normal" id="section-">
 <div id="discussion" class="section level1">
 <h1><span class="header-section-number">Section 7</span> Discussion</h1>
-<p>This report introduces high resolution mapping based on Bayesian geospatial techniques implemented in the open source statistical computing environment R <span class="citation">(R Core Team <a href="#ref-R2018">2018</a><a href="#ref-R2018">a</a>)</span>. The core of the modelling method is implemented in the R package <code>INLA</code> <span class="citation">(Rue, Martino, and Chopin <a href="#ref-INLA_theory_1">2009</a>; Lindgren, Rue, and Lindström <a href="#ref-INLA_theory_2">2011</a>; Martins et al. <a href="#ref-INLA_R_1">2013</a>; Lindgren and Rue <a href="#ref-INLA_R_2">2015</a>)</span>. The emphasis is on providing and explaining the R codes required to go from the <em>raw</em> data to the final maps.</p>
-<p>Three development indicators are mapped for El Salvador: median income, adult literacy and poverty. The data on these development indicators come from the <em>Encuesta de Hogares de Propositos Multiples</em> (EHPM), an annual survey conducted in 1664 <em>segmentos</em> among 20,645 household in 2017. A suite of more than 20 remote sensing and geographic information system open source data are used to derive a list of 86 potential predictors, hereafter covariates. After having standardized the covariates, we apply an unsupervised dimension reduction process to reduce this number to 50. This limits the effect of multicollinearity in subsequent modelling and limits the risk of retaining covariates because of chance correlation in the subsequent covariates selection. Next, we apply a backward stepwise covariates selection process in order to select a parsimonious model specification. We tested several likelihood function (<em>Gaussian</em>, <em>Gamma</em> and <em>Beta</em>) and spatial dependence structure (SPDE or the BYM 2 models).</p>
-<p>The best results are obtained with the SPDE approach and, at the <em>segmento</em> level, yields a <span class="math inline">\(R^2\)</span> on the final test set of 50% for income, 43% for illiteracy and only 23% for poverty. Once the results are aggregated at the <em>municipio</em> level, the <span class="math inline">\(R^2\)</span> increases to 84% for income, 80% for literacy and 61% for poverty.</p>
-<p>We spent limited time exploring interaction terms and non-linear relationships between covariates and outcome variables. Another avenue for amelioration would be to develop a spatio-temporal model in order to take into account the time dimension. This is made possible as the EHPM is collected annually. A spatio-temporal model would permit to monitor trends in the socio-economic and SDG indicators of interest. Lastly, other modeling architectures such as random forests or convolutional neural networks could take advantage of nonlinear effects, potentially increasing the predictive accuracy of the models.</p>
-<p>Another direction for potentially improving the granularity of socio-economic maps lies in the use of mobile phone call-detail records. Covariate data derived from mobile phone call-detail records (CDRs) have been shown to correlate well with poverty indicators both at the household and aggregate level <span class="citation">(e.g. Blumenstock, Cadamuro, and On <a href="#ref-blumenstock2015predicting">2015</a>; Steele et al. <a href="#ref-steele2017mapping">2017</a>)</span>. CDRs have the advantage also of being highly granular in both space and time, presenting the possibility to potentially monitor variation in population wellbeing at higher frequency. While the technical demands and requirements to negotiate access to CDR data and conduct meaningful analyses with them is high, there are many potential applications for these data (e.g. mobility analysis, disaster response and preparedness) and the marginal cost of each additional project is low once the agreements and the IT system are in place.</p>
-<p>Lastly, a lot of the data pre-processing work and some of the analytical steps could be packaged and automatised in a software. This could further streamline the process of creating these high resolution maps of development indicators.</p>
-<p>These high resolution maps of development indicators may allow more accurate targeting of government interventions aimed at reducing poverty or increasing literacy rates among adults. Secondly, the methods presented here are portable to other socioeconomic and SDG indicators of interest. They could play a key role in monitoring and reporting on SDG achievements. Thirdly, other than the survey <em>segmento</em> level survey data, the methods described here are conducted using freely available data sources on freely-available software. Fourth, the method does not rely on the use of census data as do traditional small area estimation methods. It can hence be applied independently of any census round. Fifthly, the methods can be readily deployed by analysts with masters-level statistical training. These five points make the method very suitable for incorporation in routine and standard practices of National Statistical Offices (NSOs).</p>
-<p>A next possible step is to present these methods to NSOs to generate discourse on the value of these methods, potential improvements to increase their operational relevance and implications for their integration into decision-making frameworks. Our hope is that the relative ease of these methods, the open-source nature of the software and covariate data as well as the large number of code examples in this report (and on the web in general) will encourage their adoption by NSOs. Experts from the Flowminder Foundation are available to provide technical training and support to strengthen in-house capacity at NSOs to use these methods. This report could constitute the backbone of a short course of up to five days to equip a first cohort of statisticians with the know-how for using in confidence these methods, data and the R software for high resolution mapping of development indicators.</p>
+<p>This report introduces high-resolution mapping based on Bayesian geospatial techniques implemented in the open source statistical computing environment R <span class="citation">(R Core Team <a href="#ref-R2018" role="doc-biblioref">2018</a><a href="#ref-R2018" role="doc-biblioref">a</a>)</span>. The core of the modeling method is implemented in the R package <code>INLA</code> <span class="citation">(Rue, Martino, and Chopin <a href="#ref-INLA_theory_1" role="doc-biblioref">2009</a>; Lindgren, Rue, and Lindström <a href="#ref-INLA_theory_2" role="doc-biblioref">2011</a>; Martins et al. <a href="#ref-INLA_R_1" role="doc-biblioref">2013</a>; Lindgren and Rue <a href="#ref-INLA_R_2" role="doc-biblioref">2015</a>)</span>. The emphasis is on providing and explaining the R codes required to go from the raw data to the final maps.</p>
+<p>Three development indicators are mapped for El Salvador: median income, adult literacy, and poverty. The data on these development indicators come from the EHPM, conducted in 20,645 households among 1,664 segmentos in 2017. A suite of more than 20 RS and GIS open source data sets are used to derive a list of 86 potential predictors, hereafter covariates. After having standardized the covariates, we apply an unsupervised dimension-reduction process to reduce this number to 50. This limits the effect of multicollinearity in subsequent modeling and limits the risk of retaining covariates because of chance correlation in the subsequent covariates selection. Next, we apply a backward stepwise covariates selection process to select a parsimonious model specification. We tested several likelihood functions (Gaussian, gamma, and beta) and spatial dependence structures (the SPDE and BYM 2 models).</p>
+<p>The best results are obtained with the SPDE approach and, at the segmento level, yield a <span class="math inline">\(R^2\)</span> on the final test set of 50 percent for income, 43 percent for illiteracy, and only 23 percent for poverty. Once the results are aggregated at the municipio level, the <span class="math inline">\(R^2\)</span> increases to 84 percent for income, 80 percent for literacy, and 61 percent for poverty.</p>
+<p>We spent limited time exploring interaction terms and nonlinear relationships between covariates and outcome variables. Another avenue for amelioration would be to develop a spatiotemporal model that takes into account the time dimension. This is possible, as the EHPM is collected annually. A spatiotemporal model would permit the monitoring of trends in the socioeconomic and SDG indicators of interest. Lastly, other modeling architectures such as random forests or convolutional neural networks could take advantage of nonlinear effects, potentially increasing the predictive accuracy of the models.</p>
+<p>Another direction for potentially improving the granularity of socioeconomic maps lies in the use of mobile phone call-detail records. Covariate data derived from mobile phone call-detail records have been shown to correlate well with poverty indicators both at the household and aggregate level <span class="citation">(e.g., Blumenstock, Cadamuro, and On <a href="#ref-blumenstock2015predicting" role="doc-biblioref">2015</a>; Steele et al. <a href="#ref-steele2017mapping" role="doc-biblioref">2017</a>)</span>. These call records also have the advantage of being highly granular in terms of both space and time, presenting the possibility to potentially monitor variation in population well-being at a higher frequency. While the technical demands and requirements to negotiate access to call-detail-record data and conduct meaningful analyses with them are high, there are many potential applications for these data (e.g., mobility analysis, disaster response, and preparedness) and the marginal cost of each additional project is low once the agreements and the IT system are in place.</p>
+<p>A lot of the data preprocessing work and some of the analytical steps could be packaged and automatized in software. This could further streamline the process of creating these high-resolution maps of development indicators.</p>
+<p>High-resolution maps of development indicators may allow more accurate targeting of government interventions aimed at reducing poverty or increasing literacy rates among adults. Second, the methods presented here are portable to other socioeconomic and SDG indicators of interest. They could play a key role in monitoring and reporting on SDG achievements. Third, other than the survey’s segmento-level data, the methods described here are conducted using freely available data sources from freely available software. Fourth, the method presented here does not rely on the use of census data as do traditional small-area-estimation methods, so it can be applied independently of any census round. Fifth, the methods can be readily deployed by analysts with masters-level statistical training. These five points make the method very suitable for incorporation in routine and standard practices of national statistical offices (NSOs).</p>
+<p>The next possible step is to present these methods to NSOs to generate discourse on the value of these methods, potential improvements to increase their operational relevance, and implications for their integration into decision-making frameworks. We hope that the relative ease of these methods, the open-source nature of the software and covariate data, as well as the large number of code examples in this report (and on the web in general) will encourage their adoption by NSOs. Experts from the Flowminder Foundation are available to provide technical training and support to strengthen in-house capacity at NSOs to use these methods. This report could constitute the backbone of a short course of up to five days to equip a first cohort of statisticians with the know-how for confidently using these methods, data, and the R software for high-resolution mapping of development indicators.</p>
 
 </div>
 <h3>References</h3>
 <div id="refs" class="references">
-<div id="ref-R2018">
-<p>R Core Team. 2018a. <em>R: A Language and Environment for Statistical Computing</em>. Vienna, Austria: R Foundation for Statistical Computing. <a href="https://www.R-project.org/" class="uri">https://www.R-project.org/</a>.</p>
+<div id="ref-blumenstock2015predicting">
+<p>Blumenstock, Joshua, Gabriel Cadamuro, and Robert On. 2015. “Predicting Poverty and Wealth from Mobile Phone Metadata.” <em>Science</em> 350 (6264): 1073–6.</p>
 </div>
-<div id="ref-INLA_theory_1">
-<p>Rue, Håvard, Sara Martino, and Nicholas Chopin. 2009. “Approximate Bayesian Inference for Latent Gaussian Models Using Integrated Nested Laplace Approximations (with Discussion).” <em>Journal of the Royal Statistical Society B</em> 71: 319–92.</p>
+<div id="ref-INLA_R_2">
+<p>Lindgren, Finn, and Håvard Rue. 2015. “Bayesian Spatial Modelling with R-INLA.” <em>Journal of Statistical Software</em> 63 (19): 1–25. <a href="http://www.jstatsoft.org/v63/i19/">http://www.jstatsoft.org/v63/i19/</a>.</p>
 </div>
 <div id="ref-INLA_theory_2">
 <p>Lindgren, Finn, Håvard Rue, and Johan Lindström. 2011. “An Explicit Link Between Gaussian Fields and Gaussian Markov Random Fields: The Stochastic Partial Differential Equation Approach (with Discussion).” <em>Journal of the Royal Statistical Society B</em> 73 (4): 423–98.</p>
@@ -275,14 +304,14 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <div id="ref-INLA_R_1">
 <p>Martins, Thiago G., Daniel Simpson, Finn Lindgren, and Håvard Rue. 2013. “Bayesian Computing with INLA: New Features.” <em>Computational Statistics and Data Analysis</em> 67: 68–83.</p>
 </div>
-<div id="ref-INLA_R_2">
-<p>Lindgren, Finn, and Håvard Rue. 2015. “Bayesian Spatial Modelling with R-INLA.” <em>Journal of Statistical Software</em> 63 (19): 1–25. <a href="http://www.jstatsoft.org/v63/i19/" class="uri">http://www.jstatsoft.org/v63/i19/</a>.</p>
+<div id="ref-R2018">
+<p>R Core Team. 2018a. <em>R: A Language and Environment for Statistical Computing</em>. Vienna, Austria: R Foundation for Statistical Computing. <a href="https://www.R-project.org/">https://www.R-project.org/</a>.</p>
 </div>
-<div id="ref-blumenstock2015predicting">
-<p>Blumenstock, Joshua, Gabriel Cadamuro, and Robert On. 2015. “Predicting Poverty and Wealth from Mobile Phone Metadata.” <em>Science</em> 350 (6264). American Association for the Advancement of Science: 1073–6.</p>
+<div id="ref-INLA_theory_1">
+<p>Rue, Håvard, Sara Martino, and Nicholas Chopin. 2009. “Approximate Bayesian Inference for Latent Gaussian Models Using Integrated Nested Laplace Approximations (with Discussion).” <em>Journal of the Royal Statistical Society B</em> 71: 319–92.</p>
 </div>
 <div id="ref-steele2017mapping">
-<p>Steele, Jessica E, Pål Roe Sundsøy, Carla Pezzulo, Victor A Alegana, Tomas J Bird, Joshua Blumenstock, Johannes Bjelland, et al. 2017. “Mapping Poverty Using Mobile Phone and Satellite Data.” <em>Journal of the Royal Society Interface</em> 14 (127). The Royal Society: 20160690.</p>
+<p>Steele, Jessica E, Pål Roe Sundsøy, Carla Pezzulo, Victor A Alegana, Tomas J Bird, Joshua Blumenstock, Johannes Bjelland, et al. 2017. “Mapping Poverty Using Mobile Phone and Satellite Data.” <em>Journal of the Royal Society Interface</em> 14 (127): 20160690.</p>
 </div>
 </div>
             </section>
@@ -296,11 +325,13 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
 <script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
 <script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
 <script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
 <script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
 <script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
 <script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
 <script>
 gitbook.require(["gitbook"], function(gitbook) {
 gitbook.start({
@@ -308,12 +339,11 @@ gitbook.start({
 "github": false,
 "facebook": true,
 "twitter": true,
-"google": false,
 "linkedin": false,
 "weibo": false,
 "instapaper": false,
 "vk": false,
-"all": ["facebook", "google", "twitter", "linkedin", "weibo", "instapaper"]
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
 },
 "fontsettings": {
 "theme": "white",
@@ -325,6 +355,10 @@ gitbook.start({
 "text": null
 },
 "history": {
+"link": null,
+"text": null
+},
+"view": {
 "link": null,
 "text": null
 },
@@ -341,10 +375,11 @@ gitbook.start({
   (function () {
     var script = document.createElement("script");
     script.type = "text/javascript";
-    var src = "";
+    var src = "true";
     if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
-    if (location.protocol !== "file:" && /^https?:/.test(src))
-      src = src.replace(/^https?:/, '');
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
     script.src = src;
     document.getElementsByTagName("head")[0].appendChild(script);
   })();
