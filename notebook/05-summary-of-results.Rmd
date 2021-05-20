@@ -1,17 +1,17 @@
 # Results summary {#summary_of_resuls}
 
-This sections present the results obtained with the models for the three development indicators: median income, literacy and poverty rates. Goodness of fit statistics are presented both at the *segmento* level and at the *municipio* level. In the latter case, the results are presented with models fitted either on the entire datasets or for the 50 representative *municipios* only. Lastly, we present the map of predicted income, literacy and poverty rates as well as uncertainty maps.
+This section presents the results obtained with the models for the three development indicators: median income, literacy, and poverty rates. Goodness-of-fit statistics are presented both at the segmento level and at the *municipio* (municipal) level. In the latter case, the results are presented with models fitted on either the entire datasets or the 50 representative municipios only. Lastly, we present the map of predicted income, literacy, and poverty rates as well as the uncertainty maps.
 
 
-## Goodness of fit at the *segmento* level
-Various models were tested for the three development indicators. Spatial dependence was modeled either with a Besag-York-Mollie model (BYM 2) or with a SPDE model. Backward selection process was adopted, starting from the same set of covariates. For the income model, we tested both a Gaussian and a gamma likelihood function. Both literacy and poverty are ratio data, they are hence bounded between 0 and 100%. We therefore used a beta model. As beta distribution cannot include 0 and 1, we added and subtracted $0.00001$ to observation with 0 or 1, respectively. We also tested for both models the goodness of fit of Gaussian model. 
+## Goodness of Fit at the Segmento Level
+Various models were tested for the three development indicators. Spatial dependence was modeled either with a BYM 2 or an SPDE model. The backward selection process was adopted, starting from the same set of covariates. For the income model, we tested both Gaussian and gamma likelihood functions. Both literacy and poverty are ratio data, bounded between 0 percent and 100 percent, so we used a beta model. As beta distributions cannot include 0 and 1, we added and subtracted $0.00001$ to observations with a 0 or 1, respectively. We also tested both models for the goodness of fit of a Gaussian model. 
 
-We also investigated the use zero-inflated and zero-altered beta models for literacy and poverty. For poverty, we also tested two separate model for rural and urban *segmentos*. This did not yield any noticable improvement in the goodness of fit of the model. We therefore do not present the codes and results for these more complex models.
+Additionally, we investigated the use of zero-inflated and zero-altered beta models for literacy and poverty. For poverty, we also tested two separate models for rural and urban segmentos, which did not yield any noticeable improvement in the model’s goodness of fit. We, therefore, do not present the codes and results for these more complex models.
 
-We start by loading the model summaries.
+The model summaries follow:
 
 ```{r include=FALSE}
-# modify dir_data to where you stored the data
+# Modify the directory path “dir_data” to where you stored the data
 
 library(sp)
 library(dplyr)
@@ -25,7 +25,7 @@ project_dir="data/"
 
 
 ```{r warning=FALSE, message=FALSE}
-# load the results ####
+# Load the results ####
 dir_result=paste0(root_dir,project_dir,"out/results/")
 results_list=dir(dir_result)
 
@@ -58,7 +58,7 @@ names(lines_df)=c("Outcome","spatial dependency model","likelihood","covariate s
                   "r2 training set","r2 validation set","r2 test set",
                   "RMSE training set","RMSE validation set","RMSE test set")
 ```
-Table 8.1 summarises the RMSE and r-squared for the 10 models.  
+Table 8.1 summarizes the RMSE and r-squared for the 10 models.  
 ```{r}
 lines_df[,which(unlist(lapply(lines_df,is.numeric)))]=
   round(lines_df[,which(unlist(lapply(lines_df,is.numeric)))],digit=2)
@@ -73,31 +73,31 @@ knitr::kable(
 
 ```
 
-For income, the best model is the SPDE one with a *Gamma* likelihood function and where stepwise covariate selection has been applied. The goodness of fit is relatively high (50%) and holds in test set. 
+For income, the best model is the SPDE with a gamma likelihood function where stepwise covariate selection has been applied. The goodness of fit is relatively high (50 percent) and holds in the testing set. 
 
-For literacy, the three tested models yield results which are very close from each other in terms of goodness of fit. We select the SPDE one with stepwise covariate selection, with a goodness of fit of 43%, a final model. 
+For literacy, the three tested models yield results that are very close in terms of the goodness of fit. We select the SPDE with stepwise covariate selection, with a goodness of fit of 43 percent, as the final model. 
 
-However, the model on moderate poverty doesn't have a good fit: the goodness of fit of the best model is only 23%. We selected the *Gaussian* with SPDE and stepwise selection as final model.
+However, the goodness of fit on the model on moderate poverty is only 23 percent. We select the Gaussian with SPDE and stepwise selection as the final model.
 
-Fig. \@ref(fig:income-fit-obs), \@ref(fig:literacy-fit-obs) and \@ref(fig:pov-fit-obs) show the predicted vs observed values along with the $R^{2}$ and the RMSE.
+Figures \@ref(fig:income-fit-obs), \@ref(fig:literacy-fit-obs), and \@ref(fig:pov-fit-obs) show the predicted and observed values along with the $R^{2}$ and the RMSE.
 
 ```{r echo=FALSE, message=FALSE,warning=FALSE}
-# load the data ####
+# Load the data ####
 ehpm17_predictors=read.csv(paste0(dir_data,
                                   "out/all_covariates_and_outcomes.csv"))
 
-# correct for xls missbehaviour: the SEG_ID with a leading 0 were shorten
+# Correct for .xls misbehavior: The SEG_ID with a leading 0 were shorten
 ehpm17_predictors=ehpm17_predictors%>%
   mutate(SEG_ID=as.character(SEG_ID),
          SEG_ID=ifelse(nchar(SEG_ID)==7,
                        paste0(0,SEG_ID),
                        SEG_ID))
 
-# shape
+# Shape
 segmento_sh=rgdal::readOGR(paste0(dir_data,
                                   "spatial/shape/admin/STPLAN_Segmentos.shp"))
 
-# add the survey data to shapefile
+# Add the survey data to the shapefile
 segmento_sh_data=segmento_sh
 
 segmento_sh_data@data=segmento_sh_data@data%>%
@@ -113,7 +113,7 @@ ehpm17_predictors_nona=segmento_sh_data_model@data[non_na_index,]
 ehpm17_predictors_nona$illiteracy_rate=1-ehpm17_predictors_nona$literacy_rate
 ```
 
-```{r income-fit-obs-chunk, eval=T, echo=FALSE, warning=FALSE, message=FALSE, fig.cap="Predicted vs Observed Income (USD), SPDE model stepwise selection", out.width = '80%'}
+```{r income-fit-obs-chunk, eval=T, echo=FALSE, warning=FALSE, message=FALSE, fig.cap="Predicted versus Observed Income (USD), SPDE Model Stepwise Selection", out.width = '80%'}
 a <- list(
   x = 600,
   y = 100,
@@ -145,18 +145,18 @@ plotly::plot_ly(y=income_spde_stepwise$fit[income_spde_stepwise$index_train],
                     type="scatter",
                     mode="lines",
                     name="1:1")%>%
-  plotly::layout(yaxis=list(range=c(0,510),title="predicted (USD)"),
-                 xaxis=list(range=c(0,880),title="observed (USD)"),
+  plotly::layout(yaxis=list(range=c(0,510),title="Predicted (USD)"),
+                 xaxis=list(range=c(0,880),title="Observed (USD)"),
                  annotations=a,
-                 title="Goodness of fit: income at the segmento level")
+                 title="Goodness of Fit: Income at the Segmento Level")
 ```
 
-```{r income-fit-obs, eval=F, echo=FALSE,out.width = '80%',fig.cap='Predicted vs Observed Income (USD), SPDE model after covariates stepwise selection'}
+```{r income-fit-obs, eval=F, echo=FALSE,out.width = '80%',fig.cap='Predicted versus Observed Income (USD), SPDE Model after Covariates Stepwise Selection'}
 knitr::include_graphics("../data/img/ingpe_fit_obs_final.PNG")
 ```
 
 
-```{r literacy-fit-obs-chunck, eval=T, echo=FALSE, warning=FALSE,message=FALSE,fig.cap="Predicted vs Observed Median Income (USD), SPDE model stepwise selection", out.width = '80%'}
+```{r literacy-fit-obs-chunck, eval=T, echo=FALSE, warning=FALSE,message=FALSE,fig.cap="Predicted versus Observed Median Income (USD), SPDE Model Stepwise Selection", out.width = '80%'}
 a <- list(
   x = 0.3,
   y = 0.6,
@@ -188,20 +188,20 @@ plotly::plot_ly(y=illiteracy_rate_spde_stepwise$fit[illiteracy_rate_spde_stepwis
                     type="scatter",
                     mode="lines",
                     name="1:1")%>%
-  plotly::layout(yaxis=list(range=c(0,0.7),title="predicted (% of adult respondents)"),
-                 xaxis=list(range=c(0,0.7),title="observed (% of adult respondents)"),
+  plotly::layout(yaxis=list(range=c(0,0.7),title="Predicted (adult respondents, %)"),
+                 xaxis=list(range=c(0,0.7),title="Observed (adult respondents, %)"),
                  annotations=a,
-                 title="Goodness of fit: illiteracy at the segmento level")
+                 title="Goodness of Fit: Illiteracy at the Segmento Level")
 ```
 
 
-```{r literacy-fit-obs, eval=F, echo=FALSE, out.width = '80%',fig.cap='Predicted vs Observed Illiteracy Rate (%)'}
+```{r literacy-fit-obs, eval=F, echo=FALSE, out.width = '80%',fig.cap='Predicted versus Observed Illiteracy Rate (%)'}
 knitr::include_graphics("../data/img/illiteracy_fit_obs_final.PNG")
 
 ```
 
 
-```{r pov-fit-obs-chunck, eval=T, echo=FALSE, warning=FALSE,message=FALSE,fig.cap="Predicted vs Observed Moderate Poverty (%), SPDE model stepwise selection", out.width = '80%'}
+```{r pov-fit-obs-chunck, eval=T, echo=FALSE, warning=FALSE,message=FALSE,fig.cap="Predicted versus Observed Moderate Poverty (%), SPDE Model Stepwise Selection", out.width = '80%'}
 a <- list(
   x = 0.3,
   y = 0.6,
@@ -233,22 +233,22 @@ plotly::plot_ly(y=pobreza_mod_spde_stepwise_gaussian$fit[pobreza_mod_spde_stepwi
                     type="scatter",
                     mode="lines",
                     name="1:1")%>%
-  plotly::layout(yaxis=list(range=c(0,1),title="predicted (% of adult respondents)"),
-                 xaxis=list(range=c(0,1),title="observed (% of adult respondents)"),
+  plotly::layout(yaxis=list(range=c(0,1),title="Predicted (adult respondents, %)"),
+                 xaxis=list(range=c(0,1),title="Observed (adult respondents, %)"),
                  annotations=a,
-                 title="Goodness of fit: moderate poverty at the segmento level")
+                 title="Goodness of Fit: Moderate Poverty at the Segmento Level")
 ```
 
 
-```{r pov-fit-obs,eval=F, echo=FALSE,out.width = '80%',fig.cap='Predicted vs Observed Moderate Poverty Rate (%), SPDE model stepwise covariates selection'}
+```{r pov-fit-obs,eval=F, echo=FALSE,out.width = '80%',fig.cap='Predicted versus Observed Moderate Poverty Rate (%), SPDE Model Stepwise Covariates Selection'}
 knitr::include_graphics("../data/img/poverty_fit_obs_final.PNG")
 
 ```
 
-## *Segmento* level map
-It is now finally time to produce the maps. The detailed process to produce the map is shown for income with the SPDE model. Codes are not shown for literacy and poverty. So far, prediction have been only made on the *segmentos* for which EHPM data are available, i.e. on 1664 *segmentos*. To complete the map, prediction have to be made on the whole 12,435 *segmentos* of El Salvador. 
+## Segmento-Level Map
+The detailed process to produce the maps is shown for income with the SPDE model. Codes are not shown for literacy and poverty. So far, predictions have been made on only the segmentos for which EHPM data are available, which is 1,664 segmentos. To complete the map, predictions have to be made on all of El Salvador’s 12,435 segmentos. 
 
-We prepare two data stacks: one covers for the 1664 EHPM *segmentos* and one for the remaining 10'771 where no EHPM data are available. In the latter *segmentos*, we have however the covariates data. The model will be trained on the EHPM *segmentos* and out of sample prediction will be made on the non-EHPM *segmentos*.
+We prepare two data stacks: one covers the 1,664 EHPM segmentos and the other, the remaining 10,771 with no available EHPM data. For the latter segmentos, we do have the covariates data. The model will be trained on the EHPM segmentos, and out-of-sample prediction will be made on the non-EHPM segmentos.
 
 ```{r eval=T}
 load(paste0(dir_data,"workspace/income_spde_gamma.RData"))
@@ -299,14 +299,14 @@ end_time=Sys.time()
 print(end_time-start_time) 
 ```
 
-The fitted values are accessed thanks to the `inla.stack.index` introduced in the previous sections. We also extract the standard deviation of the prediction in order to map the uncertainty of the prediction. The latter is summarized by the coefficient of variation. For any given *segmento* $s$, the coefficient of variation is given by:
+The fitted values are accessed using the `inla.stack.index` introduced in previous sections. We also extract the standard deviation of the prediction to map the uncertainty of the prediction. The latter is summarized by the coefficient of variation. For any given segmento $s$, the coefficient of variation is given as
 
 $$
 \begin{aligned}
 coef var_{s}=\hat{\sigma_{s}}/\hat{\mu_{s}} 
 \end{aligned}
 $$
-where $\hat{\sigma_{s}}$ is the standard deviation of the prediction for *segmento* $s$ and $\hat{\mu_{s}}$ is the average predicted income for *segmemto* $s$. The coefficient of variation is hence the standard deviation of the prediction expressed in percentage of the prediction.
+where $\hat{\sigma_{s}}$ is the standard deviation of the prediction for segmento $s$ and $\hat{\mu_{s}}$ is the average predicted income for segmento $s$. The coefficient of variation is the standard deviation of the prediction expressed as a percentage of the prediction.
 
 ```{r eval=T}
 index_inla_ehpm = inla.stack.index(join.stack,"ehpm")$data
@@ -320,7 +320,7 @@ M_map_sd_ehpm=M_map$summary.fitted.values[index_inla_ehpm,"sd"]
 M_map_sd_non_ehpm=M_map$summary.fitted.values[index_inla_non_ehpm,"sd"]
 ```
 
-They fitted values, standard deviations and coefficient of variations are now stored in the polygon dataframe `segmento_sh_data_model`.
+The fitted values, standard deviations, and coefficient of variations are now stored in the polygon data frame `segmento_sh_data_model`.
 ```{r eval=T}
 segmento_sh_data_model@data$fit_income=NA
 segmento_sh_data_model@data$fit_income[index_ehpm]=M_map_fit_ehpm
@@ -333,7 +333,7 @@ segmento_sh_data_model@data$sd_income[index_NON_ehpm]=M_map_sd_non_ehpm
 segmento_sh_data_model@data$coefvar_income=segmento_sh_data_model@data$sd_income/segmento_sh_data_model@data$fit_income
 ```
 
-We can then save the spatial polygon dataframe into a `.geojson` file for later inspection.
+We can then save the spatial polygon data frame into a `.geojson` file for later inspection.
 ```{r eval=F}
 segmento_wgs_income=sp::spTransform(segmento_sh_data_model,
                             "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
@@ -351,56 +351,56 @@ rgdal::writeOGR(segmento_wgs_income_sp,
 
 ```
 
-Fig. \@ref(fig:income-fit-pretty) shows the map of the predicted income with a continuous color scale as well as the map of prediction uncertainty^[An option would have been to create an interactive map with the package `leaflet`, but we chose to edit the map in QGIS and display it as an image in order to ease the rendering of the maps]. 
+Figure \@ref(fig:income-fit-pretty) shows the map of the predicted income with a continuous color scale as well as the map of prediction uncertainty.^[An option would have been to create an interactive map with the package `leaflet`, but we chose to edit the map in QGIS and display it as an image to ease the rendering of the maps.] 
 
-```{r income-fit-pretty, echo=FALSE, warning=FALSE,fig.cap="Median Income (USD): continuous color scale", out.width = '80%'}
+```{r income-fit-pretty, echo=FALSE, warning=FALSE,fig.cap="Median Income (USD): Continuous Color Scale", out.width = '80%'}
 knitr::include_graphics(paste0("img/","income_fit_coefvar.png"))
 ```
 
-The prediction uncertainty is relatively low. In most cases, the coefficient of variation indicates that the standard deviation is smaller than 10% of the estimates.
+The prediction uncertainty is relatively low. In most cases, the coefficient of variation indicates that the standard deviation is smaller than 10 percent of the estimates.
 
-Fig. \@ref(fig:income-fit-quantile) shows the map of the predicted income with a quantile color scale, highlighting the rural urban difference.
+Figure \@ref(fig:income-fit-quantile) shows the map of the predicted income with a quantile color scale, highlighting the rural-urban difference.
 
-```{r income-fit-quantile, echo=FALSE,warning=FALSE, fig.cap="Median Income(USD): quantile color scale", out.width = '80%'}
+```{r income-fit-quantile, echo=FALSE,warning=FALSE, fig.cap="Median Income (USD): Quantile Color Scale", out.width = '80%'}
 knitr::include_graphics(paste0("img/","income_fit_quantile.png"))
 ```
 
-Fig. \@ref(fig:illiteracy-fit-pretty) shows predicted illiteracy with a continuous color scale and uncertainty while Fig. \@ref(fig:illiteracy-fit-quantile)  shows predicted illiteracy with a quantile color scale.
+Figure \@ref(fig:illiteracy-fit-pretty) shows predicted illiteracy with a continuous color scale and uncertainty, while Figure \@ref(fig:illiteracy-fit-quantile) shows predicted illiteracy with a quantile color scale.
 
-```{r illiteracy-fit-pretty, echo=FALSE, warning=FALSE,fig.cap="Illiteracy (%): continuous color scale", out.width = '80%'}
+```{r illiteracy-fit-pretty, echo=FALSE, warning=FALSE,fig.cap="Illiteracy (%): Continuous Color Scale", out.width = '80%'}
 knitr::include_graphics(paste0("img/","illiteracy_fit_coefvar.png"))
 
 ```
 
-```{r illiteracy-fit-quantile, echo=FALSE, warning=FALSE,fig.cap="Illiteracy (%): quantile color scale", out.width = '80%'}
+```{r illiteracy-fit-quantile, echo=FALSE, warning=FALSE,fig.cap="Illiteracy (%): Quantile Color Scale", out.width = '80%'}
 knitr::include_graphics(paste0("img/","Illiteracy_fit_quantile.png"))
 
 ```
 
 
-Lastly, Fig. \@ref(fig:poverty-fit-pretty) and Fig. \@ref(fig:poverty-fit-quantile) shows  the results for moderate poverty.
+Lastly, Figure \@ref(fig:poverty-fit-pretty) and Figure \@ref(fig:poverty-fit-quantile) show the results for moderate poverty.
 
-```{r poverty-fit-pretty, echo=FALSE,warning=FALSE, fig.cap="Moderate Poverty (%): continuous color scale", out.width = '80%'}
+```{r poverty-fit-pretty, echo=FALSE,warning=FALSE, fig.cap="Moderate Poverty (%): Continuous Color Scale", out.width = '80%'}
 knitr::include_graphics(paste0("img/","moderate_poverty_fit_coefvar.png"))
 ```
 
-```{r poverty-fit-quantile, echo=FALSE, warning=FALSE,fig.cap="Moderate Poverty (%): quantile color scale", out.width = '80%'}
+```{r poverty-fit-quantile, echo=FALSE, warning=FALSE,fig.cap="Moderate Poverty (%): Quantile Color Scale", out.width = '80%'}
 knitr::include_graphics(paste0("img/","poverty_fit_quantile.png"))
 ```
 
 
-## Goodness of fit at the *Municipio* level
-We can now investigate the goodness of fit at the *municipio* level. We adopt two methods for doing so. 
+## Goodness of Fit at the Municipio Level
+We now adopt two methods to investigate the goodness of fit at the municipio level.
 
-First, we aggregate the results at the *municipio* level and compare them with *municipio* level statistics. An issue with this approach is that in each *municipio*, some *segmentos* are used in the training and validation sets. Furthermore, EHPM data are representative at the municipio level only for a subset of *municipios*. The difference between fitted and observed values will hence be affected both by modelling errors and sampling errors while it will be hard to gauge the external validity of the model as the training and validation sets are mixed. 
+First, we aggregate the results at the municipio level and compare them with municipio-level statistics. An issue with this approach is that in each municipio, some segmentos are used in the training and validation sets. Furthermore, EHPM data are representative at the municipio level only for a subset of municipios. Therefore, the difference between the fitted and observed values will be affected by both modeling and sampling errors, and it will be hard to gauge the external validity of the model because the training and validation sets are mixed. 
 
-To remedy this, we also adopt a second approach. We select the *segmentos* from representative *municipios* only. We then split this remaining dataset into a training and validation sets, making sure that all *segmentos* from any given  *municipio* fall either in the training or the validation set. We can then obtain goodness of fit statistics at the *municipio* level for observations which have not been used to train the model. 
+To remedy this, we adopt a second approach. We select the segmentos from representative municipios only and split this remaining dataset into training and validation sets, making sure that all segmentos from any given municipio fall in either the training or the validation set. We can then obtain goodness-of-fit statistics at the municipio level for observations that have not been used to train the model. 
 
-### Obtion 1: Aggregating results at the municipio level using all *segmentos* 
-First we compute the average  *segmento* median income level on the entire sample at the municipio level. We then compute the average prediction of the test set at the *municipio* level. Finally, we compare observed average income against predicted average income at the *municipio* level, both for the representative and non-representative *municipios*.
+### Option 1: Aggregate the Results at the Municipio Level Using All Segmentos 
+First, we compute the average median income level per segmento on the entire sample at the municipio level. We then compute the average prediction of the test set at the municipio level. Finally, we compare the observed average income against the predicted average income at the municipio level, for both the representative and non-representative municipios.
 
 ```{r message=FALSE, warning=FALSE}
-# reload shape
+# Reload the shape
 source("../utils.R")
 segmento_sh=rgdal::readOGR(paste0(dir_data,
                                   "spatial/shape/admin/STPLAN_Segmentos.shp"))
@@ -411,7 +411,7 @@ ehpm17_predictors=ehpm17_predictors%>%
          SEG_ID=ifelse(nchar(SEG_ID)==7,
                        paste0(0,SEG_ID),
                        SEG_ID))
-# extract the municipio identifier from the shapefile
+# Extract the municipio identifier from the shapefile
 segmento_sh_data=segmento_sh
 
 segmento_sh_data@data=segmento_sh_data@data%>%
@@ -420,7 +420,7 @@ segmento_sh_data@data=segmento_sh_data@data%>%
   left_join(ehpm17_predictors,
             by="SEG_ID")
 
-# identify where there is EHPM data
+# Identify instances of EHPM data
 segmento_sh_subset=subset(segmento_sh_data,
                           is.na(segmento_sh_data@data$ingpe)==F) 
 
@@ -438,7 +438,7 @@ data_municipio=segmento_sh_subset@data%>%
               select(-c(DEPTO,MPIO)),
             by="SEG_ID")
 
-# extract the representative information from the EHPM
+# Extract the representative information from the EHPM
 ehpm=read.csv(paste0(dir_data,
                      "tables/ehpm-2017.csv"))
 segID=readxl::read_xlsx(paste0(dir_data,
@@ -452,21 +452,21 @@ ehpm_municauto=ehpm%>%
   group_by(SEG_ID)%>%
   summarise(autorrepresentado=mean(autorrepresentado))
 
-# add representativity to results dataframe
+# Add representativity indicator to results data frame
 data_municipio_rep=data_municipio%>%
   left_join(ehpm_municauto,
             by="SEG_ID")
 
-# aggregate results at municipios ####
+# Aggregate the results at the municipio level ####
 
-# all 
+# All 
 data_municipio_all=data_municipio_rep%>%
   group_by(DEPTO_MPIO)%>%
   summarise(obs=mean(ingpe,na.rm=T),
             fit=mean(fit,na.rm=T))%>%
   mutate(representative="all")
 
-# non representative 
+# Non-representative 
 data_municipio_NONREP=data_municipio_rep%>%
   filter(autorrepresentado==0)%>%
   group_by(DEPTO_MPIO)%>%
@@ -474,7 +474,7 @@ data_municipio_NONREP=data_municipio_rep%>%
             fit=mean(fit,na.rm=T))%>%
   mutate(representative="no")
 
-# representative 
+# Representative 
 data_municipio_REP=data_municipio_rep%>%
   filter(autorrepresentado==1)%>%
   group_by(DEPTO_MPIO)%>%
@@ -482,7 +482,7 @@ data_municipio_REP=data_municipio_rep%>%
             fit=mean(fit,na.rm=T))%>%
   mutate(representative="yes")
 
-# bind the dataframe
+# Bind the data frame
 data_municipio=data_municipio_REP%>%
   bind_rows(data_municipio_NONREP)%>%
     bind_rows(data_municipio_all)
@@ -490,7 +490,7 @@ index_rep=which(data_municipio$representative=="yes")
 index_non_rep=which(data_municipio$representative=="no") 
 index_all=which(data_municipio$representative=="all") 
 
-# fit
+# Fit
 RMSE=function(set,outcome,data,fit){
   res = data[set,outcome]-fit[set]
   RMSE_val <- sqrt(mean(res[,"obs"]^2,na.rm=T)) 
@@ -513,21 +513,21 @@ RMSE_all=RMSE(index_all,"obs",data_municipio,data_municipio$fit)
 RMSE_rep=RMSE(index_rep,"obs",data_municipio,data_municipio$fit)
 RMSE_non_rep=RMSE(index_non_rep,"obs",data_municipio,data_municipio$fit)
 ```
-Results are plotted on Fig. \@ref(fig:income-fit-municipio-1).
+The results are plotted in Figure \@ref(fig:income-fit-municipio-1).
 
-```{r income-fit-municipio-1-chunk, eval=T, echo=FALSE, warning=FALSE,message=FALSE, fig.cap="Predicted vs Observed Median Income: Municipio level, entire sample", out.width = '80%'}
+```{r income-fit-municipio-1-chunk, eval=T, echo=FALSE, warning=FALSE,message=FALSE, fig.cap="Predicted versus Observed Median Income: Municipio Level, Entire Sample", out.width = '80%'}
 # plot
 a <- list(
   x = 200,
   y = 300,
-  text = paste("R2 all Mucinipios:",round(r2_all*100),"%",
+  text = paste("R2 all Municipios:",round(r2_all*100),"%",
                "\n",
                "\nR2 representative Municipios:",round(r2_rep*100),"%",
                "\n",
                "\nR2 NON-representative Municipios:",round(r2_non_rep*100),"%",
                "\n",
                "\n",
-               "RMSE all Mucinipios:",round(RMSE_all),"USD",
+               "RMSE all Municipios:",round(RMSE_all),"USD",
                "\n",
                "\nRMSE representative Municipios:",round(RMSE_rep),"USD",
                "\n",
@@ -557,22 +557,22 @@ plotly::plot_ly(x=data_municipio$obs[data_municipio$representative=="no"],
                     mode="lines",
                     name="1:1",
                     line=list(color="black"))%>%
-  plotly::layout(yaxis=list(range=c(0,440),title="predicted (USD)"),
-                 xaxis=list(range=c(0,440),title="observed (USD)"),
+  plotly::layout(yaxis=list(range=c(0,440),title="Predicted (USD)"),
+                 xaxis=list(range=c(0,440),title="Observed (USD)"),
                  annotations=a,
                  title="Income at the Municipio Level\n(entire sample)",
                  showlegend=T)
 ```
 
-```{r income-fit-municipio-1, eval=F, echo=FALSE,out.width = '80%',fig.cap='Predicted vs Observed Median Income: Municipio level, entire sample'}
+```{r income-fit-municipio-1, eval=F, echo=FALSE,out.width = '80%',fig.cap='Predicted versus Observed Median Income: Municipio Level, Entire Sample'}
 knitr::include_graphics("img/ingpe_fit_obs_all_muni.PNG")
 ```
 
-Results for literacy and poverty are shown on Fig. \@ref(fig:illiteracy-fit-municipio-1) and Fig. \@ref(fig:pobreza-mod-fit-municipio-1) respectively.
+The results for literacy and poverty are shown in Figure \@ref(fig:illiteracy-fit-municipio-1) and Figure \@ref(fig:pobreza-mod-fit-municipio-1), respectively.
 
 ```{r echo=FALSE,include=FALSE,warning=FALSE}
 # Literacy ####
-# reload shape
+# Reload the shape
 segmento_sh=rgdal::readOGR(paste0(dir_data,
                                   "spatial/shape/admin/STPLAN_Segmentos.shp"))
 ehpm17_predictors=read.csv(paste0(dir_data,
@@ -582,7 +582,7 @@ ehpm17_predictors=ehpm17_predictors%>%
          SEG_ID=ifelse(nchar(SEG_ID)==7,
                        paste0(0,SEG_ID),
                        SEG_ID))
-# extract the municipio identifier from the shapefile
+# Extract the municipio identifier from the shapefile
 segmento_sh_data=segmento_sh
 
 segmento_sh_data@data=segmento_sh_data@data%>%
@@ -608,7 +608,7 @@ data_municipio=segmento_sh_subset@data%>%
               select(-c(DEPTO,MPIO)),
             by="SEG_ID")
 
-# extract the representative information from the EHPM
+# Extract the representative information from the EHPM
 ehpm=read.csv(paste0(dir_data,
                      "tables/ehpm-2017.csv"))
 segID=readxl::read_xlsx(paste0(dir_data,
@@ -622,21 +622,21 @@ ehpm_municauto=ehpm%>%
   group_by(SEG_ID)%>%
   summarise(autorrepresentado=mean(autorrepresentado))
 
-# add representativity to results dataframe
+# Add representativity to results data frame
 data_municipio_rep=data_municipio%>%
   left_join(ehpm_municauto,
             by="SEG_ID")
 
-# aggregate results at municipios ####
+# Aggregate the results at the municipio level ####
 
-# all 
+# All 
 data_municipio_all=data_municipio_rep%>%
   group_by(DEPTO_MPIO)%>%
   summarise(obs=mean(illiteracy_rate,na.rm=T),
             fit=mean(fit,na.rm=T))%>%
   mutate(representative="all")
 
-# non representative 
+# Non-representative 
 data_municipio_NONREP=data_municipio_rep%>%
   filter(autorrepresentado==0)%>%
   group_by(DEPTO_MPIO)%>%
@@ -644,7 +644,7 @@ data_municipio_NONREP=data_municipio_rep%>%
             fit=mean(fit,na.rm=T))%>%
   mutate(representative="no")
 
-# representative 
+# Representative 
 data_municipio_REP=data_municipio_rep%>%
   filter(autorrepresentado==1)%>%
   group_by(DEPTO_MPIO)%>%
@@ -652,7 +652,7 @@ data_municipio_REP=data_municipio_rep%>%
             fit=mean(fit,na.rm=T))%>%
   mutate(representative="yes")
 
-# bind the dataframe
+# Bind the data frame
 data_municipio=data_municipio_REP%>%
   bind_rows(data_municipio_NONREP)%>%
     bind_rows(data_municipio_all)
@@ -660,7 +660,7 @@ index_rep=which(data_municipio$representative=="yes")
 index_non_rep=which(data_municipio$representative=="no") 
 index_all=which(data_municipio$representative=="all") 
 
-# fit
+# Fit
 RMSE=function(set,outcome,data,fit){
   res = data[set,outcome]-fit[set]
   RMSE_val <- sqrt(mean(res[,"obs"]^2,na.rm=T)) 
@@ -684,19 +684,19 @@ RMSE_rep=RMSE(index_rep,"obs",data_municipio,data_municipio$fit)
 RMSE_non_rep=RMSE(index_non_rep,"obs",data_municipio,data_municipio$fit)
 ```
 
-```{r illiteracy-fit-municipio-1-chunk, eval=T,echo=FALSE, warning=FALSE, message=FALSE, fig.cap="Predicted vs Observed Illiteracy rate: Municipio level, entire sample", out.width = '80%'}
+```{r illiteracy-fit-municipio-1-chunk, eval=T,echo=FALSE, warning=FALSE, message=FALSE, fig.cap="Predicted versus Observed Illiteracy Rate: Municipio Level, Entire Sample", out.width = '80%'}
 # plot
 a <- list(
   x = .2,
   y = .8,
-  text = paste("R2 all Mucinipios:",round(r2_all*100),"%",
+  text = paste("R2 all Municipios:",round(r2_all*100),"%",
                "\n",
                "\nR2 representative Municipios:",round(r2_rep*100),"%",
                "\n",
                "\nR2 NON-representative Municipios:",round(r2_non_rep*100),"%",
                "\n",
                "\n",
-               "RMSE all Mucinipios:",round(RMSE_all*100),"%",
+               "RMSE all Municipios:",round(RMSE_all*100),"%",
                "\n",
                "\nRMSE representative Municipios:",round(RMSE_rep*100),"%",
                "\n",
@@ -732,13 +732,13 @@ plotly::plot_ly(x=data_municipio$obs[data_municipio$representative=="no"],
                  title="Illiteracy at the Municipio Level\n(entire sample)",
                  showlegend=T)
 ```
-```{r illiteracy-fit-municipio-1, eval=F,echo=FALSE,out.width = '80%',fig.cap='Predicted vs Observed Illiteracy rate: Municipio level, entire sample'}
+```{r illiteracy-fit-municipio-1, eval=F,echo=FALSE,out.width = '80%',fig.cap='Predicted versus Observed Illiteracy Rate: Municipio Level, Entire Sample'}
 knitr::include_graphics("img/illiteracy_fit_obs_all_muni.PNG")
 ```
 
 ```{r echo=FALSE,include=FALSE,warning=FALSE}
 # Poverty ####
-# reload shape
+# Reload the shape
 segmento_sh=rgdal::readOGR(paste0(dir_data,
                                   "spatial/shape/admin/STPLAN_Segmentos.shp"))
 ehpm17_predictors=read.csv(paste0(dir_data,
@@ -748,7 +748,7 @@ ehpm17_predictors=ehpm17_predictors%>%
          SEG_ID=ifelse(nchar(SEG_ID)==7,
                        paste0(0,SEG_ID),
                        SEG_ID))
-# extract the municipio identifier from the shapefile
+# Extract the municipio identifier from the shapefile
 segmento_sh_data=segmento_sh
 
 segmento_sh_data@data=segmento_sh_data@data%>%
@@ -774,7 +774,7 @@ data_municipio=segmento_sh_subset@data%>%
               select(-c(DEPTO,MPIO)),
             by="SEG_ID")
 
-# extract the representative information from the EHPM
+# Extract the representative information from the EHPM
 ehpm=read.csv(paste0(dir_data,
                      "tables/ehpm-2017.csv"))
 segID=readxl::read_xlsx(paste0(dir_data,
@@ -788,21 +788,21 @@ ehpm_municauto=ehpm%>%
   group_by(SEG_ID)%>%
   summarise(autorrepresentado=mean(autorrepresentado))
 
-# add representativity to results dataframe
+# Add representativity to results data frame
 data_municipio_rep=data_municipio%>%
   left_join(ehpm_municauto,
             by="SEG_ID")
 
-# aggregate results at municipios ####
+# Aggregate the results at the municipio level ####
 
-# all 
+# All 
 data_municipio_all=data_municipio_rep%>%
   group_by(DEPTO_MPIO)%>%
   summarise(obs=mean(pobreza_mod,na.rm=T),
             fit=mean(fit,na.rm=T))%>%
   mutate(representative="all")
 
-# non representative 
+# Non-representative 
 data_municipio_NONREP=data_municipio_rep%>%
   filter(autorrepresentado==0)%>%
   group_by(DEPTO_MPIO)%>%
@@ -810,7 +810,7 @@ data_municipio_NONREP=data_municipio_rep%>%
             fit=mean(fit,na.rm=T))%>%
   mutate(representative="no")
 
-# representative 
+# Representative 
 data_municipio_REP=data_municipio_rep%>%
   filter(autorrepresentado==1)%>%
   group_by(DEPTO_MPIO)%>%
@@ -818,7 +818,7 @@ data_municipio_REP=data_municipio_rep%>%
             fit=mean(fit,na.rm=T))%>%
   mutate(representative="yes")
 
-# bind the dataframe
+# Bind the data frame
 data_municipio=data_municipio_REP%>%
   bind_rows(data_municipio_NONREP)%>%
     bind_rows(data_municipio_all)
@@ -826,7 +826,7 @@ index_rep=which(data_municipio$representative=="yes")
 index_non_rep=which(data_municipio$representative=="no") 
 index_all=which(data_municipio$representative=="all") 
 
-# fit
+# Fit
 RMSE=function(set,outcome,data,fit){
   res = data[set,outcome]-fit[set]
   RMSE_val <- sqrt(mean(res[,"obs"]^2,na.rm=T)) 
@@ -850,19 +850,19 @@ RMSE_rep=RMSE(index_rep,"obs",data_municipio,data_municipio$fit)
 RMSE_non_rep=RMSE(index_non_rep,"obs",data_municipio,data_municipio$fit)
 ```
 
-```{r pobreza-mod-fit-municipio-1-chunk, eval=T, echo=FALSE, warning=FALSE, message=FALSE,fig.cap="Predicted vs Observed Moderate Poverty rate: Municipio level, entire sample", out.width = '80%'}
+```{r pobreza-mod-fit-municipio-1-chunk, eval=T, echo=FALSE, warning=FALSE, message=FALSE,fig.cap="Predicted versus Observed Moderate Poverty Rate: Municipio Level, Entire Sample", out.width = '80%'}
 # plot
 a <- list(
   x = .2,
   y = .8,
-  text = paste("R2 all Mucinipios:",round(r2_all*100),"%",
+  text = paste("R2 all Municipios:",round(r2_all*100),"%",
                "\n",
                "\nR2 representative Municipios:",round(r2_rep*100),"%",
                "\n",
                "\nR2 NON-representative Municipios:",round(r2_non_rep*100),"%",
                "\n",
                "\n",
-               "RMSE all Mucinipios:",round(RMSE_all*100),"%",
+               "RMSE all Municipios:",round(RMSE_all*100),"%",
                "\n",
                "\nRMSE representative Municipios:",round(RMSE_rep*100),"%",
                "\n",
@@ -899,22 +899,22 @@ plotly::plot_ly(x=data_municipio$obs[data_municipio$representative=="no"],
                  showlegend=T)
 ```
 
-```{r pobreza-mod-fit-municipio-1, eval=F,echo=FALSE,out.width = '80%',fig.cap='Predicted vs Observed Moderate Poverty rate: Municipio level, entire sample'}
+```{r pobreza-mod-fit-municipio-1, eval=F,echo=FALSE,out.width = '80%',fig.cap='Predicted versus Observed Moderate Poverty Rate: Municipio Level, Entire Sample'}
 knitr::include_graphics("img/poverty_fit_obs_all_muni.PNG")
 ```
-The goodness of fit is much better for the representative *municipios* (in green) than for the non-representative ones (in red). In the latter ones, the goodness of fit is affected both by the model errors and the sampling errors. Furthermore, it is hard to take the goodness of fit statistics for the representative *segmentos* as face values as they are based on a mixed of training and validation data. We therefore re-run the model below with only the *segmentos* in representative *municipios*.
+The goodness of fit is much better for the representative municipios (in green) than the non-representative ones (in red). In the latter ones, the goodness of fit is affected by both the model and sampling errors. Furthermore, it is hard to take the goodness-of-fit statistics for the representative segmentos at face value, as they are based on a mix of training and validation data. We accordingly rerun the model below with only the segmentos in representative municipios.
 
-### Option 2: Aggregating results at the municipio level using only *segmentos* in representative municipios
-We select only the *segmentos* in representative *municipios* and allocate *municipios* to a training and validation set. This insure that all *segmentos* from each *municipio* are either in the training and validation set. There is a total of 50 representative *municipios* in the EHPM, totaling 1114 *segmentos*.
+### Option 2: Aggregate the Results at the Municipio Level Using Segmentos in Representative Municipios Only
+We select only the segmentos in representative municipios and allocate the municipios to the training or validation set. This ensures that all segmentos from each municipio are in either the training or the validation set. There are 50 representative municipios in the EHPM totaling 1,114 segmentos.
 
-The only change compared to the code shown in the earlier sections is the creation of the training and validation set. The process is:
+The only change compared to the code shown in the earlier sections is the creation of the training and validation sets. The process is
 
-1.    Allocate representative *municipios* into a training and validation set;
-2.    Select the data for the *segmentos* in representative *municipios*;
-3.    Add the *municipio* training and validation set indexes to the *segmento* level dataframe.
+1.    Allocate the representative municipios into training and validation sets.
+2.    Select the data for the segmentos in the representative municipios.
+3.    Add the municipio training and validation set indexes to the segment-level data frame.
 
 ```{r}
-# 1. Allocate representative municipios  in training and validation sets  ####
+# 1. Allocate the representative municipios into training and validation sets  ####
 list_municipio=data_municipio_REP%>%
   distinct(DEPTO_MPIO)
 
@@ -928,7 +928,7 @@ g = sample(cut(
 
 list_municipio$index=g
 
-# 2. select the data for the segmentos in representative municipios ####
+# 2. Select the data for the segmentos in the representative municipios ####
 segmento_sh_data=segmento_sh
 
 segmento_sh_data@data=segmento_sh_data@data%>%
@@ -943,24 +943,24 @@ segmento_sh_subset_muni=subset(segmento_sh_data,
                                is.na(segmento_sh_data@data$ingpe)==F&
                                  segmento_sh_data@data$DEPTO_MPIO%in%list_municipio$DEPTO_MPIO) # identify where there is EHPM data and representative municipios
 
-# 3. Add the *municipio* training and validation set indexes to the *segmento* level dataframe
+# 3. Add the municipio training and validation set indexes to the segment-level data frame
 segmento_sh_subset_muni@data=segmento_sh_subset_muni@data%>%
   left_join(list_municipio,
             by="DEPTO_MPIO")
 
-# identify indexes ####
+# Identify the indexes ####
 index_train=which(segmento_sh_subset_muni$index=="train")
 index_val=which(segmento_sh_subset_muni$index=="validate")
 ```
 
-The rest of the process is the same: we create the mesh, the SPDE, the matrix of weights, the stack, the formula (we used to naive one), fit the model and extract the fitted values (code not shown).  
+The rest of the process is the same: we create the mesh, the SPDE, the matrix of weights, the stack, the formula (we used the naive one), fit the model, and extract the fitted values (code not shown).  
 
 ```{r echo=FALSE}
 segmento_sh_subset_muni@data$AREA_ID=segmento_sh_subset_muni@data$AREA_ID.x
 ```
 
 ```{r echo=FALSE,include=FALSE, warning=FALSE}
-# create the mesh #### 
+# Create the mesh #### 
 departamentos_sh=rgdal::readOGR(paste0(dir_data,
                                        "spatial/shape/admin/STPLAN_Departamentos.shp"))
 coords=coordinates(segmento_sh_subset_muni) # collect the coordinates of the segmentos with EHPM datr
@@ -977,12 +977,12 @@ SV.mesh <- inla.mesh.create.helper(
   cutoff=8000,
   plot.delay=NULL)
 
-# create the SPDE ####
+# Create the SPDE ####
 SV.spde <- inla.spde2.matern(mesh=SV.mesh,alpha=2)
 
 s.index <- inla.spde.make.index(name="spatial.field", n.spde=SV.spde$n.spde) 
 
-# create matrix of weights ####
+# Create the matrix of weights ####
 A.train <- inla.spde.make.A(mesh=SV.mesh, loc=coords[index_train,])
 A.val <- inla.spde.make.A(mesh=SV.mesh, loc=coords[index_val,])
 
@@ -995,7 +995,7 @@ stack.train <- inla.stack(data = list(pred=segmento_sh_subset_muni@data$ingpe[in
                           effects = list(s.index, 
                                          Intercept=1:length(index_train), 
                                          segmento_sh_subset_muni@data[index_train,c(covariates_list)]),
-                          tag="train") # the tag allows to extract later selected statistics for desired sample
+                          tag="train") # The tag allows selected statistics for the desired sample to be extracted later
 
 stack.val <- inla.stack(data = list(pred=NA), # we set it to NA
                         A = list(A.val, 1,1), 
@@ -1003,19 +1003,19 @@ stack.val <- inla.stack(data = list(pred=NA), # we set it to NA
                                        Intercept=1:length(index_val), 
                                        segmento_sh_subset_muni@data[index_val,c(covariates_list)]),
                         tag="val")
-# combine both stack
+# Combine both stacks
 join.stack <- inla.stack(stack.train, stack.val)
 
-# write the test formula ####
+# Write the test formula ####
 formula_test =pred~ -1+Intercept+
   AREA_ID+lights_med+pop_dens+slope+chirps_ev_2017+dist2pubamen+dist2road+
   f(spatial.field, model=SV.spde)
 
-# fit ####
+# Fit ####
 start_time=Sys.time()
-spde_res=inla(formula_test, # formula
+spde_res=inla(formula_test, # Formula
               data=inla.stack.data(join.stack), 
-              family="gamma", # likelihood of the data
+              family="gamma", # Likelihood of the data
               control.predictor=list(A=inla.stack.A(join.stack),
                                      link=1,compute=T))
 end_time=Sys.time()
@@ -1030,21 +1030,21 @@ results.train=spde_res$summary.fitted$mean[index_inla_train]
 results.val=spde_res$summary.fitted$mean[index_inla_val]
 ```
 
-We then add the fitted values to the shapefile, aggregate the value at the *municipio* level and compute separate goodness of fit statistics for the *municipios* in the training and validation sets. 
+We then add the fitted values to the shapefile, aggregate the values at the municipio level, and compute separate goodness-of-fit statistics for the municipios in the training and validation sets. 
 ```{r}
-# add them into the shapefile ####
+# Add fitted values into the shapefile ####
 segmento_sh_subset_muni@data$fit_income=NA
 segmento_sh_subset_muni@data$fit_income[index_train]=results.train
 segmento_sh_subset_muni@data$fit_income[index_val]=results.val
 
-# aggregate at the municipio level ####
+# Aggregate data at the municipio level ####
 data_muni=segmento_sh_subset_muni@data%>%
   group_by(DEPTO_MPIO)%>%
   summarise(fit=mean(fit_income),
             obs=mean(ingpe),
             set=unique(index))
 
-# goodness of fit ####
+# Goodness of fit ####
 RMSE=function(set,outcome,data,fit){
   res = data[set,outcome]-fit[set]
   RMSE_val <- sqrt(mean(res[,"obs"]^2,na.rm=T)) 
@@ -1067,8 +1067,8 @@ RMSE_train_income=RMSE_train=RMSE(index_train_muni,"obs",data_muni,data_muni$fit
 RMSE_val_income=RMSE_val=RMSE(index_val_muni,"obs",data_muni,data_muni$fit)
 ```
 
-Results are plotted on Fig. \@ref(fig:income-fit-municipio-2).
-```{r income-fit-municipio-2-chunk, eval=T, echo=FALSE, message=FALSE, warning=FALSE,fig.cap="Predicted vs Observed Median Income: Municipio level, representative municipios only", out.width = '80%'}
+The results are plotted in Figure \@ref(fig:income-fit-municipio-2).
+```{r income-fit-municipio-2-chunk, eval=T, echo=FALSE, message=FALSE, warning=FALSE,fig.cap="Predicted versus Observed Median Income: Municipio Level, Representative Municipios Only", out.width = '80%'}
 # plot
 a <- list(
   x = 100,
@@ -1114,11 +1114,11 @@ plotly::plot_ly(x=data_muni$obs[index_train_muni],
 
 ```
 
-```{r income-fit-municipio-2, eval=F, echo=FALSE,out.width = '80%',fig.cap='Predicted vs Observed Median Income: Municipio level, representative municipios only'}
+```{r income-fit-municipio-2, eval=F, echo=FALSE,out.width = '80%',fig.cap='Predicted versus Observed Median Income: Municipio Level, Representative Municipios Only'}
 knitr::include_graphics("img/ingpe_fit_obs_REP_muni.PNG")
 ```
 
-Results for literacy and poverty are shown on Fig \@ref(fig:illiteracy-fit-municipio-2) and \@ref(fig:
+The results for literacy and poverty are shown in Figure \@ref(fig:illiteracy-fit-municipio-2) and Figure \@ref(fig:
 pobreza_mod-fit-municipio-2) respectively.
 
 ```{r echo=FALSE, warning=FALSE,include=FALSE}
@@ -1134,46 +1134,46 @@ stack.train <- inla.stack(data = list(pred=segmento_sh_subset_muni@data$illitera
                           effects = list(s.index, 
                                          Intercept=1:length(index_train), 
                                          segmento_sh_subset_muni@data[index_train,c(covariates_list)]),
-                          tag="train") # the tag allows to extract later selected statistics for desired sample
+                          tag="train") # The tag allows selected statistics for the desired sample to be extracted later
 
-stack.val <- inla.stack(data = list(pred=NA), # we set it to NA
+stack.val <- inla.stack(data = list(pred=NA), # Set it to NA
                         A = list(A.val, 1,1), 
                         effects = list(s.index, 
                                        Intercept=1:length(index_val), 
                                        segmento_sh_subset_muni@data[index_val,c(covariates_list)]),
                         tag="val")
-# combine both stack
+# Combine both stacks
 join.stack <- inla.stack(stack.train, stack.val)
 
-# write the test formula ####
+# Write the test formula ####
 formula_test =pred~ -1+Intercept+
   AREA_ID+lights_med+pop_dens+slope+chirps_ev_2017+dist2pubamen+dist2road+
   f(spatial.field, model=SV.spde)
 
-# fit ####
+# Fit ####
 start_time=Sys.time()
-spde_res=inla(formula_test, # formula
+spde_res=inla(formula_test, # Formula
               data=inla.stack.data(join.stack), 
-              family="gamma", # likelihood of the data
+              family="gamma", # Likelihood of the data
               control.predictor=list(A=inla.stack.A(join.stack),
                                      link=1,compute=T))
 end_time=Sys.time()
 print(end_time-start_time) 
 
 
-# Extract fitted values  ####
+# Extract the fitted values  ####
 index_inla_train = inla.stack.index(join.stack,"train")$data
 index_inla_val = inla.stack.index(join.stack,"val")$data
 
 results.train=spde_res$summary.fitted$mean[index_inla_train]
 results.val=spde_res$summary.fitted$mean[index_inla_val]
 
-# add them into the shapefile ####
+# Add the fitted values into the shapefile ####
 segmento_sh_subset_muni@data$fit_illiteracy=NA
 segmento_sh_subset_muni@data$fit_illiteracy[index_train]=results.train
 segmento_sh_subset_muni@data$fit_illiteracy[index_val]=results.val
 
-# aggregate at the municipio level ####
+# Aggregate the fitted values at the municipio level ####
 segmento_sh_subset_muni@data$illiteracy_rate=1-segmento_sh_subset_muni@data$literacy_rate
 
 data_muni=segmento_sh_subset_muni@data%>%
@@ -1182,7 +1182,7 @@ data_muni=segmento_sh_subset_muni@data%>%
             obs=mean(illiteracy_rate),
             set=unique(index))
 
-# goodness of fit ####
+# Goodness of fit ####
 RMSE=function(set,outcome,data,fit){
   res = data[set,outcome]-fit[set]
   RMSE_val <- sqrt(mean(res[,"obs"]^2,na.rm=T)) 
@@ -1205,7 +1205,7 @@ RMSE_train_lit=RMSE_train=RMSE(index_train_muni,"obs",data_muni,data_muni$fit)
 RMSE_val_lit=RMSE_val=RMSE(index_val_muni,"obs",data_muni,data_muni$fit)
 ```
 
-```{r illiteracy-fit-municipio-2-chunk, eval=T,echo=FALSE, warning=FALSE, message=FALSE,fig.cap="Predicted vs Observed Illiteracy: Municipio level, representative municipios only", out.width = '80%'}
+```{r illiteracy-fit-municipio-2-chunk, eval=T,echo=FALSE, warning=FALSE, message=FALSE,fig.cap="Predicted versus Observed Illiteracy: Municipio Level, Representative Municipios Only", out.width = '80%'}
 # plot
 a <- list(
   x = .05,
@@ -1245,13 +1245,13 @@ plotly::plot_ly(x=data_muni$obs[index_train_muni],
   plotly::layout(yaxis=list(range=c(0,.3),title="predicted (%)",tickformat = "%"),
                  xaxis=list(range=c(0,.3),title="observed (%)",tickformat = "%"),
                  annotations=a,
-                 title="Illiteracy at the Municipio Level\n(Fitted on segmentos in representative Municipios only)",
+                 title="Illiteracy at the Municipio Level\n (fitted on segmentos in representative municipios only)",
                  showlegend=T)
 
 
 ```
 
-```{r illiteracy-fit-municipio-2, eval=F, echo=FALSE,out.width = '80%',fig.cap='Predicted vs Observed Illiteracy: Municipio level, representative municipios only'}
+```{r illiteracy-fit-municipio-2, eval=F, echo=FALSE,out.width = '80%',fig.cap='Predicted versus Observed Illiteracy: Municipio Level, Representative Municipios Only'}
 knitr::include_graphics("img/illiteracy_fit_obs_REP_muni.PNG")
 ```
 
@@ -1268,7 +1268,7 @@ stack.train <- inla.stack(data = list(pred=segmento_sh_subset_muni@data$pobreza_
                           effects = list(s.index, 
                                          Intercept=1:length(index_train), 
                                          segmento_sh_subset_muni@data[index_train,c(covariates_list)]),
-                          tag="train") # the tag allows to extract later selected statistics for desired sample
+                          tag="train") # The tag allows selected statistics for the desired sample to be extracted later
 
 stack.val <- inla.stack(data = list(pred=NA), # we set it to NA
                         A = list(A.val, 1,1), 
@@ -1276,15 +1276,15 @@ stack.val <- inla.stack(data = list(pred=NA), # we set it to NA
                                        Intercept=1:length(index_val), 
                                        segmento_sh_subset_muni@data[index_val,c(covariates_list)]),
                         tag="val")
-# combine both stack
+# Combine both stacks
 join.stack <- inla.stack(stack.train, stack.val)
 
-# write the test formula ####
+# Write the test formula ####
 formula_test =pred~ -1+Intercept+
   AREA_ID+lights_med+pop_dens+slope+chirps_ev_2017+dist2pubamen+dist2road+
   f(spatial.field, model=SV.spde)
 
-# fit ####
+# Fit ####
 start_time=Sys.time()
 spde_res=inla(formula_test, # formula
               data=inla.stack.data(join.stack), 
@@ -1295,26 +1295,26 @@ end_time=Sys.time()
 print(end_time-start_time) 
 
 
-# Extract fitted values  ####
+# Extract the fitted values  ####
 index_inla_train = inla.stack.index(join.stack,"train")$data
 index_inla_val = inla.stack.index(join.stack,"val")$data
 
 results.train=spde_res$summary.fitted$mean[index_inla_train]
 results.val=spde_res$summary.fitted$mean[index_inla_val]
 
-# add them into the shapefile ####
+# Add the fitted values into the shapefile ####
 segmento_sh_subset_muni@data$fit_pobreza_mod=NA
 segmento_sh_subset_muni@data$fit_pobreza_mod[index_train]=results.train
 segmento_sh_subset_muni@data$fit_pobreza_mod[index_val]=results.val
 
-# aggregate at the municipio level ####
+# Aggregate the fitted values at the municipio level ####
 data_muni=segmento_sh_subset_muni@data%>%
   group_by(DEPTO_MPIO)%>%
   summarise(fit=mean(fit_pobreza_mod),
             obs=mean(pobreza_mod),
             set=unique(index))
 
-# goodness of fit ####
+# Goodness of fit ####
 RMSE=function(set,outcome,data,fit){
   res = data[set,outcome]-fit[set]
   RMSE_val <- sqrt(mean(res[,"obs"]^2,na.rm=T)) 
@@ -1337,7 +1337,7 @@ RMSE_train_pov=RMSE_train=RMSE(index_train_muni,"obs",data_muni,data_muni$fit)
 RMSE_val_pov=RMSE_val=RMSE(index_val_muni,"obs",data_muni,data_muni$fit)
 ```
 
-```{r pobreza_mod-fit-municipio-2-chunk, eval=T, echo=FALSE, warning=FALSE,message=FALSE, fig.cap="Predicted vs Observed Moderate Poverty: Municipio level, representative municipios only", out.width = '80%'}
+```{r pobreza_mod-fit-municipio-2-chunk, eval=T, echo=FALSE, warning=FALSE,message=FALSE, fig.cap="Predicted versus Observed Moderate Poverty: Municipio Level, Representative Municipios Only", out.width = '80%'}
 # plot
 a <- list(
   x = .1,
@@ -1377,15 +1377,15 @@ plotly::plot_ly(x=data_muni$obs[index_train_muni],
   plotly::layout(yaxis=list(range=c(0,.6),title="predicted (%)",tickformat = "%"),
                  xaxis=list(range=c(0,.6),title="observed (%)",tickformat = "%"),
                  annotations=a,
-                 title="Moderate Poverty at the Municipio Level\n(Fitted on segmentos in representative Municipios only)",
+                 title="Moderate Poverty at the Municipio Level\n (fitted on segmentos in representative municipios only)",
                  showlegend=T)
 
 ```
-```{r pobreza-mod-fit-municipio-2, eval=F, echo=FALSE,out.width = '80%',fig.cap='Predicted vs Observed Moderate Poverty: Municipio level, representative municipios only'}
+```{r pobreza-mod-fit-municipio-2, eval=F, echo=FALSE,out.width = '80%',fig.cap='Predicted versus Observed Moderate Poverty: Municipio Level, Representative Municipios Only'}
 knitr::include_graphics("img/poverty_fit_obs_REP_muni.PNG")
 ```
 
-The goodness of fit of the three models at the *municipio* level are very high and summarised on table 8.2.
+The three models’ goodness of fit at the municipio level is very high, as summarized in Table 8.2.
 
 ```{r echo=FALSE, warning=FALSE, message=FALSE}
 results_municipio=data.frame("Outcome"=c("Median Income (USD)", "Illiteracy (% of adults)", "Moderate Poverty (% of adults)"),
@@ -1404,5 +1404,4 @@ knitr::kable(
   booktabs = TRUE,
   row.names = FALSE)
 ```
-
 

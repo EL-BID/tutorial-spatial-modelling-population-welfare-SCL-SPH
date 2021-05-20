@@ -1,48 +1,44 @@
 # Appendix 2: Data Pre-processing {#data}
 
-Data pre-processing can be defined as the work required to go from *raw* data into data usable for modelling. 
+Data preprocessing can be defined as the work required to turn raw data into the data used for modeling. 
 
-The *raw* data used in this analysis are remote sensing and other geographic information system data, herafter *RS data*, such as digitized maps of elevation, population density or public services locations. These data need to be aggregated and linked with the survey containing the data on the development indicators we aim to map.   
+The raw data used in this analysis are remote sensing and other geographic information system data, hereafter “RS data,” such as digitized maps of elevation, population density, or public service locations. These data need to be aggregated and linked with the survey containing the data on the development indicators we plan to map.   
 
-Data pre-processing is arguably one of the most time-consuming tasks of any data science project. This section documents the path required to convert the *raw* data into data usable for high resolution mapping. Here are the main steps:
+Data preprocessing is arguably one of the most time-consuming tasks of any data science project. This section documents the path required to convert the raw data into data usable for high-resolution mapping. Here are the main steps:
 
-1.  Load the RS layers; 
-2.  Create summaries for RS layers which come with a time dimension (e.g. average precipitation over the last thirthy years);
-3.  Perform additional calculation as required (e.g. compute the Soil degradation index based on soil degradation sub-indicator);
-4.  Compute distance metrics to public services, businesses and some natural features;
-5.  Align the Coordinates reference systems across layers (geographic or projected);
-6.  Aggregate the RS layers to the map of interest (e.g. the *segmento* map) with a chosen set of spatial statistics (average precipitation per *segmento*);
-7.  Match the RS aggregates with the outcome data (poverty, income, literay);
+1.  Load the RS layers. 
+2.  Create summaries for the RS layers that come with a time dimension (e.g., average precipitation over the last 30 years).
+3.  Perform additional calculations as required (e.g., compute the soil degradation index based on soil degradation sub-indicator).
+4.  Compute the distance metrics to public services, businesses, and some natural features.
+5.  Align the coordinate reference systems (CRSs) across layers (geographic or projected).
+6.  Aggregate the RS layers to the map of interest (e.g., the segmento map) with a chosen set of spatial statistics (e.g., average precipitation per segmento).
+7.  Match the RS aggregates with the outcome data (poverty, income, literacy).
 8.  Write the data frame to a `.csv` file for later use.
 
-Readers only interested by the modelling part can skip this section entirely.
+Readers interested in only the modeling instructions can skip this section entirely.
 
-## Data sources {#sources}
-The 2017 household survey *Encuesta de Hogares de Propositos Multiples* (EHPM), collected by the national statistical office of El Salvador (DIGESTYC), is used to compute the three main development indicators below:
+## Data Sources {#sources}
+The 2017 EHPM household survey, collected by DIGESTYC, is used to compute the three main development indicators: median income, poverty, and literacy. 
 
-* Median income, 
-* Poverty, 
-* Literacy. 
+The EHPM survey data are stored in the file `ehpm-2017.csv` on the publicly available DIGESTYC website [here](). DIGESTYC provided the research team with the segmento identifiers, allowing the RS data to be linked with the EPHM data at the segmento level rather than the canton level, as would have been necessary if using only the publicly available data. The segmento identifier is stored in the file  `Identificador de segmento.xlsx`.
 
-The EHPM survey data are stored in the file `ehpm-2017.csv`. It is publicly available on the DIGESTYC website [here](). DIGESTYC provided the research team with the *segmento* identifiers, allowing for linking the RS data with the EPHM data at the *segmento* level rather than the *canton* level as it would have been the case if only using the publicly available data. The *segmento* identifier is stored in the file  `Identificador de segmento.xlsx`.
-
-A suite of RS data are used as potential predictors of the three indicators above. Data sources are listed in Table \@ref(tab:list-GIS-sources) (see web-book version of this tutorial for the links).
+A suite of RS data is used to determine potential predictors of the three main development indicators. The data sources are listed in Table \@ref(tab:list-GIS-sources) (see web-book version of this tutorial for the links).
 
 
 ```{r list-GIS-sources, tidy=FALSE, echo=F}
 table_df=data.frame("Names"=c("Population count",
                               "Precipitation",
                               "Lights at night",
-                              "Intergrated Food Security Phase Classsification",
-                              "Livelihood Zones",
+                              "Integrated Food Security Phase Classification",
+                              "Livelihood zones",
                               "Altitude",
                               "Soil degradation",
                               "Buildings",
                               "Points of interest points",
                               "Roads network",
-                              "Vegetation Greenness (NDVI)",
+                              "Vegetation greenness (NDVI)",
                               "Schools",
-                              "Health centres",
+                              "Health centers",
                               "Hospitals",
                               "Temperature",
                               "Slope",
@@ -75,8 +71,8 @@ table_df=data.frame("Names"=c("Population count",
                     "Source"=c("CIESIN",
                                "Climate Hazards Center",
                                "NOAA",
-                               "FEWS Net",
-                               "FEWS Net",
+                               "FEWS NET",
+                               "FEWS NET",
                                "NASA Shuttle Radar Topography Mission (SRTMv003)",
 "Trend.Earth",
 "OpenStreetMap",
@@ -106,17 +102,17 @@ knitr::kable(
 )
 ```
 
-## Loading the survey
-We start by loading the *segmento* shapefile and the EHPM survey data:
+## Loading the Survey
+We start by loading the segmento shapefile and the EHPM survey data:
 
-* **ehpm**: this is the EHPM survey data 
-* **segmento_hh_id**: this is the segmento id matched to the household id, it allows us to map households at the *segmento* level
-* **segmento shapefile**: this is the map of all *segmentos* 
+* **ehpm**: This is the EHPM survey data.
+* **segmento_hh_id**: This is the segmento ID matched to the household ID, which allows us to map households at the segmento level.
+* **segmento shapefile**: This is the map of all segmentos.
 
-In order to get a more easily readable directory path, let us create an object with the path to the folder where the data are stored: 
+To create a more easily readable directory path, we create an object with the path to the folder where the data are stored: 
 
 ```{r}
-# modify dir_data to where you stored the data
+# Modify dir_data to where you stored the data
 root_dir="~/"
 project_dir="data/"
 
@@ -125,7 +121,7 @@ dir_data=paste0(root_dir,project_dir)
 
 
 ```{r echo=FALSE, results="hide", include=FALSE}
-# load packages
+# Load the packages
 library(rgdal)
 library(dplyr)
 library(leaflet)
@@ -139,11 +135,11 @@ segmento_hh_id=readxl::read_xlsx(paste0(dir_data,
                                         "tables/Identificador de segmento.xlsx"))
 ```
 
-## Loading the vectors 
-Vector data are polygons (e.g. adminstrative areas), lines (e.g. roads network) or points (e.g. coordinates of schools). They can be stored in various formats, the most common being ESRI shapefiles and geojson files.  
+## Loading the Vectors 
+Vector data are polygons (e.g., administrative areas), lines (e.g., roads network), or points (e.g., coordinates of schools). They can be stored in various formats, with the most common being ESRI shapefiles and geojson files.  
 
-### Loading the administrative boundaries 
-Let us now load the administrative maps of the *segmentos* and *departementos* withg the command `readOGR` from the `rgdal` package. Shapefiles are loaded as a `SpatialPolygonDataframe`, i.e. a geo-referenced set of polygons to which a data frame is attached. 
+### Loading the Administrative Boundaries 
+First, we load the administrative maps of the segmentos and departamentos with the command `readOGR` from the `rgdal` package. Shapefiles are loaded as a `SpatialPolygonDataframe`, which is a georeferenced set of polygons to which a data frame is attached. 
 
 ```{r message=FALSE}
 dir_shape="spatial/shape/"
@@ -154,25 +150,25 @@ departamentos_sh=readOGR(paste0(dir_data,
                                 dir_shape,
                                        "admin/STPLAN_Departamentos.shp"))
 ```
-The *segmento_sh* shape file loaded above consists for instance of a data frame with 17 fields (i.e. variables).
+The*segmento_sh* shape file loaded above, for example, consists of a data frame with 17 fields (variables).
 
-The names of each field can be accesed by running the command below. 
+The names of each field can be accessed by running this command:
 ```{r}
 names(segmento_sh)
 ```
-The data frame attached to the polygon map can be inspected using the following functions.
+The data frame attached to the polygon map can be inspected using the following functions:
 ```{r}
-head(segmento_sh@data) # provide the 5 first rows of the dataframe segmento_sh@data
-summary(segmento_sh@data) # summarise each field of the dataframe segmento_sh@data
+head(segmento_sh@data) # Provide the 5 first rows of the data frame segmento_sh@data
+summary(segmento_sh@data) # Summarize each field of the data frame segmento_sh@data
 ```
-We see that `Shape_Le_1` and `SHAPE_Leng` are duplicates, while `demmean` only comprises of null values. Let us now remove these fields using the `dplyr` function `select`.
+We see that `Shape_Le_1` and `SHAPE_Leng` are duplicates, while `demmean` comprises only null values. These fields are removed using the `dplyr` function `select`.
 
 ```{r}
 segmento_sh@data=segmento_sh@data%>% 
   select(-c(Shape_Le_1,demmean))
 ```
 
-In order to get a country mask, i.e. the boundary of the country, we dissolve the multiples polygons of the *departamentos* shapefile in one overall map of the country with the function `maptools::unionSpatialPolygons`.
+To get a country mask, which is the boundary of the country, we dissolve the multiple polygons of the departamentos shapefile into one overall map of the country with the function `maptools::unionSpatialPolygons`.
 
 
 ```{r}
@@ -181,18 +177,18 @@ SLV_adm0_proj=maptools::unionSpatialPolygons(departamentos_sh,
 
 ```
 
-The country mask is shown on figure \@ref(fig:country-mask).
+The country mask is shown in Figure  \@ref(fig:country-mask).
 ```{r country-mask, fig.cap='El Salvador country mask', out.width='80%', fig.asp=.75,cache=T}
 plot(SLV_adm0_proj)
 ```
 
-#### Adjusting the coordinates system  
+#### Adjusting the Coordinates System  
 There are two families of coordinates systems: 
 
-*   Geographic Coordinates Systems (GCS) : "A system that uses a three-dimensional spherical surface to define locations on the earth"^[http://desktop.arcgis.com/en/arcmap/10.3/guide-books/map-projections/about-geographic-coordinate-systems.htm].
-*   Projected coordinates systems (PCS) : "A system defined on a flat, two-dimensional surface. Unlike a geographic coordinate system, a projected coordinate system has constant lengths, angles, and areas across the two dimensions"^[http://desktop.arcgis.com/en/arcmap/10.3/guide-books/map-projections/about-projected-coordinate-systems.htm]
+*   Geographic coordinate systems (GCS): "A system that uses a three-dimensional spherical surface to define locations on the earth."^[http://desktop.arcgis.com/en/arcmap/10.3/guide-books/map-projections/about-geographic-coordinate-systems.htm].
+*   Projected coordinate systems (PCS): "A system defined on a flat, two-dimensional surface. Unlike a geographic coordinate system, a projected coordinate system has constant lengths, angles, and areas across the two dimensions."^[http://desktop.arcgis.com/en/arcmap/10.3/guide-books/map-projections/about-projected-coordinate-systems.htm]
 
-The shapefile for the *segmentos*, *departmentos* and the country mask have a projected coordinate system.  
+The shapefiles for the segmentos, departmentos, and the country mask have a projected coordinate system.  
 
 ```{r}
 SLV_adm0_proj@proj4string
@@ -201,7 +197,7 @@ The coordinates are expressed in meters:
 ```{r}
 sp::bbox(SLV_adm0_proj)
 ```
-Since most spatial RS data are based on a geographic coordinates system, we create a second version of the country mask with a geographic coordinates system. This is done with the function `spTransform` from the `sp` library. The use of `::` allows to call the function without laoding the the `sp` library in then environment.   
+Since most spatial RS data are based on a GCS, we create a second version of the country mask with one. This is done with the function `spTransform` from the `sp` library. The use of `::` allows us to call the function without loading the `sp` library in the environment.   
 
 ```{r}
 proj_WGS_84="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
@@ -213,8 +209,8 @@ sp::bbox(SLV_adm0)
 ```
 The coordinates are now expressed in decimal degrees.
 
-### Loading the shapefiles containing the fields used as covariates
-We now load the shapefiles containing the fields used as covariates, i.e. containing variables that will be used as predictors in the model we will fit in the next sections. 
+### Loading the Shapefiles Containing the Fields Used as Covariates
+We now load the shapefiles containing the fields used as covariates, which are the containing variables that will be used as predictors in the model we will fit in the next sections. 
 
 We start with the Livelihood zone maps accessed from the Famine Early Warning Systems Network (FEWS NET).
 ```{r message=FALSE, warning=FALSE, results="hide"}
@@ -222,7 +218,7 @@ LZ_sh=readOGR(paste0(dir_data,
                      dir_shape,
                      "LZ/SV_LHZ_2010.shp"))
 ```
-It is mapped on \@ref(fig:LZ) for inspection. 
+The livelihood zone map is mapped on \@ref(fig:LZ) for inspection. 
 
 ```{r LZ-chunk,eval=T, fig.cap='Livelihood zones', out.width='80%', fig.asp=.75,cache=T}
 leaflet(LZ_sh)%>%
@@ -238,12 +234,12 @@ leaflet(LZ_sh)%>%
             labels = ~LZNAMEEN,
             opacity = 1)
 ```
-```{r LZ, eval=F,echo=FALSE,out.width = '100%',fig.cap='Livelihood zones. Source: FEWS NET'}
+```{r LZ, eval=F,echo=FALSE,out.width = '100%',fig.cap='Livelihood Zones. Source: FEWS NET'}
 knitr::include_graphics("../data/img/map_LZ.PNG")
 
 ```
 
-Let us now load all the other vectors data.
+Next, we load all the other Vectors data.
 
 ```{r results="hide", message=FALSE}
 school_sh=readOGR(paste0(dir_data,
@@ -272,20 +268,22 @@ waterbodies=readOGR(paste0(dir_data,
                            dir_shape,
                            "hotosm/hotosm_slv_waterways_polygons.shp"))
 
-proj_lcc=" +proj=lcc +lat_1=13.316666 +lat_2=14.25 +lat_0=13.783333 +lon_0=-89 +x_0=500000 +y_0=295809.184
-+datum=NAD27 +units=m +no_defs +ellps=clrk66 +nadgrids=@conus,@alaska,@ntv2_0.gsb,@ntv1_can.dat"
-waterbodies_proj=sp::spTransform(waterbodies,
-                                 proj_lcc)
+proj_lcc=" +proj=lcc +lat_1=13.316666 +lat_2=14.25 +lat_0=13.783333 +lon_0=-89 +x_0=500000 +y_0=295809.184 +datum=NAD27 +units=m +no_defs +ellps=clrk66 +nadgrids=@conus,@alaska,@ntv2_0.gsb,@ntv1_can.dat"
+
+# waterbodies_proj=sp::spTransform(waterbodies,
+#                                  proj_lcc)
+
+waterbodies_proj= waterbodies
 
 rivers=readOGR(paste0(dir_data,
                       dir_shape,
                       "hotosm/hotosm_slv_waterways_lines.shp"))
-rivers_proj=sp::spTransform(rivers,
-                            proj_lcc)
-
+# rivers_proj=sp::spTransform(rivers,
+#                             proj_lcc)
+rivers_proj=rivers
 ```
 
-### Loading point-referenced data from tables 
+### Loading Point-Referenced Data from Tables 
 Two datasets are provided as R data frames in a `.Rda` file. They are loaded with the function `load`:
 
 ```{r results="hide"}
@@ -297,17 +295,17 @@ load(paste0(dir_data,
             "UCSF/UCSF.Rda"))
 ```
 
-The package `sp` is then used to to turn these data frames into `SpatialPointsDataframe` objects: 
+The package `sp` is then used to turn the data frames into `SpatialPointsDataframe` objects.
 
 ```{r ref="rename_chunk"}
-# in the .Rda,there is an error in the naming of the coordinates: latitudes are actually longitudes and vice versa
+# In the .Rda, there is an error in the naming of the coordinates: latitudes are actually longitudes and vice versa
 hospitales=hospitales%>% 
   rename(lon=latitude,
          lat=longitude)
 hospitals_sp=as.data.frame(hospitales)
 
 # Features "lon" and "lat" are declared the the spatial coordinates of the data frame "hospitals_sp"
-# The data frame "hospitals_sp" becomes am object of the type SpatialPointsDataframe 
+# The data frame "hospitals_sp" becomes an object of the type SpatialPointsDataframe 
 sp::coordinates(hospitals_sp)=~lon+lat
 
 # A spatial coordinate system is assigned to the SpatialPointsDataframe "hospitals_sp" 
@@ -323,13 +321,14 @@ sp::coordinates(health_centres_sp)=~lon+lat
 sp::proj4string(health_centres_sp)=sp::CRS(proj_WGS_84)
 ```
 
-The resulting map is plotted on \@ref(fig:health-serv) for reference^[Plotting these data allowed us in the first instance to identify the error in the naming of the coordinates: latitudes are actually longitudes and vice-versa. We therefore needed to use the `rename` command.].
+The resulting map is plotted on \@ref(fig:health-serv) for reference.^[Plotting these data allowed us in the first instance to identify the error in the naming of the coordinates: latitudes are actually longitudes and vice-versa. We therefore needed to use the `rename` command.]
 ```{r health-serv-chunk,eval=T, fig.cap='', out.width='80%', fig.asp=.75, cache=T}
 leaflet(SLV_adm0)%>%
   addPolygons()%>%
   addTiles()%>%
   addMarkers(lng=coordinates(hospitals_sp)[,1],
              lat=coordinates(hospitals_sp)[,2],
+
              popup=hospitals_sp$name)%>%
   addCircleMarkers(lng=coordinates(health_centres_sp)[,1],
                    lat=coordinates(health_centres_sp)[,2],
@@ -341,73 +340,73 @@ leaflet(SLV_adm0)%>%
 
 ```
 
-```{r health-serv, eval=F,echo=FALSE,out.width = '100%',fig.cap='Health centers and hospitals, source: IDB'}
+```{r health-serv, eval=F,echo=FALSE,out.width = '100%',fig.cap='Health Centers and Hospitals. Source: IDB'}
 knitr::include_graphics(str_c(dir_data, "/img/map_health.PNG"))
 
 ```
 
-## Loading the rasters 
-We now turn to the raster files. Raster files can be described as geo-referenced pixel data. For instance, a `raster` of population density consists of a map of pixels. The value of each pixel is the people density in this pixel.  `raster` data are provided in two main formats: zipped `.tif` and `.ncdf`files.  
+## Loading the Rasters 
+We now turn to the raster files. Raster files can be described as georeferenced pixel data. For instance, a `raster` of population density consists of a map of pixels. The value of each pixel is the density of people in this pixel. The two main formats for `raster` data are zipped `.tif` and `.ncdf` files.  
 
-### Lights at night
-Lights at night data products are available both per calendar month and per year. The annual data are used for 1983 to 2016. For 2017, the yearly aggregate were not yet released at the time of data pre-processing. Monthly aggregated were hence used.
+### Lights at Night
+Lights at night data products are available by calendar month and year. In this tutorial, annual data are used for 1983 to 2016. The yearly aggregate data for 2017 had not yet been released when we began data preprocessing, so monthly aggregated data were used.
 
-The first step is to unzip the files with the untar command. For the sake of convenience, data are already provided as extracted .tif in the data folder `data/spatial/raster/l@n/`. Hence, the code snippet below is just shown for learning purposes, no need to run it.
+The first step is to unzip the files with the untar command. For the sake of convenience, the data are already provided as extracted .tif in the data folder `data/spatial/raster/l@n/`, so the code snippet below is just shown for illustrative purposes and does not need to be run.
 
 ```{r eval=F}
-#get the list of all files in the l@n directory with the command -dir-, which takes as argument 
-# the path to the directory.
+# Get the list of all files in the l@n directory with the command -dir-, which takes as argument 
+# The path to the directory
 list_of_files=dir(paste0(dir_data,
                          "spatial/raster/l@n/"))
-#identify the index of the 2017 monthly files
+# Identify the index of the 2017 monthly files
 index_of_2017_files=grep("npp_2017",
                          dir(paste0(dir_data,
                                     "spatial/raster/l@n/")))
-# select in the list of all file the 2017 monthly files thanks to the index
+# Selecting in the list of all files the 2017 monthly files thanks to the index
 files_2017=list_of_files[index_of_2017_files]
 
-for(monthly_file in files_2017){
-  untar(paste0(dir_data,
-               "spatial/raster/l@n/",
-               monthly_file), # the path to the file of interest
-        compressed="gzip", # specify it was zipped with gzip
-        exdir=paste0(dir_data,
-                     "spatial/raster/l@n/")) # specify the exdir
-}
+# for(monthly_file in files_2017){
+#   untar(paste0(dir_data,
+#                "spatial/raster/l@n/",
+#                monthly_file), # The path to the file of interest
+#         compressed="gzip", # Specify it was zipped with gzip
+#         exdir=paste0(dir_data,
+#                      "spatial/raster/l@n/")) # Specify the directory where the files need to be unzipped exdir
+# }
 ```
 
-The 12 monthly lights at night `.tif` files are loaded with the `raster::raster` function, cropped to the El Salvador's boundaries with `raster::crop` and stacked in one object with`raster::stack`. Note the use of the `for` loop function to loop over the 12 monthly files.
+The 12 monthly lights at night `.tif` files are loaded with the `raster::raster` function, cropped to El Salvador's boundaries with `raster::crop`, and stacked in one object with `raster::stack`. Note the use of the `for` loop function to loop the 12 monthly files.
 
 ```{r  results="hide", message=FALSE}
-# we get the list of the  files in the directory
+# Get the list of the files in the directory
 list_of_files=dir(paste0(dir_data,
                          "spatial/raster/l@n/")) 
 
-# we get the list of lights at night files labelled "avg_rade9h"
+# Get the list of lights at night files labelled "avg_rade9h"
 monthly_file_light=list_of_files[grepl("avg_rade9h", 
                                        list_of_files, 
                                        fixed=T)]
 
-# create a vector of character to name the raster as file_1, file_2, etc.
+# Create a vector of character to name the raster as file_1, file_2, etc.
 names_file=paste0("file_",1:12)
 
-# we loop over the 12 monthly files in order to
+# Loop over the 12 monthly files in order to:
 for(i in 1:length(monthly_file_light)){
   
-  # load each i monthly layer
+  # Load each i monthly layer
   r=raster::raster(paste0(dir_data,
                           "spatial/raster/l@n/",
                           monthly_file_light[i])) 
-  # crop each i monthly layer
+  # Crop each i monthly layer
   r=raster::crop(r,
                  SLV_adm0)
   
-  # assign each i cropped monthly layer to a name
+  # Assign each i cropped monthly layer to a name
   assign(names_file[i], # assign it to an object name
          r)
 }
 
-# stack all the layers
+# Stack all the layers
 lights_all=raster::stack(lapply(names_file,FUN=get)) 
 ```
 
@@ -420,9 +419,9 @@ raster::res(lights_all)
 raster::extent(lights_all)
 raster::crs(lights_all)
 ```
-This a RasterStack object, i.e. a stack of raster where each layer is aligned one above the other. It has 310 rows, 587 columns, 12 layers (1 per month) for a total of 181,970 cells. The resolution is provided in decimal degrees: 0.004166667 degrees by 0.004166667 degrees pixels.
+This a RasterStack object, which is a stack of rasters where each layer is aligned above another, with 310 rows, 587 columns, and 12 layers (1 per month) for a total of 181,970 cells. The resolution is provided in decimal degrees: 0.004166667 degrees by 0.004166667 degrees pixels.
 
-Let us plot the 12 monthly layers for inspection.
+Next, we plot the 12 monthly layers for inspection.
 
 ```{r monthly-l-at-n, fig.cap='2017 monthly average lights at night \n(average DNB radiance)', out.width='80%', fig.asp=.75}
 raster::plot(lights_all,
@@ -433,7 +432,7 @@ raster::plot(lights_all,
 The maps in \@ref(fig:monthly-l-at-n) show there are variations over the year. 
 
 ### Precipitation
-The CHIRPS precipitation data are provided as a `.nc` file. A `.nc` file is a collection of raster files, similar to a raster stack. Data are loaded as a brick thanks to the `raster::brick` function, similar to the raster `stack` function^["A RasterBrick is a multi-layer raster object. They are typically created from a multi-layer (band) file; but they can also exist entirely in memory. They are similar to a RasterStack (that can be created with stack), but processing time should be shorter when using a RasterBrick. Yet they are less flexible as they can only point to a single file" [@Hijmans2019]]. 
+The CHIRPS precipitation data are provided as an `.nc` file, which is a collection of raster files similar to a raster stack. Data are loaded as a brick using the `raster::brick` function, similar to the raster `stack` function.^["A RasterBrick is a multilayer raster object that is typically created from a multilayer (band) file, but it can also exist entirely in memory. It is similar to a RasterStack (that can be created with stack), but processing time should be shorter when using a RasterBrick. Yet, RasterBricks are less flexible, as they can point only to a single file" [@Hijmans2019].]
 
 ```{r warning=FALSE, message=FALSE}
 chirps=raster::brick(paste0(dir_data,
@@ -441,11 +440,11 @@ chirps=raster::brick(paste0(dir_data,
                      band=1:38)
 print(chirps)
 ```
-The raster `chirps` provides annual cumulative precipitation for the globe over 38 years (38 bands), from 1981 to 2018 at a resolution of 0.05 lon/lat decimal degree. 
+The raster `chirps` provides global annual cumulative precipitation over 38 years (38 bands), from 1981 to 2018, at a resolution of 0.05 longitude/latitude decimal degrees. 
 
-Next, the data is cropped to the El Salvador's boundaries and all years until 2017 are selected (data are provided up to Jan 2018 in the file): 
+Next, the data are cropped to El Salvador's borders, and all years until 2017 are selected (data are provided up to January 2018 in the file).
 ```{r results="hide", warning=FALSE}
-# crop the data
+# Crop the data
 chirps_ev=raster::crop(chirps,
                        SLV_adm0)
 time = raster::getZ(chirps_ev) # get the time index
@@ -455,27 +454,17 @@ index_of_1981_2017 = which(dplyr::between(time,
                                    as.Date("2017-01-01")))
 index_of_2017 = which(time==as.Date("2017-01-01"))
 
-# subset the CHIRPS on 1981-2017 (take out 2018)
+# Subset the CHIRPS to 1981–2017 (take out 2018)
 chirps_ev_1981_2017=raster::subset(chirps_ev,
                                    index_of_1981_2017)
 ```
 
-### Soil degradation 
-The soil degradation data were obtained via the QGIS plugin tool "TRENDS.EARTH"^[TRENDS.EARTH (formerly the Land Degradation Monitoring Toolbox) is a tool utilized to monitor land change. It is a QGIS plugin that supports monitoring of land change, including changes in productivity, land cover, and soil organic carbon. The tool supports land degradation monitoring for reporting to the Global Environment Facility (GEF) and United Nations Convention to Combat Desertification (UNCCD). Furthermore, it is also used to track the progress towards the achievement of Sustainable Development Goal (SDG) target 15.3 i.e. Land Degradation Neutrality (LDN).].
+### Soil Degradation 
+The soil degradation data were obtained via the QGIS plugin tool TRENDS.EARTH.^[TRENDS.EARTH (formerly the Land Degradation Monitoring Toolbox) is a QGIS plugin tool used to monitor land changes, including changes in productivity, land cover, and soil organic carbon. The tool supports land degradation monitoring for reporting to the Global Environment Facility (GEF) and United Nations Convention to Combat Desertification (UNCCD). Furthermore, it is used to track the progress toward the achievement of SDG Target 15.3, Land Degradation Neutrality (LDN).] The three main soil-degradation indexes provided in the TRENDS.EARTH are soil carbon stock degradation, the soil land-use change degradation, and soil productivity degradation, which has subindexes called trajectory, performance, and state.
 
-Three main soil-degradation indexes are provided in the TRENDS.EARTH:
+Data for each of the above are provided in a series of multilayer `.tif` files. The .json file provides information about each layer.   
 
-*   Soil carbon stock degradation,
-*   Soil Land use change degradation,
-*   Soil Productivity degradation:
-    +   trajectory
-    +   performance
-    +   state
-
-
-Data for each of the above are provided in a series of multi-layers `.tif` files. The .json file provides the information about each layer.   
-
-```{r eval=T}
+```{r eval=T, message=FALSE, results='hide'}
 soil_deg_carb_path="spatial/raster/soil_deg_carb/soil_deg_carb.json"
 soil_deg_carb_json=RJSONIO::fromJSON(paste0(dir_data,
                                             soil_deg_carb_path)) 
@@ -505,64 +494,61 @@ grep("degradation",
                    unlist),
             cbind))
 ```
-For the carbon and land use change files, Band 1 provides the soil degradation index. For the productivity file, the index values on the trajectory, performance and state are stored in band 2, 4 and 7.
+For the carbon and land-use change files, band 1 provides the soil degradation index. For the productivity file, the index values on the trajectory, performance, and state are stored in bands 2, 4, and 7.
 
 ```{r}
 soil_deg_carb_path="spatial/raster/soil_deg_carb/soil_deg_carb.tif"
 soil_deg_carb=raster::raster(paste0(dir_data,
                                     soil_deg_carb_path),
-                             band=1) # soil degradation, change in the carbon method
+                             band=1) # Soil degradation, change in the carbon method
 
 
 soil_deg_luc_path="spatial/raster/soil_deg_luc/soil_deg_luc.tif"
 soil_deg_luc=raster::raster(paste0(dir_data,
                                    soil_deg_luc_path),
-                            band=1) # soil degradation, land use change
+                            band=1) # Soil degradation, land use change
 
-
+	
 soil_deg_prod_trj_path="spatial/raster/soil_deg_prod/soil_deg_prod.tif"
 soil_deg_prod_trj=raster::raster(paste0(dir_data,
                                         soil_deg_prod_trj_path),
-                                 band=2) # soil degradation, productivity trajectory deg
+                                 band=2) # Soil degradation, productivity trajectory deg
 soil_deg_prod_prf_path="spatial/raster/soil_deg_prod/soil_deg_prod.tif"
 soil_deg_prod_prf=raster::raster(paste0(dir_data,
                                         soil_deg_prod_prf_path),
-                                 band=4) # soil degradation, productivity performance deg
+                                 band=4) # Soil degradation, productivity performance deg
 
 soil_deg_prod_stt_path="spatial/raster/soil_deg_prod/soil_deg_prod.tif"
 soil_deg_prod_stt=raster::raster(paste0(dir_data,
                                         soil_deg_prod_stt_path),
-                                 band=7) # soil degradation, productivity state deg
+                                 band=7) # Soil degradation, productivity state deg
 ```
 
-###  Vegetation greenness
-Vegetation greenness data, as measured by normalized difference vegetation index, are provided on a dekadal basis i.e. every 10 days. Two data products are available: 
+###  Vegetation Greenness
+Vegetation greenness data, as measured by normalized difference vegetation index, are provided on a dekadal (every 10 days) basis. Two data products are available: the smoothed dekadal NDVI value for 2017, and the median dekadal NDVI value over the period 2003–2017.
 
-*   The smoothed dekadal NDVI value for 2017
-*   The median dekadal NDVI value over the period 2003-2017.
-
-The first step is to unzip the data with the following code snippet. For sake of convenience, the data are provided as unzipped `.tif` in the data pack, but the code to unzip the files is provided below.  
+The first step is to unzip the data with the following code snippet. For the sake of convenience, the data are provided as unzipped `.tif` in the data pack, but the code to unzip the files is also provided below.  
 ```{r eval=T}
-#get the list of all files in the ndvi directory with the command -dir-
+# Get the list of all files in the ndvi directory with the command -dir-
 list_of_files=dir(paste0(dir_data,
                          "spatial/raster/ndvi/"))
 
-# identify the index of the 2017 monthly files and norma
+# Identify the index of the 2017 monthly files and norma
 index_of_2017_std_files=grep("17|stm",
                              dir(paste0(dir_data,
                                         "spatial/raster/ndvi/")))
 
-# select in the list of all file the 2017 monthly files thanks to the index
+# Select in the list of all file the 2017 monthly files thanks to the index
 files_of_interest=list_of_files[index_of_2017_std_files]
 
-for(file in files_of_interest){
-  untar(paste0(dir_data,
-               "spatial/raster/ndvi/",
-               file), # the path to the file of interest
-        compressed="gzip", 
-        exdir=paste0(dir_data,
-                     "spatial/raster/ndvi/")) 
-}
+# for(file in files_of_interest){
+#   untar(paste0(dir_data,
+#                "spatial/raster/ndvi/",
+#                file), # The path to the file of interest
+#         compressed="gzip", 
+#         exdir=paste0(dir_data,
+#                      "spatial/raster/ndvi/")) 
+# }
 ```
 The data are then loaded. Note the use of the function `grep` and the regular expressions to flexibly select the appropriate set of files:
 
@@ -570,7 +556,7 @@ The data are then loaded. Note the use of the function `grep` and the regular ex
 *   `"ca[[:digit:]]{2}stm.tif"` means: "ca", followed by a suite of 2 digits, followed by "stm.tif" -> these are the median files
 
 ```{r}
-# create a vector of character to name the raster as ndvi_1, ndvi_2, etc.
+# Create a vector of character to name the raster as ndvi_1, ndvi_2, etc.
 names_ndvi_17=paste0("ndvi_",1:36)
 names_ndvi_norm=paste0("ndvi_norm_",1:36)
 
@@ -580,41 +566,41 @@ list_of_files=dir(paste0(dir_data,
 
 files_17=list_of_files[grep("ca17[[:digit:]]{2}.tif",
                             list_of_files)]
-# and the list of 36 ones for the 2003-17 median
+# The list of 36 ones for the 2003–2017 median
 files_norm=list_of_files[grep("ca[[:digit:]]{2}stm.tif",
                               list_of_files)]
 
-# loop over the 36 dekadale 2017 and normal files in order to laod them and to crop them
+# Loop the 36 dekadal 2017 and normal files to load and crop them
 for(i in 1:length(files_17)){
   
-  # 1) the 2017 data:
-  # load each i dekadale layer
+  # 1) The 2017 data:
+  # Load each i dekadal layer
   r=raster::raster(paste0(dir_data,
                           "spatial/raster/ndvi/",
                           files_17[i])) 
-  # crop each i monthly layer
+  # Crop each i monthly layer
   r=raster::crop(r,
                  SLV_adm0)
   
-  # assign each i cropped monthly layer to a name
+  # Assign each i cropped monthly layer to a name
   assign(names_ndvi_17[i], # assign it to an object name
          r)
   
-  # 2) the median data:
-  # load each i dekadale layer
+  # 2) The median data
+  # Load each i dekadal layer
   r=raster::raster(paste0(dir_data,
                           "spatial/raster/ndvi/",
                           files_norm[i])) 
-  # crop each i monthly layer
+  # Crop each i monthly layer
   r=raster::crop(r,
                  SLV_adm0)
   
-  # assign each i cropped monthly layer to a name
-  assign(names_ndvi_norm[i], # assign it to an object name
+  # Assign each i cropped monthly layer to a name
+  assign(names_ndvi_norm[i], # Assign it to an object name
          r)
 }
 
-# stack all the layers
+# Stack all the layers
 ndvi_17=raster::stack(lapply(names_ndvi_17,
                              FUN=get))
 ndvi_norm=raster::stack(lapply(names_ndvi_norm,
@@ -622,7 +608,7 @@ ndvi_norm=raster::stack(lapply(names_ndvi_norm,
 
 ```
 
-Rasters are then re-sampled in order to have both sets of rasters perfectly aligned:
+The rasters are then resampled to perfectly align both sets:
 
 ```{r}
 ndvi_17_re=raster::resample(ndvi_17,
@@ -630,7 +616,7 @@ ndvi_17_re=raster::resample(ndvi_17,
 ```
 
 ###  Temperature
-The 12 monthly average temperature data are cropped and stacked.
+The 12 monthly average temperature data rasters are cropped and stacked.
 ```{r}
 files_temp=dir(paste0(dir_data,
                       "spatial/raster/temperature/"))[grep("wc2.0_30s_tavg_",
@@ -654,7 +640,7 @@ temp_months=raster::stack(lapply(paste0("temp_",
 ```
 
 ###  Slope
-The slope data are obtained from the WorldPop dataverse as a suite of raster files, each covering a portion of the El Salvador territory. They are combined in one single raster to ease pre-processing work.
+The slope data are obtained from the WorldPop Dataverse Repository as a suite of raster files, each of which covers a portion of El Salvador’s territory. The rasters are combined into a single raster to ease preprocessing work.
 
 ```{r}
 slope_files=paste0(dir_data,
@@ -679,7 +665,7 @@ sp::plot(SLV_adm0,
 
 ```
 
-###  Other rasters
+###  Other Rasters
 The other rasters are loaded with the function `raster`:
 
 ```{r results="hide"}
@@ -702,22 +688,22 @@ dist2water_path="spatial/raster/distance2waterway/slv_osm_dst_waterway_100m_2016
 dist2water=raster::raster(paste0(dir_data,
                           dist2water_path))
 gpw_path="spatial/raster/GPW/gpw_v4_population_count_adjusted_to_2015_unwpp_country_totals_rev11_2015_30_sec.tif"
-gpw=raster::raster(paste0(dir_data,gpw_path)) # 2015 population count
+gpw=raster::raster(paste0(dir_data,gpw_path)) # Population count for 2015
 gpw_es=raster::crop(gpw,
                     SLV_adm0)
 
 lc_path="spatial/raster/CCILC/ESACCI-LC-L4-LCCS-Map-300m-P1Y-2015-v2.0.7_sv.tif"
-lc=raster::raster(paste0(dir_data,lc_path)) # land class
+lc=raster::raster(paste0(dir_data,lc_path)) # Land class
 ```
 
-We can plot them for quality controls. Fig \@ref(fig:dem-map) shows the the digital elevation model, i.e. the altitude across the country.
+We can plot these rasters for quality controls. Figure \@ref(fig:dem-map) shows the digital elevation model, that is, altitudes across the country.
 ```{r dem-map, fig.cap='Digital Elevation Model', out.width='80%', fig.asp=.75,cache=T}
 raster::plot(dem)
 sp::plot(SLV_adm0,
              add=T)
 ```
 
-Fig \@ref(fig:gpw-map) shows the population density data. When examining the GPW data, one can identify some geometric forms corresponding to the enumeration areas of the census.
+Figure \@ref(fig:gpw-map) shows the population density data. By examining the GPW data, it is possible to identify some geometric forms corresponding to the enumeration areas of the census.
 ```{r gpw-map, fig.cap='Population density data (GPW)', out.width='80%', fig.asp=.75,cache=T}
 raster::plot(gpw_es)
 sp::plot(SLV_adm0,
@@ -725,13 +711,11 @@ sp::plot(SLV_adm0,
 ```
 
 
-## Rasters calculation
-Lights at night is expected to be a good predictor of economic activity [@henderson2012measuring]. However, it is *a priori* not clear which summary statistics will best predict the three development indicators. For example, we cannot establish with certainty whether annual average lights at night or annual minimum average monthly lights at night is a better predictor of poverty.
+## Rasters Calculation
+The lights at night raster is expected to be a good predictor of economic activity [@henderson2012measuring]. However, it is not clear which summary statistics will best predict the three development indicators. For example, we cannot establish with certainty whether annual average lights at night or annual minimum average monthly lights at night is a better predictor of poverty. This holds for the other raster data as well.
 
-This holds true for the other raster data as well.
-
-### Lights at night
-The median and standard deviation of the lights at night data is computed for each map pixel:  
+### Lights at Night
+The median and standard deviation of the lights at night data are computed for each map pixel:  
 
 ```{r results="hide"}
 lights_med=raster::calc(lights_all,
@@ -747,7 +731,7 @@ names(lights_summaries)=c("lights_med",
                           "lights_sd")
 ```
 
-Results are plotted on Fig \@ref(fig:summaries-l-at-n).
+The results are plotted in Figure \@ref(fig:summaries-l-at-n).
 
 ```{r summaries-l-at-n, map.cap='2017 monthly average lights at night \n(average DNB radiance)', out.width='80%', fig.asp=.75}
 raster::plot(lights_summaries,
@@ -758,17 +742,17 @@ sp::plot(SLV_adm0,
 ```
 
 ### Precipitation
-Again, as it is not clear *a priori* which summary statistics of precipitation is best at predicting the development indicators, a series of summary statistics is computed for each pixel of the map:
+Again, as it is not clear a priori which summary statistics of precipitation are best at predicting the development indicators, a series of summary statistics is computed for each pixel of the map:
 
 *   Two precipitation summaries related to short-term weather:
-    +   the 2017 annual cumulative precipitation
-    +   the 2017 annual cumulative precipitation as percentage of normal
+    +   Annual cumulative precipitation for 2017
+    +   Annual cumulative precipitation for 2017 as a percentage of normal
 *   Two precipitation summaries related to climate:
-    +   the median annual cumulative precipitation over the 38 years period
-    +   the standard deviation in precipitation between years
+    +   Median annual cumulative precipitation over the 38-year period
+    +   Standard deviation in precipitation between years
 
 ```{r results="hide", warning=FALSE}
-# compute summaries
+# Compute summaries
 chirps_ev_2017=raster::subset(chirps_ev,
                               index_of_2017) # 2017
 
@@ -783,7 +767,7 @@ names(chirps_summaries)=c("chirps_ev_2017",
                           "chirps_ev_med")
 ```
 
-For quality control, let us plot the various summaries.
+For quality control, we plot the respective summaries.
 ```{r}
 raster::plot(chirps_summaries,
              main=c("2017 precipitation",
@@ -793,8 +777,8 @@ raster::plot(chirps_summaries,
 ```
 
 
-### Vegetation greenness
-Various statistics are computed on the dekadal NDVI and its deviation from the 2003-17 normal (median pixel value over the period).
+### Vegetation Greenness
+Various statistics are computed on the dekadal NDVI and its deviation from the 2003–2017 normal (median pixel value over the period).
 
 ```{r warning=FALSE}
 ndvi_17_perc=(ndvi_17_re/ndvi_norm)*100
@@ -807,7 +791,7 @@ ndvi_17_summaries=raster::stack(ndvi_17_sum)
 
 names(ndvi_17_summaries)=c("ndvi_17_sum")
 
-# NDVI as a percentage of the 2003-17 norm
+# NDVI as a percentage of the 2003–2017 norm
 ndvi_17_perc_sum=raster::calc(ndvi_17_perc,
                               fun = sum,
                               na.rm = T)
@@ -818,18 +802,18 @@ names(ndvi_17_perc_summaries)=c("ndvi_17_perc_sum")
 
 ```
 
-### Soil degradation
-The missing data are stored in the raw rasters as `-32768`. They are turned into `NA`. Next, the soil degradation data are simplified by creating 1 binary raster for the three soil degradation proxies: the soil is degraded or not. 
+### Soil Degradation
+The missing data are stored in the raw rasters as `-32768` and turned into `NA`. Next, the soil degradation data are simplified by creating one binary raster for the three soil degradation proxies: the soil is degraded or not. 
 
 ```{r}
 #  Soil carbon stock degradation
-# replace the NA 
+# Replace the NA 
 soil_deg_carb_val=raster::getValues(soil_deg_carb)
 index_na=which(soil_deg_carb_val==-32768)
 
 soil_deg_carb_val[index_na]=NA #set to NA the cell identified with original value of -32768
 
-# and binarise for degradation
+# Binarize for degradation
 index_deg=which(soil_deg_carb_val<0)
 soil_deg_carb_deg=soil_deg_carb_val
 soil_deg_carb_deg[index_deg]=1
@@ -839,10 +823,10 @@ soil_deg_carb_deg[index_na]=NA
 soil_deg_carb_deg=raster::setValues(soil_deg_carb,
                                     soil_deg_carb_deg)  
 ```
-As the code is quite lengthy, it is only shown for the carbon stock soil degradation.
+As the code is quite lengthy, it is shown only for the carbon stock soil degradation process.
 
 ```{r message=FALSE, warning=FALSE}
-#  Soil Land use change degradation 
+# Soil Land use change degradation 
 soil_deg_luc_val=raster::getValues(soil_deg_luc)
 index_deg=which(soil_deg_luc_val<0)
 
@@ -853,9 +837,9 @@ soil_deg_luc_deg[-index_deg]=0
 soil_deg_luc_deg=raster::setValues(soil_deg_luc,
                                    soil_deg_luc_deg)  
 
-#  Soil Productivity degradation 
+# Soil Productivity degradation 
 
-# trajectory 
+# Trajectory 
 soil_deg_prod_trj_val=raster::getValues(soil_deg_prod_trj)
 index_na=which(soil_deg_prod_trj_val==-32768)
 index_deg=which(soil_deg_prod_trj_val<0)
@@ -870,7 +854,7 @@ soil_deg_prod_trj_deg[index_na]=NA
 soil_deg_prod_trj_deg=raster::setValues(soil_deg_prod_trj,
                                         soil_deg_prod_trj_deg)  
 
-# performance
+# Performance
 soil_deg_prod_prf_val=raster::getValues(soil_deg_prod_prf)
 index_na=which(soil_deg_prod_prf_val==-32768)
 index_deg=which(soil_deg_prod_prf_val<0)
@@ -885,7 +869,7 @@ soil_deg_prod_prf_deg[index_na]=NA
 soil_deg_prod_prf_deg=raster::setValues(soil_deg_prod_prf,
                                         soil_deg_prod_prf_deg)  
 
-# state 
+# State 
 soil_deg_prod_stt_val=raster::getValues(soil_deg_prod_stt)
 index_na=which(soil_deg_prod_stt_val==-32768)
 index_deg=which(soil_deg_prod_stt_val<0)
@@ -902,22 +886,22 @@ soil_deg_prod_stt_deg=raster::setValues(soil_deg_prod_stt,
 
 ```
 
-Finally, the SDG indicator (15.3) for soil degradation indicator is computed. It is based on the *one-out-all-out* principle i.e. if a pixel is considered as *soil degraded* in any of the three soil degradation layers, then it is considered as degraded in the SDG indicator.
+Finally, the SDG Indicator (15.3) for soil degradation indicator is computed. It is based on the one-out-all-out principle that is, if a pixel is considered as soil degraded in any of the three soil degradation layers, then it is considered degraded in the SDG indicator.
 
-The first step consists of aligning the raster, i.e. making sure that the pixels of each layer are perfectly overlaid.
+The first step consists of aligning the raster to make sure the pixels of each layer are perfectly overlaid.
 ```{r}
-# check the rasters' extents are the same
+# Check that the rasters' extents are the same
 all(raster::extent(soil_deg_luc_deg)==raster::extent(soil_deg_prod_stt_deg),
     raster::extent(soil_deg_carb_deg)==raster::extent(soil_deg_prod_stt_deg))
 
 ```
-As some of  the layers have a slightly different extent,  the values of each layer is re-sampled in the same raster grid. 
+As some of the layers have a slightly different extent, the values of each layer are resampled in the same raster grid. 
 ```{r results="hide"}
-# resample the raster "soil_deg_luc_deg" to the same resolution and extent than the raster "soil_deg_prod_stt_deg"   
+# Resample the raster "soil_deg_luc_deg" to the same resolution and extent than the raster "soil_deg_prod_stt_deg"   
 soil_deg_luc_deg_re=raster::resample(soil_deg_luc_deg,
                                      soil_deg_prod_stt_deg) 
 
-# we need to round the value as the resampling takes averages whil we want 0/1
+# Round the value, as the resampling takes averages while we want 0/1
 soil_deg_luc_deg_re_val=raster::getValues(soil_deg_luc_deg_re)
 soil_deg_luc_deg_re_val_r=round(soil_deg_luc_deg_re_val) 
 
@@ -942,9 +926,9 @@ soil_deg_carb_deg_re_r=raster::setValues(soil_deg_carb_deg_re,
 raster::plot(soil_deg_carb_deg_re_r)
 ```
 
-The resulting rasters are stacked and the SDG index computed.
+The resulting rasters are stacked, and the SDG index is computed.
 ```{r results="hide"}
-# stack the raster ####
+# Stack the rasters ####
 soil_deg=raster::stack(soil_deg_carb_deg_re_r,
                        soil_deg_luc_deg_re_r,
                        soil_deg_prod_stt_deg,
@@ -966,7 +950,7 @@ soil_deg_SDG_index=raster::calc(soil_deg_SDG_index,
 
 ```
 
-And here is the map of soil degradation according to the SDG indicator 15.3:
+And here is the map of soil degradation according to SDG Indicator 15.3:
 ```{r map-soil-deg, fig.cap='Soil Degradation, SDG indicator 15.3', out.width='80%', fig.asp=.75, fig.align='center'}
 raster::plot(soil_deg_SDG_index)
 sp::plot(SLV_adm0,
@@ -974,7 +958,7 @@ sp::plot(SLV_adm0,
 ```
 
 ### Temperature
-Let us calculate the median and standard deviation of temperature variations for the year 2017.
+Next, we calculate the median and standard deviation of the temperature variations for the year 2017.
 
 ```{r}
 temp_median=raster::calc(temp_months,
@@ -988,31 +972,31 @@ sp::plot(SLV_adm0,
              add=T)
 ```
 
-## Distance calculation 
-Distance to public services and businesses may be a good indicator of poverty and other development indicators: remote areas tend to be poorer and face lower level of literacy. Furthermore, the distance to some natural features, such as distance to the coast or distance to forested areas may be correlated with local economic development.  
+## Distance Calculation 
+Distance to public services and businesses may be a good indicator of poverty and other development indicators: remote areas tend to be poorer and have lower levels of literacy. Furthermore, the distance to some natural features, such as the distance to the coast or the distance to forested areas, may be correlated with local economic development.  
 
 We compute below the distance to: 
 
-* Public services:
-    +   hospitals (source: IDB)
-    +   health centres (source: IDB)
-    +   private, public and schools in general (source: IDB),
-    +   government offices (education and health excluded) (source: OSM)
-    +   any of the above
-* Businessess:
+* Public services
+    +   Hospitals (source: IDB)
+    +   Health centers (source: IDB)
+    +   Private, public, and other schools (source: IDB)
+    +   Government offices (education and health excluded) (source: OSM)
+    +   Any of the above
+* Businesses
     +   Banks or ATMs (source: OSM)
-    +   any businesses, Bank or ATM included (source: OSM)
-* Natural features:
-    +   water bodies (land class from ESA)
-    +   cropland (land class from ESA)
-    +   forested areas (land class from ESA)
-    +   urban areas (land class from ESA)
+    +   Any businesses, Bank or ATM included (source: OSM)
+* Natural features
+    +   Water bodies (land class from ESA)
+    +   Cropland (land class from ESA)
+    +   Forested areas (land class from ESA)
+    +   Urban areas (land class from ESA)
   
-### Distance to public services   
-The first step is to create a raster which is used as a canvas to compute distances. Distances will be computed from each raster cell centre to the closest point of interest (e.g. the closest school). In order to have a relatively good precision of the distance estimates, we will create a raster with a resolution of 100 metres. Note the use of the *projected coordinates system* from the `segmento_sh` shapefile.
+### Distance to Public Services   
+The first step is to create a raster to use as a canvas to compute distances. The distances will be computed from each raster cell’s center to the closest point of interest (e.g., the closest school). To have relatively good precision with the distance estimates, we will create a raster with a resolution of 100 meters. Note the use of the projected coordinates system from the `segmento_sh` shapefile.
 
 ```{r}
-# create a raster for the computation of distances
+# Create a raster for the computation of distances
 raster_dist=raster::raster(raster::extent(segmento_sh),
                    crs=segmento_sh@proj4string,
                    res=c(100,100))
@@ -1028,14 +1012,14 @@ hospitals_proj=sp::spTransform(hospitals_sp,
 
 ```
 
-We can now compute the distance from each cell centre of the raster, `raster_dist`, to the projected shapefile of hospitals `hospitals_proj` with the function `raster::distanceFromPoints`^[the function `raster::distanceFromPoints` is not very efficient and it takes a few second to run. In countries with larger territories, and hence larger data volume, running GRASS from R via 'rgrass7' is the way to go].
+We can now compute the distance from each cell center of the raster, `raster_dist`, to the projected shapefile of hospitals, `hospitals_proj`, with the function `raster::distanceFromPoints`.^[The function `raster::distanceFromPoints` is not very efficient and takes a few seconds to run. In countries with larger territories, and hence larger data volumes, running GRASS from R via 'rgrass7' is the way to go.]
 
 ```{r}
 dist2hosp=raster::distanceFromPoints(raster_dist,
                                      hospitals_proj)
 ```
 
-The distance map is plotted for inspection:
+The distance map is plotted for inspection.
 
 ```{r}
 raster::plot(dist2hosp)
@@ -1043,24 +1027,24 @@ sp::plot(SLV_adm0_proj,
              add=T)
 ```
 
-The colorscale indicates the distance to hospitals.
+The color scale indicates the distance to hospitals.
 
-The same can be repeated for the other public services (not shown).
+The same process can be repeated for the other public services (not shown).
 
 ```{r echo=FALSE}
-# distance to health centres ####
+# Distance to health centers ####
 health_centres_proj=sp::spTransform(health_centres_sp,
                                segmento_sh@proj4string)
 dist2health=raster::distanceFromPoints(raster_dist,
                                      health_centres_proj)
 
-# distance to schools ####
+# Distance to schools ####
 school_proj=sp::spTransform(school_sh,
                                segmento_sh@proj4string)
 dist2schools=raster::distanceFromPoints(raster_dist,
                                        school_proj)
 
-# distance to public schools ####
+# Distance to public schools ####
 # school_sh_pub=as(subset(school_sh,
 #                         Sector!="PRIVADO"),
 #                  "SpatialPoints")
@@ -1073,7 +1057,7 @@ school_sh_pub=as(subset(school_sh,
 # dist2schools_pub=raster::distanceFromPoints(raster_dist,
 #                                         school_pub_proj)
 
-# distance to private schools ####
+# Distance to private schools ####
 school_sh_priv=as(subset(school_sh,
                          Sector=="PRIVADO"),
                   "SpatialPoints")
@@ -1083,27 +1067,27 @@ dist2schools_priv=raster::distanceFromPoints(raster_dist,
                                             school_priv_proj)
 ```
 
-For the OSM data, 2 additional steps are required: 
+For the OSM data, two additional steps are required: 
 
 * The data is filtered to select only the public amenities defined as:
-    + Town hall
+    + Townhall
     + Post office  
-    + Court house
+    + Courthouse
     + Police station
     + Prison
     + Fire station
-    + Community centre
+    + Community center
     + Public building (a loose OSM definition)
 *   The polygon data is rasterized to allow for distance calculation with the function `raster::distance`
-    + a buffer of 25 metres needs to be included as the function `raster::rasterize` considers a polygon to cross a cell only if it covers the cell centre 
-    + the function `raster::distance` computes the distance from all pixels with a `NA` value to the nearest pixel which is not `NA`.
+    + A buffer of 25 meters needs to be included as the function `raster::rasterize` considers a polygon to cross a cell only if it covers the cell center 
+    + The function `raster::distance` computes the distance from all pixels with an `NA` value to the nearest pixel that is not `NA`.
 
 
-```{r}
-# distance to public amenities (health and educ excluded) ####
+```{r, message=FALSE,warning=FALSE}
+# Distance to public amenities (health and education excluded) ####
 amenities=c("townhall","post_office","courthouse","police",
             "prison","public_building","fire_station","community_centre")
-# poly
+# Polygons
 poi_poly_pubserv=as(subset(poi_poly_sh,
                        amenity%in%amenities),
                 "SpatialPolygons")
@@ -1112,11 +1096,11 @@ poi_poly_pubserv_proj=sp::spTransform(poi_poly_pubserv,
 
 poi_poly_pubserv_proj_buffer=rgeos::gBuffer(poi_poly_pubserv_proj,width=50) 
 
-poly_pubserv_proj_r=raster::rasterize(poi_poly_pubserv_proj_buffer,
-                                  y=raster_dist)
+poly_pubserv_proj_r=raster::rasterize(poi_poly_pubserv_proj_buffer, y=raster_dist)
+
 dist2poly_pubserv=raster::distance(poly_pubserv_proj_r)
 
-# points
+# Points
 poi_points_pubserv=as(subset(poi_points_sh,
                          amenity%in%amenities),
                   "SpatialPoints")
@@ -1129,10 +1113,10 @@ dist2pubamen=min(dist2points_pubserv,
              dist2poly_pubserv)
 ```
 
-Lastly, we compute the distance to any public services for each pixel taking the minimum distance of the 4 distance maps:
+Lastly, we compute the distance to any public services for each pixel by taking the minimum distance of the four distance maps:
 
 ```{r}
-# distance to all public services #####
+# Distance to all public services #####
 dist2allpubserv=min(dist2pubamen,
                     dist2schools,
                     dist2health,
@@ -1140,11 +1124,11 @@ dist2allpubserv=min(dist2pubamen,
 ```
 
 
-### Distance to businesses   
-The same approach is adopted for the distance to businesses. We start with the distance to financial services access points defined as banks and ATM.
+### Distance to Businesses   
+The same approach is adopted for the distance to businesses. We start with the distance to financial-services access points, defined as banks and ATMs.
 
 ```{r}
-# distance to FAPS ####
+# Distance to FAPS ####
 amenities=c("bank","atm")
 poi_poly_fin=as(subset(poi_poly_sh,
                        amenity%in%amenities),
@@ -1169,24 +1153,24 @@ dist2fin=min(dist2points_fin,
              dist2poly_fin)
 ```
 
-We proceed with the other businesses. These are the OpenStreetMap businesses categories considered on top of banks and ATM:
-*   Market place
-*   Food court
+We proceed with the other businesses. These are the OpenStreetMap business categories considered in addition to banks and ATMs:
+*   Market
+*   Foodcourt
 *   Restaurant
-*   Fast food
+*   Fast food vendor
 *   Cafe 
 *   Bar 
 *   Ice cream shop
 *   Pharmacy
 *   Internet cafe
 *   Cinema
-*   Fuel
+*   Fuel vendor
 
-```{r}
-# businesses in amenities
+```{r, message=FALSE,warning=FALSE}
+# Businesses in amenities
 amenities=c("marketplace","pharmacy","restaurant","fast_food","cafe","bar","ice_cream","food_court",
             "internet_cafe", "cinema","fuel","atm","bank")
-# poly
+# Poly
 poi_poly_eco=as(subset(poi_poly_sh,
                        amenity%in%amenities),
                 "SpatialPolygons")
@@ -1198,7 +1182,7 @@ poly_eco_proj_r=raster::rasterize(poi_poly_eco_proj_buffer,
                                   y=raster_dist)
 dist2poly_eco=raster::distance(poly_eco_proj_r)
 
-# points
+# Points
 poi_points_eco=as(subset(poi_points_sh,
                          amenity%in%amenities),
                   "SpatialPoints")
@@ -1208,11 +1192,11 @@ dist2points_eco=raster::distanceFromPoints(raster_dist,
                                            poi_points_eco_proj)
 ```
 
-In addition to being listed in the `amenity` field of the OSM data, shop locations are also tagged separately. Given that shops are also businesses, they are taken into account in the distance calculations. 
+In addition to being listed in the `amenity` field of the OSM data, shop locations are also tagged separately. Given that shops are businesses, they are accounted for in the distance calculations. 
 
-```{r}
-# businesses as shop
-# poly
+```{r, message=FALSE,warning=FALSE}
+# Businesses as shop
+# Poly
 poi_poly_shop=as(subset(poi_poly_sh,
                         is.na(shop)==F),
                  "SpatialPolygons")
@@ -1224,7 +1208,7 @@ poly_shop_proj_r=raster::rasterize(poi_poly_shop_proj_buffer,
                                   y=raster_dist)
 dist2poly_shop=raster::distance(poly_shop_proj_r)
 
-# points
+# Points
 poi_points_shop=as(subset(poi_points_sh,
                                    is.na(shop)==F),
                             "SpatialPoints")
@@ -1234,22 +1218,22 @@ dist2points_shop=raster::distanceFromPoints(raster_dist,
                                            poi_points_shop_proj)
 ```
 
-Finally, we gather all business-specific distance maps into one general *Distance to a businesses* map.
+Finally, we gather all business-specific distance maps into one general “Distance to businesses” map.
 
-```{r}
-# collect all businesses
+```{r, message=FALSE,warning=FALSE}
+# Collect all businesses
 dist2biz=min(dist2points_shop,
               dist2poly_shop,
               dist2points_eco,
               dist2poly_eco)
 ```
 
-### Distance to natural features
-Next we compute the distance to natural features such as the coastline, urban areas, forested areas and croplands.
+### Distance to Natural Features
+Next, we compute the distance to natural features such as the coastline, urban areas, forested areas, and croplands.
 
-We start by cropping the world coastline to El-Salvadorian boundaries. Once this operation is completed, we project the map and create the necessary buffer.
+We start by cropping the world’s coastlines to El Salvador’s boundaries. Once this operation is complete, we project the map and create the necessary buffer.
 ```{r}
-# distance to coastline
+# Distance to coastline
 coastline_c=raster::crop(coastline,
                          sp::bbox(SLV_adm0))
 coastline_proj=sp::spTransform(coastline_c,
@@ -1263,10 +1247,10 @@ dist2coast=raster::distance(coastline_proj_r)
 
 ```
 
-For the distance to the urban areas, forested areas, the croplands, and water bodies we use to `NA` pixels which are not urban, tree cover, cropland or water bodies, respectively. We then we use the function `raster::distance` which computes the distance from each `NA` pixel to the closest non `NA` pixel.  
+To determine the distance to the urban areas, forested areas, croplands, and water bodies, we use `NA` for pixels that are not urban, not tree covered, not cropland, or not water bodies, respectively. We then use the function `raster::distance` to compute the distance from each `NA` pixel to the closest non-`NA` pixel.  
 
 ```{r}
-# distance to urban area ####
+# Distance to urban area ####
 lc_urban=lc
 lc_urban=raster::calc(lc_urban,
                         fun=function(x) {ifelse(x==190,1,NA)})
@@ -1274,7 +1258,7 @@ lc_urban_proj=raster::projectRaster(lc_urban,
                                     crs=segmento_sh@proj4string)
 dist2urban=raster::distance(lc_urban_proj)
 
-# distance to forest ####
+# Distance to forest ####
 lc_tree=lc
 lc_tree=raster::calc(lc_tree,
                       fun=function(x) {ifelse(x%in%c(50,60),1,NA)})
@@ -1282,7 +1266,7 @@ lc_tree_proj=raster::projectRaster(lc_tree,
                                     crs=segmento_sh@proj4string)
 dist2tree=raster::distance(lc_tree_proj)
 
-# distance to crop ####
+# Distance to cropland ####
 lc_crop=lc
 lc_crop=raster::calc(lc_crop,
                      fun=function(x) {ifelse(x%in%c(10,20,30,40),1,NA)})
@@ -1291,7 +1275,7 @@ lc_crop_proj=raster::projectRaster(lc_crop,
 dist2crop=raster::distance(lc_crop_proj)
 
 
-# distance to water ####
+# Distance to water ####
 lc_water=lc
 lc_water=raster::calc(lc_water,
                      fun=function(x) {ifelse(x%in%c(210),1,NA)})
@@ -1301,8 +1285,8 @@ dist2water=raster::distance(lc_water_proj)
 
 ```
 
-### Stack distance maps and inspect results 
-Once the extent and resolution have been aligned with the function `raster::resample`, the distance maps are stacked with the function `raster::stack`.
+### Stack the Distance Maps and Inspect the Results 
+Once the function `raster::resample` aligns the rasters on extent and resolution, the distance maps are stacked with the function `raster::stack`.
 
 ```{r}
 dist2coast_r=raster::resample(dist2coast,
@@ -1345,9 +1329,9 @@ names(dist_stack)=c("dist2schools_priv",
                     "dist2urban_r")
 ```
 
-We can now examine the results. The next maps show the distance financial access points, businesses, private schools, public schools,  (only the code for distance to financial services access points is shown). 
+We can now examine the results. The next maps show the distances to financial-service access points, businesses, private schools, and public schools  (only the code for distance to financial-service access points is shown). 
 
-```{r dist-maps, fig.cap='Distance to financial access points', out.width='80%', fig.asp=.50,cache=T}
+```{r dist-maps, fig.cap='Distance to Financial Access Points', out.width='80%', fig.asp=.50,cache=T}
 SLV_adm0_proj=sp::spTransform(SLV_adm0,
                               segmento_sh@proj4string)
 raster::plot(dist_stack$dist2fin, main="Distance to financial access points, source: OSM")
@@ -1381,25 +1365,21 @@ sp::plot(waterbodies_proj,col="blue",add=T)
 ```
 
 
-## Spatial statistics at *segmento* level
-The raster and vector layers built above need to be matched with the EHPM survey data for them to be used in the analysis. This can be done either by: 
+## Spatial Statistics at the Segmento Level
+The raster and vector layers built above need to be matched with the EHPM survey data for them to be used in the analysis. This can be done by either (1) identifying the centroid of each segmento and extracting the value of each covariate layer at the centroid of each segmento or (2) computing the spatial average, minimum, or maximum (or other) of each covariate for each segmento.  
 
-* identifying the centroid (i.e. the middle point) of each *segmento* and extracting the value of each covariate layer at the centroid of each segmento;
-* computing the spatial average, minimum or maximum (or other) of each covariate for each *segmento*.  
+Although the first approach is simpler to implement, the second is preferred: data on poverty, income, and literacy are available at the segmento level because they are area data rather than point-referenced data. Therefore, it is best to provide spatial summary statistics at the same spatial-aggregation level rather than extracting data at the centroid of the segmento, which is an arbitrary location that might not be representative of the prevailing conditions in the segmento.
 
-Although the first approach is  simpler to implement, the second one is preferred: data on poverty, income and literacy are available at the *segmento* level, i.e. these are *area* data rather than *point-referenced* data. Therefore, it is best to provide spatial summary statistics at the same level of spatial aggregation level rather than extracting data at the centroid of the *segmento*, an arbitrary location which might not be representative of the condition prevailing in the *segmento*.
+A prerequisite for merging data is to have all data defined by the same CRS.
 
-A prerequisite for merging to the data to is to have all data defined on the same coordinates reference system.
-
-### Adjusting the Coordinates Reference System for raster extaction to *segmento*
-In order to make sure all the pre-processed RS layers are set to this same CRS, the following process is adopted:
-
-*   a list of layer is created
-*   layer with a different CRS are identified
-*   layer with a different CRS are re-projected
+### Adjusting the CRS for Raster Extraction to Segmento
+To make sure all the preprocessed RS layers are set to the same CRS, the following process is adopted:
+1. Create a list of layers
+2. Identify the layer with a different CRS
+3. Re-project the layer with the different CRS
 
 ```{r warning=FALSE}
-# create the list of rasters
+# Create the list of rasters
 rasters_list=list(chirps_summaries,
                   soil_deg,soil_deg_SDG_index,
                   ndvi_17_summaries,ndvi_17_perc_summaries,
@@ -1415,7 +1395,7 @@ rasters_list=list(chirps_summaries,
                   lc,
                   dist_stack)
 
-sum(unlist(lapply(rasters_list, raster::nlayers))) # number of layers
+sum(unlist(lapply(rasters_list, raster::nlayers))) # Number of layers
 
 names(rasters_list)=c("chirps_summaries",
                       "soil_deg","soil_deg_SDG_index",
@@ -1433,16 +1413,16 @@ names(rasters_list)=c("chirps_summaries",
                       "dist_stack")
 
 
-# identify the rasters with a different projection
+# Identify the rasters with a different projection
 different_proj=which(lapply(rasters_list,
                             FUN=function(x) sp::proj4string(x)==sp::proj4string(segmento_sh_wgs))==F)
 
-# reproject these raster to the same geographic coordinates system than Segmento
+# Reproject these rasters to the same geographic coordinates system as the segmento
 rasters_list[different_proj]=lapply(rasters_list[different_proj],
                                     FUN=function(x) raster::projectRaster(x,                                                                          crs=sp::proj4string(segmento_sh_wgs)))
 
-# turn the list items into object, i.e. replace the original raster objects with 
-# the new raster objects having the correct coordinate system
+# Turn the list items into object by replacing the original raster objects with 
+# he new raster objects with the correct coordinate system
 for(i in 1:length(rasters_list)) {
   assign(names(rasters_list)[i],
          rasters_list[[i]])
@@ -1450,10 +1430,10 @@ for(i in 1:length(rasters_list)) {
 
 ```
 
-The same is done for the list of vectors files (not shown), the only difference being that the function `raster::projectRaster` is replaced by the function `sp::spTransform` as a vector is used. 
+The same is done for the list of vector files (not shown), with the only difference being that the function `raster::projectRaster` is replaced by the function `sp::spTransform` because a vector is used. 
 
 ```{r include=FALSE, echo=FALSE}
-# create the list of vectors
+# Create the list of vectors
 vectors_list=list(LZ_sh,
                   school_sh,
                   buildings_poly_sh,
@@ -1474,17 +1454,17 @@ names(vectors_list)=c("LZ_sh",
                       "hospitals_sp",
                       "health_centres_sp")
 
-# identify the vectors with a different projection
+# Identify the vectors with a different projection
 different_proj=which(lapply(vectors_list,
                             FUN=function(x) sp::proj4string(x)==sp::proj4string(segmento_sh_wgs))==F)
 
-# reproject these vectors to the same geographic coordinates system than Segmento
+# Reproject these vectors to the same geographic coordinates system as used for segmentos 
 vectors_list[different_proj]=lapply(vectors_list[different_proj],
                                     FUN=function(x) sp::spTransform(x,
                                                                     sp::proj4string(segmento_sh_wgs)))
 
-# turn the list items into object, i.e. replace the original vectors objects 
-# with the new vectors objects having the correct coordinate system
+# Turn the list items into objects by replacing the original vectors objects 
+# ith the new vectors objects having the correct coordinate system
 for(i in 1:length(vectors_list)) {
   assign(names(vectors_list)[i],
          vectors_list[[i]])
@@ -1493,26 +1473,26 @@ for(i in 1:length(vectors_list)) {
 
 
 ### Rasters
-For each raster layer, we now need to get a summary statistics for each *segmento* area. We will start by getting *segmento* area average value for each raster layer^[Other spatial summaries could be investigated (e.g. average, median, min, max, standard deviation, sum etc.), however we focus on the mean for the sake of expediency], except for the population where we will also get the $sum$, i.e. total population count per *segmento*, and land class where we will get the percentage of segmento area for a subset of classes. 
+For each raster layer, we now need to get summary statistics for each segmento area. We will start by getting segmento area average value for each raster layer,^[Other spatial summaries could be investigated (e.g., average, median, minimum, maximum, standard deviation, sum, etc.); however, we focus on the mean for the sake of expediency.] except for the population, where we will also get the $sum$, that is, total population count per segmento, and land class, where we will get the percentage of segmento area for a subset of classes. 
 
-The package `velox` rather than standard `extract` function from the raster package is used as it is much faster^[The process took circa 2. minute and 30 seconds with `velox` while it did not complete with `raster::extract` after 2 hours on 16GB RAM PC operating under Windows 10 an Intel(R) Core(TM) i7-7700 HQ CPU \@2.8 GHz."Velox is fast because all raster computations are performed in C++ (using the excellent Rcpp API), and all data is held in memory"[@hunziker2017velox]]. 
+The package `velox` rather than the standard `extract` function from the raster package is used, as it is much faster.^[The process took about 2 minutes and 30 seconds with `velox`, while it did not complete with `raster::extract` after 2 hours on 16GB RAM PC operating under Windows 10 on an Intel(R) Core(TM) i7-7700 HQ CPU \@2.8 GHz. "Velox is fast because all raster computations are performed in C++ (using the excellent Rcpp API), and all data is held in memory"[@hunziker2017velox].]
 
-```{r eval=T}
+```{r eval=T, message=FALSE}
 rasters_extraction_list=c("chirps_summaries","soil_deg","soil_deg_SDG_index","ndvi_17_summaries","ndvi_17_perc_summaries",
                           "dem","temp_summaries","dist2road","dist2roadInter","slope","settlements","dist2water","lights_summaries","dist_stack")
-seg_r_s=c() # create a empty vector to store the extracted data
-START_e=Sys.time() # record the start time of the loop
-for(r in rasters_extraction_list){ # loop over the list of rasters
+seg_r_s=c() # Create an empty vector to store the extracted data
+START_e=Sys.time() # Record the start time of the loop
+for(r in rasters_extraction_list){ # Loop over the list of rasters
 
-  # create a velox object from the rastr
-  r_velox=velox::velox(get(r))  # The function `get(x)` interpret the character *x* as an
+  # Create a velox object from the raster
+  r_velox=velox::velox(get(r))  # The function `get(x)` interprets the character “x” as an
   # object. In the code snippet below, it allows us to loop through the list of raster names.
 
   ex.mat <- r_velox$extract(segmento_sh_wgs,
                             fun=function(x) mean(x,na.rm=T),
-                            small=T) # get the mean
+                            small=T) # Get the mean
 
-  seg_r_s=cbind(seg_r_s,ex.mat) # add the extracted data as a new column
+  seg_r_s=cbind(seg_r_s,ex.mat) # Add the extracted data as a new column
 }
 end_e=Sys.time()
 print(end_e-START_e)
@@ -1531,42 +1511,42 @@ colnames(seg_r_s)=c(names(chirps_summaries),
 ```
 
 
-For the population raster, we get the $sum$ per segmento: 
+For the population raster, we get the $sum$ per segment. 
 ```{r eval=T}
-# pop
+# Population
 r_velox=velox::velox(gpw_es)
 ex.mat_pop <- r_velox$extract(segmento_sh_wgs,
                             fun=function(x) sum(x,na.rm=T),
                             small=T) # get the sum
 colnames(ex.mat_pop)="gpw_es_TOT"
 ```
-For the land cover, we extract the share of each *segmento* area classified as:
+For land cover, we extract the share of each segmento area classified as
 
-* Urban areas:
-    +  land class: 190  
-* Tree covers area^[we focus on class 50 and 60 as those are the most present]:
-    +   land class: 50, Tree cover broadleaved evergreen closed to open (>15% of pixel area)
-    +   land class: 60, Tree cover broadleaved deciduous closed to open (>15% of pixel area)
-* Cropland:
-    +   land class: 10, Cropland rainfed
-    +   land class: 20, Cropland irrigated or post-flooding
-    +   land class: 30, Mosaic cropland (>50% of pixel area) / natural vegetation (tree	 shrub	 herbaceous cover) (<50% of pixel area)
-    +   land class: 40, Mosaic natural vegetation (tree	 shrub	 herbaceous cover) (>50% of pixel area) / cropland (<50% of pixel area)
+* Urban areas
+    +  Land class: 190  
+* Tree-cover area^[We focus on classes 50 and 60, as those are the most common.]
+    +   Land class: 50, tree cover broadleaved evergreen closed to open (>15 percent of pixel area)
+    +   Land class: 60, tree cover broadleaved deciduous closed to open (>15 percent of pixel area)
+* Cropland
+    +   Land class: 10, cropland rainfed
+    +   Land class: 20, cropland irrigated or post-flooding
+    +   Land class: 30, mosaic cropland (>50 percent of pixel area)/natural vegetation (tree/shrub/ herbaceous cover) (<50 percent of pixel area)
+    +   Land class: 40, mosaic natural vegetation (tree/shrub/herbaceous cover) (>50% of pixel area)/cropland (<50 percent of pixel area)
 
 ```{r eval=T}
-# LC ####
+# Land class ####
 r_velox=velox::velox(lc)
-# urban LC
+# Urban land class
 ex.mat_urb <- r_velox$extract(segmento_sh_wgs,
                             fun=function(x) sum(x==190,na.rm=T)/(sum(x==190,na.rm=T)+sum(x!=190,na.rm=T)),
-                            small=T) # get the sum
+                            small=T) # Get the sum
 
 # Tree cover 
 # 50;Tree cover	 broadleaved	 evergreen	 closed to open (>15%);0;100;0
 # 60;Tree cover	 broadleaved	 deciduous	 closed to open (>15%);0;160;0
 ex.mat_tree <- r_velox$extract(segmento_sh_wgs,
                             fun=function(x) sum(x%in%c(50,60, 100,110),na.rm=T)/(sum(x%in%c(50,60,100,110),na.rm=T)+sum(!(x%in%c(50,60,100,110)),na.rm=T)),
-                            small=T) # get the sum
+                            small=T) # Get the sum
 
 # crop land 
 # 10;Cropland	 rainfed;255;255;100
@@ -1575,21 +1555,21 @@ ex.mat_tree <- r_velox$extract(segmento_sh_wgs,
 # 40;Mosaic natural vegetation (tree	 shrub	 herbaceous cover) (>50%) / cropland (<50%) ;200;200;100
 ex.mat_crop <- r_velox$extract(segmento_sh_wgs,
                             fun=function(x) sum(x%in%c(10,20,30,40),na.rm=T)/(sum(x%in%c(10,20,30,40),na.rm=T)+sum(!(x%in%c(10,20,30,40)),na.rm=T)),
-                            small=T) # get the sum
+                            small=T) # Get the sum
 
 
 colnames(ex.mat_urb)="lc_urban"
 colnames(ex.mat_tree)="lc_tree"
 colnames(ex.mat_crop)="lc_crop"
 ```
-Lastly, the extracted data are added to a data frame before merging it with the *segmento* `SpatialPolygonDataframe`  by binding its columns with the function ` cbind`.
+Lastly, the extracted data are added to a data frame before merging it with the segmento `SpatialPolygonDataframe` by binding its columns with the function `cbind`.
 
 ```{r}
 seg_r=cbind(seg_r_s,
             ex.mat_pop,
             ex.mat_urb,
             ex.mat_tree,
-            ex.mat_crop) # compile the extracted data
+            ex.mat_crop) # Compile the extracted data
 seg_r_df=as.data.frame(seg_r)
 
 segmento_sh_wgs@data=cbind(segmento_sh_wgs@data,
@@ -1604,8 +1584,8 @@ segmento_sh_wgs@data=cbind(segmento_sh_wgs@data,
  
 ```
 
-#### Quality check
-We now check that the extraction worked well and did not produced any missing values. This could be caused notably by the raster layers not providing any value for small *segmentos* on islands.
+#### Quality Check
+We now check that the extraction worked well and did not produce any missing values, which could be caused by the raster layers not providing any value for small segmentos on islands.
 
 ```{r eval=T}
 missing_r=apply(segmento_sh_wgs@data,2,FUN=function(x) which(is.na(x)))
@@ -1620,16 +1600,16 @@ leaflet(SLV_adm0)%>%
 
 ```
 
-```{r map-out-1, echo=FALSE,out.width = '100%',fig.cap='Observations with no data'}
+```{r map-out-1, echo=FALSE,out.width = '100%',fig.cap='Observations with No Data'}
 knitr::include_graphics("../data/img/map_out_1.PNG")
 
 ```
-We observe on Fig. \@ref(fig:map-out-1) that most missing values are in border areas. Two main reasons explain these `NA`:
+We observe in Figure \@ref(fig:map-out-1) that most of the missing values are in border areas. Two main reasons explain these `NA`:
 
-* A lot of raster maps produced by WorldPop and HDX used boudaries produced by the open source Global Administrative Boundaries project. Unfortunately, the El Salvador boundaries in the the GADM are incorrect.   
-* Most pre-processed rasters are clipped in order to not overpass the boudaries,  coastline and waterbodies. Some small *segmentos* at the boarder, on the coast or on the shore of Lago Ilopango are hence not covered.
+* A lot of raster maps produced by WorldPop and HDX used boundaries produced by the open source Global Administrative Boundaries project. Unfortunately, El Salvador’s boundaries in the GADM are incorrect.   
+* Most preprocessed rasters are clipped to not overpass the boundaries, coastline, and bodies of water. Thus, some small segmentos at the border, on the coast, or on the shore of Lago Ilopango are not covered.
 
-The raster with missing values are listed below.
+To identify the raster with missing values, we used the code below.
 ```{r}
 missing_r=apply(segmento_sh_wgs@data,2,FUN=function(x) which(is.na(x)))
 data.frame(n_miss=unlist(lapply(missing_r,length)),
@@ -1638,7 +1618,7 @@ data.frame(n_miss=unlist(lapply(missing_r,length)),
   filter(n_miss>0)
 
 ```
-As their number is relatively small  (a max of 22 missing values for 13 covariates), we decided to simply replace the missing value by the Canton average. For the one segmento where this did not work, we used the municipio average (code not shown).
+As their number is relatively small  (a max of 22 missing values for 13 covariates), we decided to simply replace the missing value with the cantonal average. For the one segmento where this did not work, we used the municipio average (code not shown).
 
 ```{r echo=FALSE, message=FALSE, include=FALSE}
 var_miss=data.frame(n_miss=unlist(lapply(missing_r,length)),
@@ -1668,8 +1648,10 @@ segmento_sh_wgs@data=segmento_sh_wgs@data%>%
          soil_prod_state=ifelse(is.na(soil_prod_state),soil_prod_state_ct_avg,soil_prod_state),
          soil_prod_trj=ifelse(is.na(soil_prod_trj),soil_prod_trj_ct_avg,soil_prod_trj),
          soil_deg_SDG_index=ifelse(is.na(soil_deg_SDG_index),soil_deg_SDG_index_ct_avg,soil_deg_SDG_index),
-         slope=ifelse(is.na(slope),slope_ct_avg,slope))%>%
-  select(-c(dist2road_ct_avg,	dist2roadInter_ct_avg,	settlements_ct_avg,	temp_median_ct_avg,	soil_carb_ct_avg,soil_prod_prf_ct_avg,	chirps_ev_2017_ct_avg,	chirps_ev_med_ct_avg,	soil_luc_ct_avg,	soil_prod_state_ct_avg,	soil_prod_trj_ct_avg,	soil_deg_SDG_index_ct_avg,	slope_ct_avg
+         #slope=ifelse(is.na(slope),slope_ct_avg,slope)
+         )%>%
+  select(-c(dist2road_ct_avg,	dist2roadInter_ct_avg,	settlements_ct_avg,	temp_median_ct_avg,	soil_carb_ct_avg,soil_prod_prf_ct_avg,	chirps_ev_2017_ct_avg,	chirps_ev_med_ct_avg,	soil_luc_ct_avg,	soil_prod_state_ct_avg,	soil_prod_trj_ct_avg,	soil_deg_SDG_index_ct_avg
+            #,	slope_ct_avg
 ))
 
 
@@ -1694,47 +1676,56 @@ segmento_sh_wgs@data=segmento_sh_wgs@data%>%
          soil_prod_state=ifelse(is.na(soil_prod_state),soil_prod_state_mn_avg,soil_prod_state),
          soil_prod_trj=ifelse(is.na(soil_prod_trj),soil_prod_trj_mn_avg,soil_prod_trj),
          soil_deg_SDG_index=ifelse(is.na(soil_deg_SDG_index),soil_deg_SDG_index_mn_avg,soil_deg_SDG_index),
-         slope=ifelse(is.na(slope),slope_mn_avg,slope))%>%
-  select(-c(dist2road_mn_avg,	dist2roadInter_mn_avg,	settlements_mn_avg,	temp_median_mn_avg,	soil_carb_mn_avg,soil_prod_prf_mn_avg,	chirps_ev_2017_mn_avg,	chirps_ev_med_mn_avg,	soil_luc_mn_avg,	soil_prod_state_mn_avg,	soil_prod_trj_mn_avg,	soil_deg_SDG_index_mn_avg,	slope_mn_avg))
+         #slope=ifelse(is.na(slope),slope_mn_avg,slope)
+         )%>%
+  select(-c(dist2road_mn_avg,	dist2roadInter_mn_avg,	settlements_mn_avg,	temp_median_mn_avg,	soil_carb_mn_avg,soil_prod_prf_mn_avg,	chirps_ev_2017_mn_avg,	chirps_ev_med_mn_avg,	soil_luc_mn_avg,	soil_prod_state_mn_avg,	soil_prod_trj_mn_avg,	soil_deg_SDG_index_mn_avg)) # slope_mn_avg
 any(is.na(segmento_sh_wgs@data))
 ```
 
 ### Vectors
-For the vectors, a choice has to be made on the type of statistics which are desirable from each vector layer. Here are the spatial summaries statistics we will compute:
+For the vectors, a choice has to be made on the type of statistics desired from each vector layer. Here are the spatial summary statistics we will compute:
 
-*   Livelihood Zone Map: the Livelihood type of the *segmento*
-*   Schools: private and public schools, the sum of each category and their total is computed 
-*   Health facilities: hospitals and three categories of health centers, the sum of each category and the sum of categories is computed 
-*   OpenStreetMap point of interests, number of:
-    +  buildings
-    +  points of interest
-    +  shops
-    +  amenities classified in 12 categories and their sum
-    *   OpenStreetMap roads, streets or path:s
-    +  length of roads, streets or paths classified in 9 categories and their sum
-    +  density of roads, streets or paths classified in 9 categories (length of roads/*segmento* area) 
-    +  share of rural and urban roads in total road, street or path of the *segmento*. 
+*   Livelihood Zone Map: the livelihood type of a segmento
+*   Schools: private and public schools, including the sum of each category and the total number
+*   Health facilities: hospitals and three categories of health centers, including the sum of each category and the sum of categories
+*   OpenStreetMap point of interests
+    +  Buildings, including the total number
+    +  Points of interest, including the total number
+    +  Shops, including the total number
+    +  Amenities, as classified into 12 categories, including the sums within the 12 categories and the total number
+*  OpenStreetMap roads, streets, or paths
+    +  Length of roads, streets, or paths classified in nine categories and their sums
+    +  Density of roads, streets, or paths classified in nine categories (length of roads/segmento area) 
+    +  Share of rural and urban roads in total roads, streets, or paths of the segmento
     
 
-#### Livelihood zones
-As there is only on categorical value per area, the process is simple: the function `over` from the package `sp` is used to extract for each *segmento* the corresponding value of the *segmento_sh_wgs*' `SpatialPolygonDataFrame`. The result of the function `over` is a data frame with one row per segmento of the *segmento_sh_wgs*. The Livelihood zone code ("LZCODE") and Livelihood zone name ("LZNAMEEN") is then added into the original data frame of *segmento_sh_wgs*.
+#### Livelihood Zones
+As there is only one categorical value per area, the process is simple: the function `over` from the package `sp` is used to extract for each segmento the corresponding value of the “segmento_sh_wgs”' `SpatialPolygonDataFrame`. The result of the function `over` is a data frame with one row per segmento of the segmento_sh_wgs. The livelihood zone code ("LZCODE") and livelihood zone name ("LZNAMEEN") are then added into the original data frame of segmento_sh_wgs.
 ```{r}
-# extract for each  segmento  the corresponding value of the segmento_sh_wgs's SpatialPolygonDataFrame
+# For each segment, extract the corresponding value of the segmento_sh_wgs's SpatialPolygonDataFrame
+proj_WGS_84="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
+segmento_sh_wgs=sp::spTransform(segmento_sh_wgs,
+                         proj_WGS_84)
+LZ_sh=sp::spTransform(LZ_sh,
+                         proj_WGS_84)
+
 LZ_seg=sp::over(segmento_sh_wgs,
                 LZ_sh)
+
+
 LZ_seg=LZ_seg[,c("LZCODE","LZNAMEEN")]
 
-# add the LZ data to segmento shape
+# Add the livelihood zone data to segmento shape
 segmento_sh_wgs@data$LZCODE=LZ_seg$LZCODE
 segmento_sh_wgs@data$LZNAMEEN=LZ_seg$LZNAMEEN
 ```
-Checking whether there are any missing values,
+Check for any missing values.
 
 ```{r}
-# check there are no NA
+# Check there are no NA
 summary(is.na(segmento_sh_wgs@data$LZNAMEEN))
 ```
-We see that there 10 *segmentos* with no assigned livelihood zones. They are mapped on Fig \@ref(fig:map-out-2).
+We see that 10 segmentos have no assigned livelihood zones. They are mapped in Figure \@ref(fig:map-out-2).
 
 ```{r eval=T}
 missing_SEG=segmento_sh_wgs%>%
@@ -1746,12 +1737,12 @@ leaflet(SLV_adm0)%>%
   addMarkers(missing_SEG_coords[,1],missing_SEG_coords[,2])
 ```
 
-```{r map-out-2, echo=FALSE,out.width = '100%',fig.cap='Observations with no data'}
+```{r map-out-2, echo=FALSE,out.width = '100%',fig.cap='Observations with No Data'}
 knitr::include_graphics("../data/img/map_out_2.PNG")
 ```
 
 
-All the missing values are in border areas: as the livelihood zone shapefile is not perfectly aligned to the *segmento* one, some  *segmentos* fall outside the livelihood zone shapefile. A simple expedient is to replace it manually after a map inspection.
+All the missing values are in border areas: as the livelihood zone shapefile is not perfectly aligned to the segmento one, some segmentos fall outside the livelihood zone shapefile. A simple solution is to replace it manually after inspecting the map.
 ```{r}
 missing_canton=which(is.na(segmento_sh_wgs@data$LZNAMEEN)&
                        segmento_sh_wgs@data$CANTON%in%c("AREA URBANA","GUISQUIL"))
@@ -1774,18 +1765,18 @@ summary(is.na(segmento_sh_wgs@data$LZCODE))
 ```
 
 #### Schools
-Extracting the schools' and health facilities data follows the same principle. The difference is that the data are  *point* data instead of *polygon* data. The schools and health facilities datasets are hence `SpatialPointsDataFrame`. The `SpatialPointsDataFrame` are first transformed into a `SpatialPoints` object thanks to the function `as`. The function `over` is then run,  with an additional parameter specified: `fn=sum`. This tells the function `over` to compute the sum of `SpatialPoints` per *segmento*, i.e. the number of schools per *segmento*. For *segmentos* where there are no schools, the function `over` yields a `NA` value. `NA` values a replaced by zeros.
+The process of extracting the schools' and health facilities’ data follows the same principle. The difference is that the data are point data instead of polygon data. The schools and health facilities datasets are the `SpatialPointsDataFrame`. The `SpatialPointsDataFrame` is first transformed into a `SpatialPoints` object using the function `as`. The function `over` is then run, with an additional parameter specified: `fn=sum`. This tells the function `over` to compute the sum of `SpatialPoints` per segmento, that is, the number of schools per segmento. For segmentos where there are no schools, the function `over` yields an `NA` value. `NA` values a replaced by zeros.
 
 ```{r}
 # Schools 
-# total sum of schools
+# Total sum of schools
 sch_seg=sp::over(segmento_sh_wgs,
                  as(school_sh, "SpatialPoints"),
                  fn=sum,na.rm=T)
-# replace the NA value
+# Replace the NA value
 sch_seg[which(is.na(sch_seg))]=0
 ```
-The same is done for public and private schools separately. The function `subset` is used to subset only one category.
+The same process is done for public and private schools separately. The function `subset` is used to subset only one category.
 
 ```{r}
 # N public schools
@@ -1805,15 +1796,15 @@ sch_pri_seg=sp::over(segmento_sh_wgs,
 sch_pri_seg[which(is.na(sch_pri_seg))]=0
 ```
 
-Lastly, the newly created covariates are added the to `SpatialPolyongsDataFrame` *segmento_sh_wgs*.
+Lastly, the newly created covariates are added to the `SpatialPolyongsDataFrame` segmento_sh_wgs.
 ```{r}
-# add the school data to segmento shape
+# Add the school data to segmento shape
 segmento_sh_wgs@data$sch=sch_seg
 segmento_sh_wgs@data$sch_pub=sch_pub_seg
 segmento_sh_wgs@data$sch_pri=sch_pri_seg
 ```
 
-The same process is adopted for the health facilities before adding the covariate to *segmento_sh_wgs* (not shown).
+The process is repeated for health facilities before adding the covariate to segmento_sh_wgs (not shown).
 
 ```{r include=FALSE}
 # Health facilities data
@@ -1849,7 +1840,7 @@ health_intermed_seg=sp::over(segmento_sh_wgs,
                              fn=sum,na.rm=T)
 health_intermed_seg[which(is.na(health_intermed_seg))]=0
 
-# add the health facilities data to segmento shape
+# Add the health facilities data to segmento shape
 segmento_sh_wgs@data$hospital=hos_seg
 segmento_sh_wgs@data$health=health_seg
 segmento_sh_wgs@data$health_basic=health_basic_seg
@@ -1857,16 +1848,22 @@ segmento_sh_wgs@data$health_esp_seg=health_esp_seg
 segmento_sh_wgs@data$health_intermed=health_intermed_seg
 ```
 
-#### OpenStreetMap data
-The OpenStreetMap data are provided in 3 sets of files:
+#### OpenStreetMap Data
+The OpenStreetMap data are provided in three sets of files:
 
-*   buildings polygons (hotosm_slv_buildings_polygons.shp)
-*   points of interest points (hotosm_slv_points_of_interest_points.shp)
-*   points of interest polygons (hotosm_slv_points_of_interest_polygons.shp)
+*   Buildings polygons (hotosm_slv_buildings_polygons.shp)
+*   Points-of-interest points (hotosm_slv_points_of_interest_points.shp)
+*   Points-of-interest polygons (hotosm_slv_points_of_interest_polygons.shp)
 
-For the *buildings* data, the sum of building per *segmento* is computed. This provides an indication of how urban a *segmento* is.   
+For the buildings data, the sum of buildings per segmento is computed. This indicates how urban a segmento is.   
 
-```{r}
+```{r, message=FALSE}
+
+proj_WGS_84="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
+buildings_poly_sh=sp::spTransform(buildings_poly_sh,
+                         proj_WGS_84)
+
+
 build_seg=sp::over(segmento_sh_wgs,
                    as(buildings_poly_sh,
                       "SpatialPolygons"),
@@ -1874,14 +1871,19 @@ build_seg=sp::over(segmento_sh_wgs,
 build_seg[which(is.na(build_seg))]=0
 
 
-# add the building data to segmento shape
+# Add the building data to segmento shape
 segmento_sh_wgs@data$building=build_seg
 ```
 
-For the points of interests vectors (*points* and *poly*), the number of locations per segmento identified as a *Shop* in OSM, i.e. a place selling retail products or services, is calculated. This provides an indication of how urban a *segmento* is and it can also shed some light on the local economic dynamism. 
+For the points of interest vectors (*points* and *poly*), the number of locations per segmento identified as a “shop” in OSM, that is, a place selling retail products or services, is calculated. This indicates how urban a segmento is and can shed some light on local economic dynamism. 
 
-```{r}
-# shop
+```{r, message=FALSE}
+
+proj_WGS_84="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
+poi_poly_sh=sp::spTransform(poi_poly_sh,
+                         proj_WGS_84)
+
+# Shop
 shop_poly_seg=sp::over(segmento_sh_wgs,
                        as(subset(poi_poly_sh,
                                  is.na(shop)==F),
@@ -1898,12 +1900,12 @@ shop_points_seg[which(is.na(shop_points_seg))]=0
 
 shop_n=shop_points_seg+shop_poly_seg
 
-# add the shop data to segmento shape
+# Add the shop data to segmento shape
 segmento_sh_wgs@data$shop=shop_n
 
 ```
 
-Second, the number of amenities according to 11 categories is computed.
+Next, the number of amenities according to 11 categories is computed.
 ```{r osm-poi, tidy=FALSE, echo=F}
 list_amenities_lab=list("Financial access points",
                         "Marketplace",
@@ -1913,7 +1915,7 @@ list_amenities_lab=list("Financial access points",
                         "Health service",
                         "Food and drink",
                         "Culture and Education",
-                        "Fuel: petrol station",
+                        "Fuel: Petrol station",
                         "Official buildings")
 
 list_amenities=list(
@@ -1951,14 +1953,14 @@ knitr::kable(
   table_df,
   format="markdown",
   col.names=c("Category","Feature's name in the data","OSM *amenity* categories"),
-  caption = 'Open Street Maps Points of Interest',
+  caption = 'OpenStreetMaps Points of Interest',
   booktabs = TRUE
 )%>%
   kableExtra::column_spec(3, width = "7cm")
 
 ```
 
-The `for` loop below execute the extraction. 
+The `for` loop below executes the extraction. 
 ```{r}
 for(i in 1: length(list_amenities)){
   extracted_poly_seg=sp::over(segmento_sh_wgs,
@@ -1983,7 +1985,7 @@ for(i in 1: length(list_amenities)){
 }
 
 
-# add the shop data to segmento shape
+# Add the shop data to segmento shape
 unlist(list_amenities_name)
 segmento_sh_wgs@data$fin=fin
 segmento_sh_wgs@data$mkt=mkt
@@ -1998,14 +2000,14 @@ segmento_sh_wgs@data$official=official
 
 ```
 
-Lastly, a series of covariates is computed on the roads data. As the goal is to measure length, the first step is to change the coordinates reference system (CRS) of the roads vector into a projected coordinates system with units expressed in meters. The CRS of the original *segmento* data is used.
+Lastly, a series of covariates is computed on the roads data. As the goal is to measure length, the first step is to change the CRS of the roads vector into a projected coordinates system with units expressed in meters. The CRS of the original segmento data is used.
 
 ```{r}
 roads_lines_pr=sp::spTransform(roads_lines_sh,
                                sp::proj4string(segmento_sh))
 ```
 
-The OSM' roads' are then regrouped into nine categories  according to their `highway` class.
+The OSM 'roads' are then regrouped into nine categories according to their `highway` class.
 
 ```{r osm-roads, tidy=FALSE, echo=F}
 list_road_types_lab= list("Fast track",
@@ -2053,33 +2055,43 @@ knitr::kable(
   kableExtra::column_spec(3, width = "7cm")
 ```
 
-The length of roads' segments per *segmento* and according to the roads' categories is computed thanks  to the function `lineLength` applied via `over`. The results is expressed in meters, as the unit of the CRS is meters.
+The length of roads' segments per segmento and according to the roads' categories is computed using the function `lineLength` applied via `over`. The results are expressed in meters, as the unit of the CRS is meters.
 
+****
 ```{r}
-# length
+# Length of roads
+
+proj_WGS_84="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
+segmento_sh=sp::spTransform(segmento_sh,
+                         proj_WGS_84)
+
+roads_lines_pr=sp::spTransform(roads_lines_sh,
+                         proj_WGS_84)
+
 length_all_seg=sp::over(segmento_sh,
                         as(roads_lines_pr,
                            "SpatialLines"),
                         fn=lineLength,
                         na.rm=T)
+
 length_all_seg[is.na(length_all_seg)]=0
 
 for(i in 1:length(list_road_types)){
   
   roads_type_sub=subset(roads_lines_pr,
-                        highway %in%list_road_types[[i]])
+                        highway %in% list_road_types[[i]])
   
   length_seg=sp::over(segmento_sh,
                       as(roads_type_sub,
                          "SpatialLines"),
                       fn=lineLength,
-                      na.rm=T)
+                      na.rm=T)   
   length_seg[is.na(length_seg)]=0
   assign(list_road_names[[i]],
          length_seg)
 }
 
-# add road length data to the shapefile
+# Add the road length data to the shapefile
 segmento_sh_wgs@data$all_roads=length_all_seg
 segmento_sh_wgs@data$fast_track=fast_track
 segmento_sh_wgs@data$secondary=secondary
@@ -2093,10 +2105,10 @@ segmento_sh_wgs@data$unclassified=unclassified
 ```
 
 
-#### Normalizing the road data
-The road network is normalized by the area of *segmento*: we obtain the kilometers of roads per square kilometers. The density of roads is computed as the length of roads divided by the area of *segmento*. The latter is already computed in the shapefile and stored in the feature `Shape_Area`.
+#### Normalizing the Road Data
+The road network is normalized by the area of segmento: we obtain the kilometers of roads per square kilometer. The density of roads is computed as the length of roads divided by the area of segmento. The latter is already computed in the shapefile and stored in the feature `Shape_Area`.
 ```{r}
-# density: length km/area
+# Density: length km/area
 road_density_all=length_all_seg/segmento_sh@data$Shape_Area
 for(i in 1:length(list_road_types)){
   
@@ -2105,7 +2117,7 @@ for(i in 1:length(list_road_types)){
                 list_road_names[[i]]),
          density_type_i)
 }
-# add road density data to the shapefile
+# Add the road density data to the shapefile
 segmento_sh_wgs@data$dens_all_roads=road_density_all
 segmento_sh_wgs@data$dens_fast_track=dens_fast_track
 segmento_sh_wgs@data$dens_secondary=dens_secondary
@@ -2119,49 +2131,49 @@ segmento_sh_wgs@data$dens_unclassified=dens_unclassified
 ```
 
 
-### Population density
-We compute the average population density by dividing the *segmento* total population by its areas. 
+### Population Density
+We compute the average population density by dividing the segmento total population by its areas. 
 
 ```{r}
 segmento_sh_wgs@data$pop_dens=segmento_sh_wgs@data$gpw_es_TOT/segmento_sh_wgs@data$Shape_Area/10000
 ```
 
-## Merging the covariates with the EHPM data
+## Merging the Covariates with the EHPM Data
 
 The data from `SpatialPolygonDataframe` are saved to a standard data frame. 
 
-The EHPM survey data `tables/ehpm-2017.csv` are loaded, one selects only the development indicators and the the household id *idboleta*. The *idboleta* is used to match the EHPM with the segmento ID in `tables/Identificador de segmento.xlsx`. Lastly, the `SEG_ID` is used to match the survey data with the predictor.
+Once the EHPM survey data `tables/ehpm-2017.csv` are loaded, select only the development indicators and the household id “idboleta.” The idboleta is used to match the EHPM with the segmento ID in `tables/Identificador de segmento.xlsx`. Lastly, the `SEG_ID` is used to match the survey data with the predictor.
 
 
 
 ```{r}
-# save the data stored in segmento_sh_wgs@data in a standard data frame
-#select a subset of the covariates
+# Save the data stored in segmento_sh_wgs@data in a standard data frame
+# Select a subset of the covariates
 predictors=segmento_sh_wgs@data
 
-# survey data
+# Survey data
 ehpm17=read.csv(paste0(dir_data,
                        "tables/ehpm-2017.csv"))
 
-# read the files with the segmento ID and the idboleta
+# Read the files with the segmento ID and the idboleta
 segID=readxl::read_xlsx(paste0(dir_data,
                                "tables/Identificador de segmento.xlsx"),
                         sheet="2017")
 
-# select only the dev indicators
+# Select only the development indicators
 ehpm17_dev_indic=ehpm17%>%
   dplyr::select(municauto,
                 idboleta,
-                pobreza, # poverty
-                ingpe, # household income
-                r202a, #Sabe leer y escribir
-                r106 # age
+                pobreza, # Poverty
+                ingpe, # Household income
+                r202a, # Sabe leer y escribir (knows how t oread and write)
+                r106 # Age
   ) %>%
-  dplyr::rename("lit"="r202a", # rename these 2 variables
+  dplyr::rename("lit"="r202a", # Rename these 2 variables
                 "age"="r106")%>%
   dplyr::mutate(over_15=ifelse(age>=15,1,0),
                 literate=ifelse(lit==1,1,0),
-                literate_over_15=over_15*literate) # Literate over 15 years old 
+                literate_over_15=over_15*literate) # Literate and over 15 years old 
 
 # Match the survey data with the segID 
 ehpm17_seg=ehpm17_dev_indic%>%
@@ -2171,10 +2183,10 @@ ehpm17_seg=ehpm17_dev_indic%>%
 
 ```
 
-We filter out below all survey participants less than 16 years old. We compute hence development indicators for the population aged 16 years old and above.
+Below, we filter out all the survey participants who are less than 16 years old and compute development indicators for the population that is 16 years of age and above.
 
 ```{r}
-# Aggregated the survey data at the segmento level
+# Aggregate the survey data at the segmento level
 ehpm17_seg_agg=ehpm17_seg%>%
   filter(over_15==1)%>%
   group_by(SEG_ID)%>%
@@ -2195,7 +2207,7 @@ ehpm17_predictors=ehpm17_seg_agg%>%
 ```
 
 ```{r eval=FALSE}
-# write out the file
+# Write out the file
 write.csv(ehpm17_predictors,
           paste0(dir_data,
                  "out/ehpm17_predictors2.csv"),
@@ -2208,7 +2220,7 @@ write.csv(ehpm17_predictors,
 print(paste(ncol(ehpm17_predictors)-21, "predictors"))
 ```
 
-The csv file `out/ehpm17_predictors.csv` contains the 79 predictors derived above plus the following development indicators:
+The .csv file `out/ehpm17_predictors.csv` contains the 79 predictors derived above plus the following development indicators:
 
 
 ```{r dev-indic, tidy=FALSE, echo=F}
@@ -2232,18 +2244,18 @@ knitr::kable(
 ```
 
 ## Summary
-The process of going from *raw* RS layers to a `SpatialPolygonDataframe` ready for analysis can be summarized  as follows:
+The process of going from raw RS layers to a `SpatialPolygonDataframe` ready for analysis can be summarized as follows:
 
-*   load the RS layers 
-*   create summaries for RS layers which come with a time dimension (e.g. average precipitation over the last thirthy years) 
-*   perform additional raster calculation as required (e.g. compute the Soil degradation index based on soil degradation sub-indicator)
-*   compute distance metrics to public services, businesses and some natural features
-*   align the Coordinates reference systems across layers (geographic or projected)
-*   aggregate the RS layers to the map of interest (e.g. the *segmento* map) with a chosen set of spatial statistics
-*   match the RS aggregates with the outcome data (poverty, income, literay) 
-*   write the data frame to a `.csv` file for later use
+*   Load the RS layers.
+*   Create summaries for the RS layers that come with a time dimension (e.g., average precipitation over the last 30 years).
+*   Perform additional raster calculation as required (e.g., compute the Soil degradation index based on a soil degradation sub-indicator).
+*   Compute the distance metrics to public services, businesses, and some natural features.
+*   Align the CRSs across layers (geographic or projected).
+*   Aggregate the RS layers to the map of interest (e.g., the segmento map) with a chosen set of spatial statistics.
+*   Match the RS aggregates with the outcome data (poverty, income, literacy).
+*   Write the data frame to a `.csv` file for later use.
 
-The 22 main data sources listed on the next table are summarized in the `SpatialPolygonDataframe` *segmento_sh_wgs* into 79 *segmento* level spatial statistics listed on table \@ref(tab:candidates-covariates). These are the candidate covariates to predict average income, poverty and literacy measured in the in the 2017 EHPM survey.
+The 22 main data sources listed on the next table are summarized in the `SpatialPolygonDataframe` “segmento_sh_wgs” into 79 segmento-level spatial statistics listed in Table \@ref(tab:candidates-covariates). These are the candidate covariates to predict average income, poverty, and literacy measured in the 2017 EHPM survey.
 
 
 ```{r candidates-covariates, tidy=FALSE, echo=F}
@@ -2284,8 +2296,4 @@ knitr::kable(
   kableExtra::column_spec(3, width = "7cm")
 
 ```
-
-In the next next section, we explore these data and their link with average income, poverty and literacy. 
-
-
 
