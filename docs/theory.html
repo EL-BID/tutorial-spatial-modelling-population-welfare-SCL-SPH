@@ -418,7 +418,7 @@ which reads as the posterior distribution of <span class="math inline">\(\beta\)
 \]</span></p>
 <p>where <span class="math inline">\(\mathbf{A}\)</span> is <span class="math inline">\(1\)</span> if the areas are neighboring and <span class="math inline">\(0\)</span> otherwise, and <span class="math inline">\(\phi\)</span> needs to be estimated: the larger it is, the more the random effects are correlated. The intrinsic CAR models set <span class="math inline">\(\phi\)</span> to 1.</p>
 <p>One of the issues with CAR models is that they lead to overfitting, that is, models perform well on the training data set but poorly on out-of-sample predictions on the test set for validation purposes.</p>
-<p>A solution is to smooth the pattern of the spatial random effects. With a lower <span class="math inline">\(\sigma^{2}_{CAR}\)</span>, the <span class="math inline">\(\upsilon\)</span> will vary less from neighbor to neighbor, leading to less overfit. To push the <span class="math inline">\(\sigma^{2}_{CAR}\)</span> lower, it is possible to work on the priors. The standard way of doing this is by using penalized complexity priors whereby one specifies the probability that <span class="math inline">\(\sigma^{2}_{CAR}\)</span> will be larger than a given number. To further limit the risk of overfitting, decompose the spatial random effects into one part that is spatially correlated and another that is pure noise. This is called the modified Besag-York-Mollie <span class="citation">(Simpson et al. <a href="#ref-simpson2017penalising" role="doc-biblioref">2017</a>)</span>, which we will be using in the next section.</p>
+<p>A solution is to smooth the pattern of the spatial random effects. With a lower <span class="math inline">\(\sigma^{2}_{CAR}\)</span>, the <span class="math inline">\(\upsilon\)</span> will vary less from neighbor to neighbor, leading to less overfit. To push the <span class="math inline">\(\sigma^{2}_{CAR}\)</span> lower, it is possible to work on the priors. The standard way of doing this is by using penalized complexity priors whereby one specifies the probability that <span class="math inline">\(\sigma^{2}_{CAR}\)</span> will be larger than a given number. To further limit the risk of overfitting, decompose the spatial random effects into one part that is spatially correlated and another that is pure noise. This is called the modified Besag-York-Mollie <span class="citation">(Simpson and al. <a href="#ref-simpson2017penalising" role="doc-biblioref">2017</a>)</span>, which we will be using in the next section.</p>
 </div>
 <div id="estimating-the-model-with-point-referenced-data" class="section level3">
 <h3><span class="header-section-number">8.2.4</span> Estimating the Model with Point-Referenced Data</h3>
@@ -465,13 +465,13 @@ y(s_{i})\sim N(\mu(s_{i}),\sigma^2),
 <h3>References</h3>
 <div id="refs" class="references">
 <div id="ref-blangiardo2015spatial">
-<p>Blangiardo, Marta, and Michela Cameletti. 2015. <em>Spatial and Spatio-Temporal Bayesian Models with R-Inla</em>. John Wiley &amp; Sons.</p>
+<p>Blangiardo, M., and M. Cameletti. 2015. <em>Spatial and Spatio-Temporal Bayesian Models with R-Inla</em>. John Wiley &amp; Sons.</p>
 </div>
 <div id="ref-simpson2017penalising">
-<p>Simpson, Daniel, Håvard Rue, Andrea Riebler, Thiago G Martins, Sigrunn H Sørbye, and others. 2017. “Penalising Model Component Complexity: A Principled, Practical Approach to Constructing Priors.” <em>Statistical Science</em> 32 (1): 1–28.</p>
+<p>Simpson, D., and H. Rueand A. Riebler et al. 2017. “Penalising Model Component Complexity: A Principled, Practical Approach to Constructing Priors.” <em>Statistical Science</em> 32 (1): 1–28.</p>
 </div>
 <div id="ref-zuur2017beginner">
-<p>Zuur, Alain F, Elena N Ieno, and Anatoly A Saveliev. 2017. <em>Beginner’s Guide to Spatial, Temporal, and Spatial-Temporal Ecological Data Analysis with R-Inla</em>.</p>
+<p>Zuur, A. F., E. N. Ieno, and A. A. Saveliev. 2017. <em>Beginner’s Guide to Spatial, Temporal, and Spatial-Temporal Ecological Data Analysis with R-Inla.</em> Vol. 1. Highland Statistics Ltd.</p>
 </div>
 </div>
             </section>
