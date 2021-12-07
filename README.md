@@ -1,3 +1,6 @@
+![analytics image (flat)](https://raw.githubusercontent.com/vitr/google-analytics-beacon/master/static/badge-flat.gif)
+
+![analytics](https://www.google-analytics.com/collect?v=1&cid=555&t=pageview&ec=repo&ea=open&dp=/tutorial-spatial-modelling-population-welfare-SCL-SPH/readme&dt=&tid=UA-4677001-16)
 # Tutorial Spatial Modelling Population Welfare (El Salvador)
 
 This report introduces high resolution mapping based on Bayesian geospatial techniques implemented in the open source statistical computing environment R [@R2018]. The core of the modelling method is implemented in the R package `INLA` [@INLA_theory_1;@INLA_theory_2;@INLA_R_1;@INLA_R_2]. The emphasis is on providing and explaining the R codes required to go from the *raw* data to the final maps.
